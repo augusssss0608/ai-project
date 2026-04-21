@@ -1,0 +1,5 @@
+type: rss
+params:
+  url: https://www.qbitai.com/feed
+  time_window_hours: 48
+  limit: 15

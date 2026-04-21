@@ -1,0 +1,5 @@
+type: rss
+params:
+  url: https://www.ithome.com.tw/rss
+  time_window_hours: 48
+  limit: 15

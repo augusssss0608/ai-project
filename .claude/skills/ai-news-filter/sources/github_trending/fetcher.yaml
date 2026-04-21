@@ -1,0 +1,4 @@
+type: github_trending
+params:
+  since: daily
+  limit: 20

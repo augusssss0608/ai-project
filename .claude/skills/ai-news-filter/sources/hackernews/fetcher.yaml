@@ -1,0 +1,7 @@
+type: hn_algolia
+params:
+  query: "AI OR Claude OR Anthropic OR LLM OR MCP OR OpenAI OR Gemini OR DeepSeek"
+  sort_by: points
+  time_window_hours: 48
+  min_points: 30
+  limit: 20
