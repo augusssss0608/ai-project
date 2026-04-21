@@ -243,3 +243,24 @@ def fetch_rss(params: dict) -> list:
         except Exception:
             kept.append(it)
     return kept[:limit]
+
+
+ARTICLE_TIMEOUT = 30
+ARTICLE_MAX_CHARS = 6000
+
+
+def fetch_article_text(url: str) -> tuple:
+    """用 Jina Reader 抓文章正文. 返回 (text, err_str).
+    text 去掉图片 md / 压缩空行, 截取到 ARTICLE_MAX_CHARS."""
+    if not url or not url.startswith(("http://", "https://")):
+        return "", "invalid url"
+    jina_url = JINA_READER_PREFIX + url
+    try:
+        raw = _fetch(jina_url, timeout=ARTICLE_TIMEOUT).decode("utf-8", errors="replace")
+        raw = re.sub(r"!\[[^\]]*\]\([^)]+\)", "", raw)
+        raw = re.sub(r"\n{3,}", "\n\n", raw)
+        return raw[:ARTICLE_MAX_CHARS].strip(), ""
+    except urllib.error.HTTPError as e:
+        return "", f"jina http {e.code}"
+    except Exception as e:
+        return "", f"{type(e).__name__}: {e}"
