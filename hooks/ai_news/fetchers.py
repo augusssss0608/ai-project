@@ -176,6 +176,7 @@ def fetch_github_trending(params: dict) -> list:
             "title": it["title"],
             "url": it["url"],
             "desc": (it["desc"] or "")[:200],
+            "ts": _now_iso(),
             "lang": it["lang"],
             "stars": it["stars"],
             "today_stars": it["today_stars"],
