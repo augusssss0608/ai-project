@@ -39,10 +39,10 @@
 
 ```
 on_wakeup():
-  # 0. 工作窗口闸门: 仅在 3:00-10:59 (本地时区) 内做事
-  # 范围覆盖 3:00-10:00 工作时段 + 10:00-10:30 生产抓取时段
+  # 0. 工作窗口闸门: 仅在 3:00-9:59 (本地时区) 内做事
+  # 仅约束本 plan 的实施 /loop; 生产阶段 ai-news-fetch 由另起 /loop 独立调度, 不读本 plan
   now = datetime.now(LOCAL_TZ)
-  if not (3 <= now.hour <= 10):
+  if not (3 <= now.hour < 10):
     # 不在窗口, 算距下一个 3:00 的秒数
     if now.hour < 3:
       target = datetime.combine(now.date(), time(3, 0), tzinfo=LOCAL_TZ)
@@ -104,13 +104,13 @@ on_wakeup():
 ```
 
 **关键约束**:
-- **工作窗口仅 3:00-10:59** (本地时区, 覆盖 3-10 点工作 + 10:00 生产抓取). 窗口外唤醒只做一件事: `ScheduleWakeup` 到下一个 3:00. 不读 progress, 不跑 task, 不改文件. 紧急插单请直接在 /loop 会话里发消息打断 ScheduleWakeup.
+- **工作窗口仅 3:00-9:59** (本地时区). 窗口外唤醒只做一件事: `ScheduleWakeup` 到下一个 3:00. 不读 progress, 不跑 task, 不改文件. 紧急插单请直接在 /loop 会话里发消息打断 ScheduleWakeup.
 - 只有三种情况 ScheduleWakeup (本轮 /loop 合法结束): **(a)** task 完成 + 测试通过 + commit 成功; **(b)** BLOCKED 转 MANUAL 等人; **(c)** 窗口外直接跳到下一个 3:00.
 - 任务失败的 retry 在**同一轮**内做, 不浪费下一次唤醒
 - 单次唤醒 >= 45 分钟强制暂停 (避免 context 爆) → 标 BLOCKED, 下次唤醒从这里继续
 - **禁止 /loop 为了通过测试而改测试** (作弊, 藏 bug)
 - **禁止 /loop 跳过 MANUAL 任务** (写 NEED-HUMAN-INPUT 挂起, 不能假装完成)
-- 窗口闸门**不影响**生产阶段 (Chunk 2 以后) ai-news-fetch skill 的 10:00 抓取逻辑 — 那套调度独立于此闸门, 见 §2.6 skill 设计.
+- 窗口闸门**只约束本 plan 的实施 /loop**. 生产阶段的 ai-news-fetch 由用户另起 /loop 会话执行, 该会话读自己的 skill 调度 (10:00 抓取), **不读本 plan**, 与本窗口无关.
 
 ---
 
