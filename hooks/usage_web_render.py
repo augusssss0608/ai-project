@@ -1441,7 +1441,7 @@ def _render_news_panel(parts: list):
     if data.get("_missing"):
         parts.append(
             "<div class='empty-note'>"
-            "尚未生成数据. 运行 <code>python3 ~/.claude/hooks/fetch-ai-news.py</code> "
+            "尚未生成数据. 运行 <code>python3 ~/Desktop/ai-project/hooks/fetch-ai-news.py</code> "
             "或点击右上角「刷新」."
             "</div>"
         )

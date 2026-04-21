@@ -25,10 +25,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import usage_web_summary as summary_mod
 
 
-DB_FILE = os.path.expanduser("~/.claude/usage-stats/events.db")
-NEWS_JSON_PATH = os.path.expanduser("~/.claude/usage-stats/ai-news.json")
-NEWS_VOTES_PATH = os.path.expanduser("~/.claude/usage-stats/ai-news-feedback.json")
-NEWS_FETCHER_PATH = os.path.expanduser("~/.claude/hooks/fetch-ai-news.py")
+DB_FILE = os.path.expanduser("~/Desktop/ai-project/data/events.db")
+NEWS_JSON_PATH = os.path.expanduser("~/Desktop/ai-project/data/ai-news.json")
+NEWS_VOTES_PATH = os.path.expanduser("~/Desktop/ai-project/data/ai-news-feedback.json")
+NEWS_FETCHER_PATH = os.path.expanduser("~/Desktop/ai-project/hooks/fetch-ai-news.py")
 PROJECT_ROOT = os.environ.get("LIVE_APP_PATH", "/Users/augus/Desktop/开发项目/live_app")
 USER_HOME = os.path.expanduser("~")
 # A4: memory 路径去硬编码

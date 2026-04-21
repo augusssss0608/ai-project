@@ -3,10 +3,10 @@
 
 从多个公开源抓取 AI/Claude 相关新闻与开源项目, 聚合成 JSON 供 dashboard 消费.
 
-输出: ~/.claude/usage-stats/ai-news.json
+输出: ~/Desktop/ai-project/data/ai-news.json
 
 可手动运行, 也可挂 cron:
-    0 8 * * * /usr/bin/env python3 ~/.claude/hooks/fetch-ai-news.py
+    0 8 * * * /usr/bin/env python3 ~/Desktop/ai-project/hooks/fetch-ai-news.py
 """
 import json
 import os
@@ -17,7 +17,7 @@ import urllib.parse
 from datetime import datetime, timezone
 from html.parser import HTMLParser
 
-OUT_PATH = os.path.expanduser("~/.claude/usage-stats/ai-news.json")
+OUT_PATH = os.path.expanduser("~/Desktop/ai-project/data/ai-news.json")
 TIMEOUT = 12
 UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) claude-code-dashboard/1.0"
 

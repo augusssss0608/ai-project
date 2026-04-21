@@ -13,7 +13,7 @@
 
 set -e
 
-LOG_DIR="$HOME/.claude/usage-stats"
+LOG_DIR="$HOME/Desktop/ai-project/data"
 DB="$LOG_DIR/events.db"
 ARCHIVE_LOG="$LOG_DIR/archive-log.jsonl"
 USER_SKILLS_DIR="$HOME/.claude/skills"

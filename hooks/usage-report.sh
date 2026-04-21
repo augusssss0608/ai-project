@@ -7,7 +7,7 @@
 #   usage-report.sh 30 skill       # 最近 30 天，只看 skill
 #   类别: skill | clinerule | subagent | explicit | claude | agents | memory | all
 
-DB_FILE="$HOME/.claude/usage-stats/events.db"
+DB_FILE="$HOME/Desktop/ai-project/data/events.db"
 DAYS="${1:-30}"
 KIND="${2:-all}"
 

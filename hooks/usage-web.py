@@ -66,7 +66,7 @@ def is_direct_local(headers) -> bool:
 
 
 # 禁用工具: archive 的核心逻辑 (web 端复用)
-ARCHIVE_LOG_PATH = os.path.expanduser("~/.claude/usage-stats/archive-log.jsonl")
+ARCHIVE_LOG_PATH = os.path.expanduser("~/Desktop/ai-project/data/archive-log.jsonl")
 
 
 # ============================================================

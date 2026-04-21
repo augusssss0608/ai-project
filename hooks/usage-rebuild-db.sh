@@ -14,7 +14,7 @@
 
 set -e
 
-LOG_DIR="$HOME/.claude/usage-stats"
+LOG_DIR="$HOME/Desktop/ai-project/data"
 JSONL="$LOG_DIR/events.jsonl"
 DB="$LOG_DIR/events.db"
 APPLY=0

@@ -13,8 +13,8 @@ from datetime import datetime
 # ============================================================
 # 常量
 # ============================================================
-CACHE_PATH = os.path.expanduser("~/.claude/usage-stats/summaries.json")
-QUOTA_PATH = os.path.expanduser("~/.claude/usage-stats/summary-quota.json")
+CACHE_PATH = os.path.expanduser("~/Desktop/ai-project/data/summaries.json")
+QUOTA_PATH = os.path.expanduser("~/Desktop/ai-project/data/summary-quota.json")
 MODEL = os.environ.get("CLAUDE_SUMMARY_MODEL", "claude-haiku-4-5")
 DAILY_LIMIT = int(os.environ.get("CLAUDE_SUMMARY_DAILY_LIMIT", "100"))
 MAX_INFLIGHT = int(os.environ.get("CLAUDE_SUMMARY_MAX_INFLIGHT", "8"))

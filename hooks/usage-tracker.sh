@@ -2,7 +2,7 @@
 # Usage tracker: 记录 skill SKILL.md / .clinerules 文件 Read、subagent 派发、显式 Skill 调用
 # 挂在 PostToolUse 上，单文件追加 JSONL 日志
 
-LOG_DIR="$HOME/.claude/usage-stats"
+LOG_DIR="$HOME/Desktop/ai-project/data"
 LOG_FILE="$LOG_DIR/events.jsonl"
 DB_FILE="$LOG_DIR/events.db"
 ERR_FILE="$LOG_DIR/tracker-errors.log"

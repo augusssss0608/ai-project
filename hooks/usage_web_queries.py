@@ -62,7 +62,7 @@ def query_subproject_health(conn, days: int):
     """子项目健康: 返回 {subproject: {last_activity, event_count, error_count, cold_count}}."""
     owner_activity = query_owner_activity(conn, days)
     error_count = 0
-    err_file = f"{USER_HOME}/.claude/usage-stats/tracker-errors.log"
+    err_file = f"{USER_HOME}/Desktop/ai-project/data/tracker-errors.log"
     recent_cutoff = datetime.now(timezone.utc) - timedelta(days=7)
     if os.path.isfile(err_file):
         try:
@@ -720,7 +720,7 @@ def query_health_back(conn, owner: str, days: int) -> dict:
         hour_key = (now - timedelta(hours=i)).strftime("%Y-%m-%dT%H")
         hourly.append((hour_key, hourly_map.get(hour_key, 0)))
     # 錯誤日誌讀取
-    err_file = f"{USER_HOME}/.claude/usage-stats/tracker-errors.log"
+    err_file = f"{USER_HOME}/Desktop/ai-project/data/tracker-errors.log"
     errors = []
     if os.path.isfile(err_file):
         try:
