@@ -264,3 +264,43 @@ def fetch_article_text(url: str) -> tuple:
         return "", f"jina http {e.code}"
     except Exception as e:
         return "", f"{type(e).__name__}: {e}"
+
+
+_TYPE_DISPATCH = {
+    "hn_algolia": fetch_hn_algolia,
+    "github_trending": fetch_github_trending,
+    "rss": fetch_rss,
+}
+
+
+def fetch_one(source_id: str, fetcher_yaml: dict) -> dict:
+    """对单个源执行抓取. 返回 {id, label, source_url, items, error, updated_at}."""
+    t = fetcher_yaml.get("type", "")
+    params = fetcher_yaml.get("params", {})
+    fn = _TYPE_DISPATCH.get(t)
+    if fn is None:
+        return {"id": source_id, "items": [], "error": f"unknown type: {t}", "updated_at": _now_iso()}
+    try:
+        items = fn(params)
+        return {"id": source_id, "items": items, "error": None, "updated_at": _now_iso()}
+    except Exception as e:
+        return {"id": source_id, "items": [], "error": f"{type(e).__name__}: {e}",
+                "updated_at": _now_iso()}
+
+
+def fetch_all(sources_config: list) -> list:
+    """并行 (ThreadPoolExecutor) 抓取所有源.
+    sources_config 每项: {id, label, source_url, fetcher: {type, params}}
+    返回: [{id, label, source_url, items, error, updated_at}, ...]
+    """
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    results = {s["id"]: None for s in sources_config}
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        futs = {pool.submit(fetch_one, s["id"], s["fetcher"]): s for s in sources_config}
+        for fut in as_completed(futs):
+            s = futs[fut]
+            res = fut.result()
+            res["label"] = s.get("label", s["id"])
+            res["source_url"] = s.get("source_url", "")
+            results[s["id"]] = res
+    return [results[s["id"]] for s in sources_config]
