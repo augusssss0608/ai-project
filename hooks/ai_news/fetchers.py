@@ -86,3 +86,100 @@ def fetch_hn_algolia(params: dict) -> list:
     }
     items.sort(key=key_map.get(sort_by, key_map["points"]), reverse=True)
     return items[:limit]
+
+
+GITHUB_TRENDING_URL_TPL = "https://github.com/trending?since={since}"
+
+
+class _TrendingParser(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.items = []
+        self._cur = None
+        self._capture = None
+        self._buf = []
+        self._in_article = False
+
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs)
+        cls = a.get("class", "")
+        if tag == "article" and "Box-row" in cls:
+            self._in_article = True
+            self._cur = {"title": "", "url": "", "desc": "", "lang": "",
+                         "stars": "", "today_stars": "", "today_stars_int": 0}
+            return
+        if not self._in_article:
+            return
+        if tag == "h2":
+            self._capture = "h2"
+        elif self._capture == "h2" and tag == "a" and a.get("href"):
+            href = a["href"].strip()
+            if href.startswith("/"):
+                self._cur["url"] = "https://github.com" + href
+        elif tag == "p" and "col-9" in cls:
+            self._capture = "desc"; self._buf = []
+        elif tag == "span" and a.get("itemprop") == "programmingLanguage":
+            self._capture = "lang"; self._buf = []
+        elif tag == "a" and "Link--muted" in cls and "/stargazers" in a.get("href", ""):
+            self._capture = "stars"; self._buf = []
+        elif tag == "span" and "float-sm-right" in cls:
+            self._capture = "today"; self._buf = []
+
+    def handle_data(self, data):
+        if not self._in_article or not self._capture:
+            return
+        if self._capture == "h2":
+            self._cur["title"] += data
+        else:
+            self._buf.append(data)
+
+    def handle_endtag(self, tag):
+        if not self._in_article:
+            return
+        if self._capture == "h2" and tag == "h2":
+            self._cur["title"] = re.sub(r"\s+", "", self._cur["title"])
+            self._capture = None
+        elif self._capture == "desc" and tag == "p":
+            self._cur["desc"] = "".join(self._buf).strip()
+            self._capture = None; self._buf = []
+        elif self._capture == "lang" and tag == "span":
+            self._cur["lang"] = "".join(self._buf).strip()
+            self._capture = None; self._buf = []
+        elif self._capture == "stars" and tag == "a":
+            self._cur["stars"] = "".join(self._buf).strip()
+            self._capture = None; self._buf = []
+        elif self._capture == "today" and tag == "span":
+            ts = "".join(self._buf).strip()
+            self._cur["today_stars"] = ts
+            m = re.search(r"\d+", ts.replace(",", ""))
+            self._cur["today_stars_int"] = int(m.group()) if m else 0
+            self._capture = None; self._buf = []
+        elif tag == "article" and self._in_article:
+            if self._cur and self._cur["title"]:
+                self.items.append(self._cur)
+            self._in_article = False
+            self._cur = None
+            self._capture = None
+            self._buf = []
+
+
+def fetch_github_trending(params: dict) -> list:
+    since = params.get("since", "daily")
+    limit = int(params.get("limit", 20))
+    url = GITHUB_TRENDING_URL_TPL.format(since=since)
+    raw = _fetch(url).decode("utf-8", errors="ignore")
+    p = _TrendingParser()
+    p.feed(raw)
+    items = []
+    for it in p.items[:limit]:
+        items.append({
+            "title": it["title"],
+            "url": it["url"],
+            "desc": (it["desc"] or "")[:200],
+            "lang": it["lang"],
+            "stars": it["stars"],
+            "today_stars": it["today_stars"],
+            "today_stars_int": it["today_stars_int"],
+        })
+    items.sort(key=lambda x: x["today_stars_int"], reverse=True)
+    return items
