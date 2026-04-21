@@ -238,7 +238,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         u = urlparse(self.path)
         if u.path not in ("/archive", "/restore", "/clear-summary-cache",
-                          "/news/refresh", "/news/vote"):
+                          "/news/vote"):
             self.send_response(404); self.end_headers(); return
         # 中等安全: 拒绝 cloudflare tunnel 转发的写操作
         if not is_direct_local(self.headers):
@@ -251,30 +251,7 @@ class Handler(BaseHTTPRequestHandler):
             n = _clear_summary_cache()
             self._send_json(200, {"ok": True, "cleared": n})
             return
-        if u.path == "/news/refresh":
-            # Haiku 摘要 + Opus 分析耗时较长, 默认 15 分钟超时
-            # 查询参数 ?no_summary=1 时跳过摘要生成, 走快速抓取
-            qp = parse_qs(u.query) if u.query else {}
-            if "no_summary" in qp:
-                cmd = ["python3", NEWS_FETCHER_PATH, "--no-summary"]
-                timeout = 90
-            else:
-                cmd = ["python3", NEWS_FETCHER_PATH]
-                timeout = 900
-            try:
-                proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
-                ok = proc.returncode == 0
-                self._send_json(200 if ok else 500, {
-                    "ok": ok,
-                    "stdout": proc.stdout[-500:],
-                    "stderr": proc.stderr[-500:],
-                    "returncode": proc.returncode,
-                })
-            except subprocess.TimeoutExpired:
-                self._send_json(504, {"ok": False, "error": f"fetcher timeout (>{timeout}s)"})
-            except Exception as e:
-                self._send_json(500, {"ok": False, "error": str(e)})
-            return
+
         if u.path == "/news/vote":
             import json as _j
             length = int(self.headers.get("Content-Length", "0"))
