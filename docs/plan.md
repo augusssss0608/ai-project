@@ -95,15 +95,18 @@ on_wakeup():
   if all_tests_pass AND file_creates_succeed AND commit_succeed:
     mark plan.md 对应 checkbox [x]
     update progress.{json,md} + append log
+    TG_notify("[ai-project] Task X.Y ✓ <模块名> — <测试结果>, commit: <hash7>")
     ScheduleWakeup(60s)  # 本轮合法结束, 下一轮立刻开始下一个 task
   else:
     # 任务失败, 本轮不能结束
     progress.blocked_on = {type: "AUTO_FAIL", task: X.Y, error: ...}
     progress.error_count = 1
+    TG_notify("[ai-project] Task X.Y ✗ AUTO_FAIL — <错误摘要>, 进入 retry")
     loop 回第 1 步  # 立刻进入 retry 流程, 不 ScheduleWakeup
 ```
 
 **关键约束**:
+- **每个 task 完成后发 TG**: commit 成功后立即 `send_message` 一行通知 (格式: `[ai-project] Task X.Y ✓ <模块> — <测试结果>, commit: <hash7>`). 失败/BLOCKED 也发通知.
 - **工作窗口仅 3:00-9:59** (本地时区). 窗口外唤醒只做一件事: `ScheduleWakeup` 到下一个 3:00. 不读 progress, 不跑 task, 不改文件. 紧急插单请直接在 /loop 会话里发消息打断 ScheduleWakeup.
 - 只有三种情况 ScheduleWakeup (本轮 /loop 合法结束): **(a)** task 完成 + 测试通过 + commit 成功; **(b)** BLOCKED 转 MANUAL 等人; **(c)** 窗口外直接跳到下一个 3:00.
 - 任务失败的 retry 在**同一轮**内做, 不浪费下一次唤醒
@@ -488,7 +491,7 @@ c2cd651 chore(migrate): copy stats system code from ~/.claude/hooks/
 - Create: `~/Desktop/ai-project/.claude/skills/ai-news-filter/sources/qbitai/fetcher.yaml`
 - Create: `~/Desktop/ai-project/.claude/skills/ai-news-filter/sources/ithome_tw/fetcher.yaml`
 
-- [ ] **Step 1: 安装 PyYAML 硬依赖** (reviewer 反馈 Blocker #1)
+- [x] **Step 1: 安装 PyYAML 硬依赖** (reviewer 反馈 Blocker #1)
 
 Run: `pip3 install PyYAML`
 Expected: 安装成功或 "already satisfied".
@@ -498,7 +501,7 @@ Expected: 打印版本号.
 
 若失败: 使用 `pip3 install --user PyYAML` 或 `python3 -m pip install PyYAML`.
 
-- [ ] **Step 2: 建 Python 模块目录 + 空 init**
+- [x] **Step 2: 建 Python 模块目录 + 空 init**
 
 ```bash
 mkdir -p ~/Desktop/ai-project/hooks/ai_news/tests
@@ -506,14 +509,14 @@ touch ~/Desktop/ai-project/hooks/ai_news/__init__.py
 touch ~/Desktop/ai-project/hooks/ai_news/tests/__init__.py
 ```
 
-- [ ] **Step 3: 建 sources 数据目录**
+- [x] **Step 3: 建 sources 数据目录**
 
 ```bash
 mkdir -p ~/Desktop/ai-project/.claude/skills/ai-news-filter/sources/{hackernews,github_trending,qbitai,ithome_tw}
 mkdir -p ~/Desktop/ai-project/.claude/skills/ai-news-filter/reference
 ```
 
-- [ ] **Step 4: 写 4 个 fetcher.yaml** (前置到 Chunk 1, 避免 Chunk 3 之前抓取无 config)
+- [x] **Step 4: 写 4 个 fetcher.yaml** (前置到 Chunk 1, 避免 Chunk 3 之前抓取无 config)
 
 `~/Desktop/ai-project/.claude/skills/ai-news-filter/sources/hackernews/fetcher.yaml`:
 ```yaml
@@ -552,12 +555,12 @@ params:
   limit: 15
 ```
 
-- [ ] **Step 5: 验证**
+- [x] **Step 5: 验证**
 
 Run: `ls ~/Desktop/ai-project/hooks/ai_news/ ~/Desktop/ai-project/.claude/skills/ai-news-filter/sources/*/fetcher.yaml`
 Expected: Python 目录存在 + 4 个 fetcher.yaml 都存在.
 
-- [ ] **Step 6: Mark complete**
+- [x] **Step 6: Mark complete**
 
 **注意**: Chunk 3 的 Task 3.1-3.4 只写 `source.md` + `examples.md`, 不再写 fetcher.yaml (已前置到这里).
 
@@ -570,7 +573,7 @@ Expected: Python 目录存在 + 4 个 fetcher.yaml 都存在.
 - Create: `~/Desktop/ai-project/hooks/ai_news/tests/test_filters.py`
 - Reference: `~/Desktop/ai-project/hooks/fetch-ai-news.py:45-108` (v1 原正则)
 
-- [ ] **Step 1: 写测试 `tests/test_filters.py`**
+- [x] **Step 1: 写测试 `tests/test_filters.py`**
 
 ```python
 import unittest
@@ -610,12 +613,12 @@ if __name__ == "__main__":
     unittest.main()
 ```
 
-- [ ] **Step 2: Run test 验证它失败**
+- [x] **Step 2: Run test 验证它失败**
 
 Run: `cd ~/Desktop/ai-project/hooks && python -m unittest ai_news.tests.test_filters -v`
 Expected: `ModuleNotFoundError: No module named 'ai_news.filters'`
 
-- [ ] **Step 3: 写 `filters.py`**
+- [x] **Step 3: 写 `filters.py`**
 
 ```python
 """硬规则过滤 (沿用 v1 fetch-ai-news.py 的正则黑白名单).
@@ -691,12 +694,12 @@ def apply_hard_filter(items: list) -> list:
     return out
 ```
 
-- [ ] **Step 4: Run test 验证通过**
+- [x] **Step 4: Run test 验证通过**
 
 Run: `cd ~/Desktop/ai-project/hooks && python -m unittest ai_news.tests.test_filters -v`
 Expected: 4 tests OK
 
-- [ ] **Step 5: Mark complete**
+- [x] **Step 5: Mark complete**
 
 ---
 
@@ -706,7 +709,7 @@ Expected: 4 tests OK
 - Create: `~/Desktop/ai-project/hooks/ai_news/fetchers.py`
 - Reference: `~/Desktop/ai-project/hooks/fetch-ai-news.py:127-166`
 
-- [ ] **Step 1: 写 fetchers.py 的 HN 部分 (先不加测试, HTTP 调用难 unit test)**
+- [x] **Step 1: 写 fetchers.py 的 HN 部分 (先不加测试, HTTP 调用难 unit test)**
 
 ```python
 """新闻抓取函数. 每个函数接受 params dict (来自 fetcher.yaml), 返回 items list.
@@ -799,7 +802,7 @@ def fetch_hn_algolia(params: dict) -> list:
     return items[:limit]
 ```
 
-- [ ] **Step 2: 手动冒烟验证 HN fetcher 能拿到数据**
+- [x] **Step 2: 手动冒烟验证 HN fetcher 能拿到数据**
 
 Run:
 ```bash
@@ -811,7 +814,7 @@ import json; print(json.dumps(items[:2], ensure_ascii=False, indent=2))
 ```
 Expected: 打印 2 条 HN 条目 JSON, 每条有 title/url/score/comments/ts.
 
-- [ ] **Step 3: Mark complete**
+- [x] **Step 3: Mark complete**
 
 ---
 
@@ -823,7 +826,7 @@ Expected: 打印 2 条 HN 条目 JSON, 每条有 title/url/score/comments/ts.
 
 **关键修复**: v1 的 `today_stars` 是字符串 `"123 stars today"`, 字典序排 "9" > "123". v2 必须新增 `today_stars_int` 字段.
 
-- [ ] **Step 1: append GitHub Trending parser + fetch_github_trending() 函数到 fetchers.py**
+- [x] **Step 1: append GitHub Trending parser + fetch_github_trending() 函数到 fetchers.py**
 
 ```python
 # 追加到 fetchers.py 末尾
@@ -927,7 +930,7 @@ def fetch_github_trending(params: dict) -> list:
     return items
 ```
 
-- [ ] **Step 2: 写单元测试 `tests/test_fetchers.py`** (只测 today_stars_int 解析, 不测 HTTP)
+- [x] **Step 2: 写单元测试 `tests/test_fetchers.py`** (只测 today_stars_int 解析, 不测 HTTP)
 
 ```python
 import unittest
@@ -963,12 +966,12 @@ if __name__ == "__main__":
     unittest.main()
 ```
 
-- [ ] **Step 3: Run test 验证通过**
+- [x] **Step 3: Run test 验证通过**
 
 Run: `cd ~/Desktop/ai-project/hooks && python -m unittest ai_news.tests.test_fetchers -v`
 Expected: 1 test OK
 
-- [ ] **Step 4: Mark complete**
+- [x] **Step 4: Mark complete**
 
 ---
 
@@ -978,7 +981,7 @@ Expected: 1 test OK
 - Modify: `~/Desktop/ai-project/hooks/ai_news/fetchers.py`
 - Reference: `~/Desktop/ai-project/hooks/fetch-ai-news.py:275-348` (v1 RSS parser)
 
-- [ ] **Step 1: append RSS parser + fetch_rss() 到 fetchers.py**
+- [x] **Step 1: append RSS parser + fetch_rss() 到 fetchers.py**
 
 ```python
 # 追加到 fetchers.py 末尾
@@ -1044,7 +1047,7 @@ def fetch_rss(params: dict) -> list:
     return kept[:limit]
 ```
 
-- [ ] **Step 2: 手动冒烟**
+- [x] **Step 2: 手动冒烟**
 
 Run:
 ```bash
@@ -1056,7 +1059,7 @@ import json; print(json.dumps(items[:2], ensure_ascii=False, indent=2))
 ```
 Expected: 打印 2 条量子位 RSS 条目, 有 title/url/desc/ts.
 
-- [ ] **Step 3: Mark complete**
+- [x] **Step 3: Mark complete**
 
 ---
 
@@ -1066,7 +1069,7 @@ Expected: 打印 2 条量子位 RSS 条目, 有 title/url/desc/ts.
 - Modify: `~/Desktop/ai-project/hooks/ai_news/fetchers.py`
 - Reference: `~/Desktop/ai-project/hooks/fetch-ai-news.py:354-371`
 
-- [ ] **Step 1: append Jina Reader 函数到 fetchers.py**
+- [x] **Step 1: append Jina Reader 函数到 fetchers.py**
 
 ```python
 # 追加到 fetchers.py 末尾
@@ -1092,7 +1095,7 @@ def fetch_article_text(url: str) -> tuple:
         return "", f"{type(e).__name__}: {e}"
 ```
 
-- [ ] **Step 2: 验证**
+- [x] **Step 2: 验证**
 
 Run:
 ```bash
@@ -1105,7 +1108,7 @@ print('text preview:', text[:200] if text else '(empty)')
 ```
 Expected: err 为空, text 有内容 (200 字预览).
 
-- [ ] **Step 3: Mark complete**
+- [x] **Step 3: Mark complete**
 
 ---
 
@@ -1114,7 +1117,7 @@ Expected: err 为空, text 有内容 (200 字预览).
 **Files:**
 - Modify: `~/Desktop/ai-project/hooks/ai_news/fetchers.py`
 
-- [ ] **Step 1: append fetch_all() 到 fetchers.py**
+- [x] **Step 1: append fetch_all() 到 fetchers.py**
 
 ```python
 # 追加到 fetchers.py 末尾
@@ -1161,7 +1164,7 @@ def fetch_all(sources_config: list) -> list:
     return [results[s["id"]] for s in sources_config]
 ```
 
-- [ ] **Step 2: Mark complete**
+- [x] **Step 2: Mark complete**
 
 ---
 
@@ -1171,7 +1174,7 @@ def fetch_all(sources_config: list) -> list:
 - Create: `~/Desktop/ai-project/hooks/ai_news/feedback.py`
 - Create: `~/Desktop/ai-project/hooks/ai_news/tests/test_feedback.py`
 
-- [ ] **Step 1: 写测试 `tests/test_feedback.py`**
+- [x] **Step 1: 写测试 `tests/test_feedback.py`**
 
 ```python
 import unittest
@@ -1220,12 +1223,12 @@ if __name__ == "__main__":
     unittest.main()
 ```
 
-- [ ] **Step 2: Run 验证测试失败**
+- [x] **Step 2: Run 验证测试失败**
 
 Run: `cd ~/Desktop/ai-project/hooks && python -m unittest ai_news.tests.test_feedback -v`
 Expected: `ModuleNotFoundError`
 
-- [ ] **Step 3: 写 `feedback.py`**
+- [x] **Step 3: 写 `feedback.py`**
 
 ```python
 """反馈读写 + 启动阶段判定 + few-shot 正负例构造."""
@@ -1280,12 +1283,12 @@ def get_positives(source_id: str, feedback: dict, limit: int = 10) -> list:
     return out[:limit]
 ```
 
-- [ ] **Step 4: Run 测试验证通过**
+- [x] **Step 4: Run 测试验证通过**
 
 Run: `cd ~/Desktop/ai-project/hooks && python -m unittest ai_news.tests.test_feedback -v`
 Expected: 6 tests OK
 
-- [ ] **Step 5: Mark complete**
+- [x] **Step 5: Mark complete**
 
 ---
 
