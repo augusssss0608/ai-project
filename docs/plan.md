@@ -249,6 +249,131 @@ resolved: false
 
 ---
 
+## 测试策略 (分层)
+
+各 task 的测试动作必须满足以下层级的**通过标准**, 不能只靠"跑过了看起来没错"判断. /loop 跑 task 时按对应层级的标准校验, 不达标视为 task 失败 (AUTO_FAIL, 进 retry 流程).
+
+### 1. 数据层 — Unit Test (强制, 最高优先)
+
+- **位置**: `~/Desktop/ai-project/hooks/ai_news/tests/*.py`
+- **工具**: Python stdlib `unittest`
+- **跑法**: `cd ~/Desktop/ai-project/hooks && python3 -m unittest discover ai_news/tests -v`
+- **覆盖对象**: `filters.py` / `feedback.py` / `history.py` / `io.py` / `evolve.py`
+- **必须覆盖的边界**:
+  - filters: 硬规则对 CORE AI (Claude 等) vs soft noise (融資) vs hard noise (漏洞) 的判断分支
+  - feedback: get_stage 三档阈值 (< 10 / 10-50 / ≥ 50) + 空 source 兼容 + get_positives 按 ts desc
+  - history: append 语义 (同 url 允许重复行) + aggregate by url (first_ts/last_ts/count) + get_negatives 过滤 (未点赞 + ≥ days 天前)
+  - io: 原子 rename (无 .tmp 残留) + 文件不存在返回 None
+  - evolve: backup source.md.v{N} + frontmatter 解析 (evolve_count int / last_evolve_at str)
+- **通过标准**: 全绿 (0 fail, 0 error), 不接受 skip
+- **时机**:
+  - 每个 Chunk 1 AUTO task 完成后**强制**跑单模块 test (Task 对应的 tests/test_*.py)
+  - Chunk 1 结束 Task 1.13 **强制**跑全量 `python3 -m unittest discover -v`
+- **禁止**: 为了让测试通过而改测试用例 (作弊, 会藏 bug)
+
+### 2. 抓取层 — 冒烟测试
+
+- **位置**: `python3 ~/Desktop/ai-project/hooks/fetch-ai-news.py`
+- **覆盖**: 4 源实际 HTTP 调用 + 硬规则过滤
+- **通过标准**:
+  - `/tmp/ai-news-raw-hackernews.json` items > 0 且 error 为 null
+  - `/tmp/ai-news-raw-github_trending.json` items > 0 且 `today_stars_int` 是 int 排序正确
+  - `/tmp/ai-news-raw-qbitai.json` items > 0 且 error 为 null
+  - `/tmp/ai-news-raw-ithome_tw.json` items > 0 且 error 为 null
+- **时机**: Chunk 3 Task 3.5 (MANUAL, 依赖外网)
+- **失败降级**: 单源挂不阻塞整体, 该源 `error` 字段带错继续. 4 源全挂才算 BLOCKED.
+
+### 3. Subagent 契约测试 — 手动冒烟
+
+- **位置**: Claude Code 会话里用 Agent tool 派一次
+- **覆盖对象和通过标准**:
+
+  **news-scorer** (派时喂 input_path = `/tmp/ai-news-scorer-probe.json`):
+  - output JSON 结构: `{source_id, items: [{url, title, ai_score, reason}]}`
+  - `ai_score` ∈ [0, 10] int
+  - `reason` 是中文短句 ≤ 25 字, 不只写"相关"
+
+  **news-summary** (prompt 嵌 title + url + output_path):
+  - output: `{summary, warning}`
+  - `summary` 50-80 字中文, 无 markdown / 引号 / 前后缀
+
+  **news-analysis** (prompt 嵌 title + url + workspace_context_path + output_path):
+  - output: `{workspace_help, claude_usage, warning}`
+  - 两个字段 30-60 字中文或 "无相关"
+  - workspace_help 提到具体技术栈 (Flutter / Go Kratos / Lua) 不泛泛
+
+  **evolve-source-preferences** (input 含 source_md + positives + negatives):
+  - 写回的 source.md 保留 frontmatter 所有字段, 仅三段内容被重写
+  - frontmatter `evolve_count` = new, `last_evolve_at` = now ISO, `updated_by` = `evolve_v{new}`
+
+- **时机**: Chunk 2 Task 2.7 (4 个 subagent 各 1 次)
+- **失败动作**: /loop 转 MANUAL 让用户看输出, 判断是 subagent md 指令不够严 (改 md) 还是模型本身问题 (换模型 / 重派)
+
+### 4. UI 层 — 浏览器手动
+
+- **位置**: http://localhost:38080
+- **覆盖**:
+  - 5 tab 都渲染且无空白 (overview / usage / context / memory / news)
+  - 时间范围切换 `?days=1/7/30/90` size 递增 (1 天数据最少, 90 天最多)
+  - "有帮助" 按钮点一下能写入 `data/ai-news-feedback.json` 的 votes
+  - AI 大事 tab 新字段显示:
+    - 每条右侧 `ai_score` 小气泡 (若 ai_score 存在)
+    - 悬浮 tooltip 显示 `reason`
+    - 顶部 stage badge (HN cold/mid/hot · GitHub ... · 量子位 ... · iThome ...)
+    - 数据更新时间 (读 ai-news.json 的 updated_at)
+  - 浏览器 console 无 JS error
+- **通过标准**: 人眼看 5 tab 正常 + 点 2-3 个按钮有响应 + console 无红色 error
+- **时机**: Chunk 4 Task 4.6 (改 dashboard 后) + 长跑中用户偶尔看
+- **/loop 自动部分**: 可以 curl `/style.css` `/app.js` `/news/votes` `/summary-status` 做 HTTP 200 + size > 0 的基础验证, 但视觉+交互必须人工
+
+### 5. 端到端 E2E — 完整 pipeline 冒烟
+
+- **触发**: `touch /tmp/ai-news-force-run`, /loop 命中 sentinel 后跑
+- **覆盖**: 抓 → 硬规则 → 评分 (冷启动跳过) → Top 10 → 摘要 → 分析 → 写 ai-news.json → TG → evolve 检查
+- **通过标准**:
+  - `data/ai-news.json` 字段齐全:
+    - 顶层: `version=2`, `updated_at`, `stage_by_source` 含 4 源
+    - 每 source: `id` / `stage` / `items[]` / `error`
+    - 每 item: 冷启动有 `summary` / `workspace_help` / `claude_usage`; 中/热启动额外有 `ai_score` + `reason`
+  - TG 收到 `[ai-news] 已刷新 N 则` 消息
+  - dashboard http://localhost:38080/#news 展示新数据
+  - 完整耗时 10-20 min
+  - `data/ai-news-history.jsonl` 新增约 40 行 (本次展示的 items)
+  - /tmp 临时文件都被清理 (`/tmp/ai-news-scorer-*` 等不残留)
+- **时机**: Chunk 5 Task 5.1 一次 + 长跑第一天观察一次
+- **失败降级**: 整体失败时**不覆盖旧 ai-news.json**, dashboard 至少有昨天的数据
+
+### 6. 回归 — 长期持续
+
+- **unit 全量**: 每个 Chunk 结束 + 每次 evolve 前后各跑一次 `python3 -m unittest discover ai_news/tests -v`
+- **dashboard 冒烟**: curl 5 tab 首页 + 2 个 JSON API, 全部 HTTP 200
+- **evolve 质量**: evolve 后 7 天内, 用户看 dashboard 主观评价推荐质量. 若下降明显, 手动 `cp source.md.v{N-1} source.md` 回滚
+- **时机**: Chunk 5 Task 5.5 长期监控, 7 天 / 30 天各一次
+
+### 7. 架构根基 smoke — 前置不可跳
+
+这不是常规测试, 是 plan 跑起来的**前提条件**. 失败 = 整个 plan 推倒重来.
+
+- **Task 2.0a** (subagent model 覆盖):
+  - 通过标准: Anthropic dashboard 显示刚派的 news-scorer subagent 按 **Haiku** 计费 (input $0.8/MTok), 不是主 agent 的 Sonnet 价 ($3/MTok)
+  - 失败后果: 架构作废, 改用 `subprocess.run(["claude", "-p", "--model", haiku])` 路径
+- **Task 2.0b** (Agent tool 并发上限):
+  - 通过标准: 一次 message 并发派 10 个 news-summary subagent 全部返回成功
+  - 失败后果: 把 ai-news-fetch/SKILL.md 的 "summary 每批 10 个并行" 改为实测值 N, 批次数改为 ceil(40/N)
+- **时机**: Chunk 2 最开头 (Task 2.1 之前)
+
+---
+
+## 测试失败的处理流程 (/loop 视角)
+
+1. Unit test fail → 本轮 retry ≤ 3 次. 3 次后转 MANUAL, 写 NEED-HUMAN-INPUT.md 附上 log
+2. 抓取/subagent/E2E 冒烟 fail → 依赖类型不同:
+   - HTTP 临时失败 → 同轮 retry 1 次, 不过转 MANUAL
+   - JSON schema 不符 → 直接转 MANUAL (可能是 subagent md 指令问题, /loop 自己改不了)
+   - /tmp 文件不存在 → 查是否 subagent 没调用 Write, 先修 prompt 再 retry
+3. UI 测试 fail → 直接转 MANUAL, 因为 /loop 不能看浏览器
+4. 架构根基 fail (2.0a/2.0b) → **立刻停止**, 写 NEED-HUMAN-INPUT.md verdict=FAIL, 挂起等用户决策 (改架构或中止 plan)
+
 ---
 
 ## Chunk 0: 项目迁移 + git init — 已手动完成 (2026-04-21)
