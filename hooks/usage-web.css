@@ -1766,6 +1766,17 @@ footer{
   border-radius:var(--radius-sm);
   background:var(--accent-soft);
 }
+.news-item-ai-score{
+  display:inline-block;
+  font-size:11px;
+  color:var(--accent);
+  margin-left:var(--space-4);
+  cursor:help;
+}
+.news-stage-badges{
+  color:var(--text-muted);
+  font-size:12px;
+}
 
 .news-expand-btn{
   margin-top:var(--space-8);

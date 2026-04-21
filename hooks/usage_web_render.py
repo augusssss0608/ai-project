@@ -1321,6 +1321,13 @@ def _render_news_item(parts: list, it: dict, source_id: str, voted_urls: set, hi
     # title 行 + 投票按钮并排
     parts.append("<div class='news-item-row'>")
     parts.append(f"<a class='news-item-title' href='{html.escape(url)}' target='_blank' rel='noopener'>{html.escape(title)}</a>")
+    ai_score = it.get("ai_score")
+    reason = it.get("reason", "")
+    if ai_score is not None:
+        parts.append(
+            f"<span class='news-item-ai-score' title='{html.escape(reason)}'>"
+            f"💡 {ai_score}</span>"
+        )
     btn_cls = "news-vote-btn" + (" voted" if is_voted else "")
     btn_label = "✓" if is_voted else "✓"
     parts.append(
