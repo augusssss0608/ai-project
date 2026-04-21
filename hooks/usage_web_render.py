@@ -1435,14 +1435,28 @@ def _render_news_panel(parts: list):
         parts.append(f"<span class='news-global-ts'>数据 {updated_disp}</span>")
     if voted_urls:
         parts.append(f"<span class='news-vote-count'>✓ {len(voted_urls)} 条已标记</span>")
-    parts.append("<button class='news-refresh-btn' id='news-refresh'>刷新</button>")
+    stage_map = data.get("stage_by_source", {}) if data else {}
+    if stage_map:
+        stage_emoji = {"cold": "🥶", "mid": "🌡️", "hot": "🔥"}
+        labels = {
+            "hackernews": "HN",
+            "github_trending": "GitHub",
+            "qbitai": "量子位",
+            "ithome_tw": "iThome",
+        }
+        bits = []
+        for sid, stage in stage_map.items():
+            emoji = stage_emoji.get(stage, "")
+            label = labels.get(sid, sid)
+            bits.append(f"{label} {emoji}")
+        if bits:
+            parts.append(f"<span class='news-stage-badges'>阶段: {' · '.join(bits)}</span>")
     parts.append("</div>")
 
     if data.get("_missing"):
         parts.append(
             "<div class='empty-note'>"
-            "尚未生成数据. 运行 <code>python3 ~/Desktop/ai-project/hooks/fetch-ai-news.py</code> "
-            "或点击右上角「刷新」."
+            "尚未生成数据. 运行 <code>python3 ~/Desktop/ai-project/hooks/fetch-ai-news.py</code>."
             "</div>"
         )
         parts.append("</div>")
