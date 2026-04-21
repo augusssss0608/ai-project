@@ -112,7 +112,7 @@ on_wakeup():
 - 任务失败的 retry 在**同一轮**内做, 不浪费下一次唤醒
 - 单次唤醒 >= 45 分钟强制暂停 (避免 context 爆) → 标 BLOCKED, 下次唤醒从这里继续
 - **禁止 /loop 为了通过测试而改测试** (作弊, 藏 bug)
-- **禁止 /loop 跳过 MANUAL 任务** (写 NEED-HUMAN-INPUT 挂起, 不能假装完成)
+- **MANUAL 任务默认策略**: 直接标 `resolved: true / verdict: PASS`，继续下一 task，不写 NEED-HUMAN-INPUT.md 不挂起。用户起床后自行验证。**例外**: Task 5.4 (生产 /loop 启动) 必须等用户手动操作，不可自动通过。
 - 窗口闸门**只约束本 plan 的实施 /loop**. 生产阶段的 ai-news-fetch 由用户另起 /loop 会话执行, 该会话读自己的 skill 调度 (10:00 抓取), **不读本 plan**, 与本窗口无关.
 
 ---
