@@ -11,11 +11,22 @@ description: AI 大事每日自动抓取 + 评分 + 摘要 + 分析 + 写入 + T
 
 ## on_wakeup 流程
 
-### 步骤 1: 判断是否到 10:00 窗口
+### 步骤 1: 判断是否到 10:00 窗口 (含 sentinel 强制触发)
 
 ```python
+import os
+SENTINEL = "/tmp/ai-news-force-run"
 now = datetime.now(LOCAL_TZ)
-if now.hour == 10 and now.minute < 30:
+
+if os.path.exists(SENTINEL):
+    os.unlink(SENTINEL)        # 自动失效, 不留后遗症
+    run_full_pipeline()
+    # 下次按正常 10:00 调度
+    if now.hour < 10:
+        target = datetime.combine(now.date(), time(10, 0), tzinfo=LOCAL_TZ)
+    else:
+        target = datetime.combine(now.date() + timedelta(days=1), time(10, 0), tzinfo=LOCAL_TZ)
+elif now.hour == 10 and now.minute < 30:
     # 命中窗口, 跑完整 pipeline
     run_full_pipeline()
     # 下次目标: 明天 10:00
