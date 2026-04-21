@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch
-from ai_news.feedback import get_stage, get_positives
+from ai_news.feedback import get_stage, get_positives, build_examples_inline
 
 
 class TestGetStage(unittest.TestCase):
@@ -38,6 +38,17 @@ class TestGetPositives(unittest.TestCase):
         self.assertEqual(len(out), 2)
         self.assertEqual(out[0]["title"], "C")  # 按 ts desc
         self.assertEqual(out[1]["title"], "A")
+
+
+class TestBuildExamplesInline(unittest.TestCase):
+    def test_returns_formatted_md_string(self):
+        fb = {"votes": {"url1": {"source": "hackernews", "title": "A", "ts": "2026-04-20T10:00:00+09:00"}}}
+        with patch("ai_news.feedback._history") as mock_h:
+            mock_h.get_negatives.return_value = []
+            out = build_examples_inline("hackernews", fb)
+        self.assertIn("正例", out)
+        self.assertIn("负例", out)
+        self.assertIn("[2026-04-20] A", out)
 
 
 if __name__ == "__main__":

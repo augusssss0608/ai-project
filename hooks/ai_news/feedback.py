@@ -47,3 +47,33 @@ def get_positives(source_id: str, feedback: dict, limit: int = 10) -> list:
         })
     out.sort(key=lambda x: x["ts"], reverse=True)
     return out[:limit]
+
+
+from ai_news import history as _history
+
+
+def build_examples_inline(source_id: str, feedback: dict,
+                          pos_limit: int = 10, neg_limit: int = 10) -> str:
+    """现场生成 examples.md 内容 (不落盘), 直接嵌入 scorer prompt."""
+    positives = get_positives(source_id, feedback, limit=pos_limit)
+    negatives = _history.get_negatives(source_id, feedback, days=7, limit=neg_limit)
+
+    lines = ["# 正例 (用户标记有帮助)"]
+    if positives:
+        for p in positives:
+            date = (p.get("ts") or "")[:10]
+            lines.append(f"- [{date}] {p.get('title', '')} — {p.get('url', '')}")
+    else:
+        lines.append("- (暂无)")
+
+    lines.append("")
+    lines.append("# 负例 (展示过但未点赞, >= 7 天)")
+    if negatives:
+        for n in negatives:
+            date = (n.get("first_ts") or "")[:10]
+            title = n.get("title", "")
+            url = n.get("url", "")
+            lines.append(f"- [{date}] {title} — {url} (曝光 {n.get('count', 1)} 次)")
+    else:
+        lines.append("- (暂无)")
+    return "\n".join(lines)
