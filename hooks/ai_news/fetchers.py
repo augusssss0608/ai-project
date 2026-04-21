@@ -183,3 +183,63 @@ def fetch_github_trending(params: dict) -> list:
         })
     items.sort(key=lambda x: x["today_stars_int"], reverse=True)
     return items
+
+
+def _parse_rss2(xml_bytes: bytes, max_items: int = 20) -> list:
+    """通用 RSS 2.0 <channel><item> 解析. 返回 [{title,url,desc,ts,author}]."""
+    import xml.etree.ElementTree as ET
+    from email.utils import parsedate_to_datetime
+    root = ET.fromstring(xml_bytes)
+    channel = root.find("channel")
+    out = []
+    if channel is None:
+        return out
+    for it in channel.findall("item"):
+        title = (it.findtext("title") or "").strip()
+        if not title:
+            continue
+        link = (it.findtext("link") or "").strip()
+        desc = re.sub(r"<[^>]+>", "", (it.findtext("description") or "").strip()).strip()
+        creator_el = it.find("{http://purl.org/dc/elements/1.1/}creator")
+        author = creator_el.text.strip() if creator_el is not None and creator_el.text else ""
+        pub = (it.findtext("pubDate") or "").strip()
+        try:
+            ts = parsedate_to_datetime(pub).astimezone(timezone.utc).isoformat(timespec="seconds")
+        except Exception:
+            ts = pub
+        out.append({
+            "title": title,
+            "url": link,
+            "desc": desc[:140],
+            "ts": ts,
+            "author": author,
+        })
+        if len(out) >= max_items:
+            break
+    return out
+
+
+def fetch_rss(params: dict) -> list:
+    """通用 RSS 抓取. params:
+    - url: RSS 地址
+    - time_window_hours: 只保留这个窗口内的条目 (按 pubDate)
+    - limit: 最多返回多少条
+    """
+    url = params["url"]
+    window = int(params.get("time_window_hours", 48))
+    limit = int(params.get("limit", 15))
+    raw = _fetch(url)
+    items = _parse_rss2(raw, max_items=max(50, limit * 2))
+
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=window)
+    kept = []
+    for it in items:
+        try:
+            ts_dt = datetime.fromisoformat(it["ts"].replace("Z", "+00:00"))
+            if ts_dt.tzinfo is None:
+                ts_dt = ts_dt.replace(tzinfo=timezone.utc)
+            if ts_dt >= cutoff:
+                kept.append(it)
+        except Exception:
+            kept.append(it)
+    return kept[:limit]
