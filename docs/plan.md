@@ -1298,7 +1298,7 @@ Expected: 6 tests OK
 - Create: `~/Desktop/ai-project/hooks/ai_news/history.py`
 - Modify: `~/Desktop/ai-project/hooks/ai_news/tests/test_history.py` (新建)
 
-- [ ] **Step 1: 写测试 `tests/test_history.py`**
+- [x] **Step 1: 写测试 `tests/test_history.py`**
 
 ```python
 import json
@@ -1380,7 +1380,7 @@ if __name__ == "__main__":
     unittest.main()
 ```
 
-- [ ] **Step 2: 写 `history.py`**
+- [x] **Step 2: 写 `history.py`**
 
 ```python
 """历史持久化 (负例数据源). append-only jsonl, 查询时按 url 聚合."""
@@ -1478,12 +1478,12 @@ def get_negatives(source_id: str, feedback: dict, days: int = 7, limit: int = 30
     return out[:limit]
 ```
 
-- [ ] **Step 3: Run 测试**
+- [x] **Step 3: Run 测试**
 
 Run: `cd ~/Desktop/ai-project/hooks && python -m unittest ai_news.tests.test_history -v`
 Expected: 3 tests OK
 
-- [ ] **Step 4: Mark complete**
+- [x] **Step 4: Mark complete**
 
 ---
 
@@ -1493,7 +1493,7 @@ Expected: 3 tests OK
 - Modify: `~/Desktop/ai-project/hooks/ai_news/feedback.py`
 - Modify: `~/Desktop/ai-project/hooks/ai_news/tests/test_feedback.py`
 
-- [ ] **Step 1: append build_examples_inline 到 feedback.py**
+- [x] **Step 1: append build_examples_inline 到 feedback.py**
 
 ```python
 # 追加到 feedback.py 末尾
@@ -1531,7 +1531,7 @@ def build_examples_inline(source_id: str, feedback: dict,
     return "\n".join(lines)
 ```
 
-- [ ] **Step 2: 追加测试到 test_feedback.py**
+- [x] **Step 2: 追加测试到 test_feedback.py**
 
 ```python
 # 追加到 test_feedback.py
@@ -1548,12 +1548,12 @@ class TestBuildExamplesInline(unittest.TestCase):
         self.assertIn("[2026-04-20] A", out)
 ```
 
-- [ ] **Step 3: Run 测试**
+- [x] **Step 3: Run 测试**
 
 Run: `cd ~/Desktop/ai-project/hooks && python -m unittest ai_news.tests.test_feedback -v`
 Expected: 7 tests OK
 
-- [ ] **Step 4: Mark complete**
+- [x] **Step 4: Mark complete**
 
 ---
 
@@ -1563,7 +1563,7 @@ Expected: 7 tests OK
 - Create: `~/Desktop/ai-project/hooks/ai_news/io.py`
 - Create: `~/Desktop/ai-project/hooks/ai_news/tests/test_io.py`
 
-- [ ] **Step 1: 写测试**
+- [x] **Step 1: 写测试**
 
 ```python
 # tests/test_io.py
@@ -1607,7 +1607,7 @@ if __name__ == "__main__":
     unittest.main()
 ```
 
-- [ ] **Step 2: 写 `io.py`**
+- [x] **Step 2: 写 `io.py`**
 
 ```python
 """读写 ai-news.json (原子 rename) + source.md / examples.md IO helpers."""
@@ -1651,12 +1651,12 @@ def write_source_md_atomic(path: str, content: str):
     os.replace(tmp, path)
 ```
 
-- [ ] **Step 3: Run 测试**
+- [x] **Step 3: Run 测试**
 
 Run: `cd ~/Desktop/ai-project/hooks && python -m unittest ai_news.tests.test_io -v`
 Expected: 3 tests OK
 
-- [ ] **Step 4: Mark complete**
+- [x] **Step 4: Mark complete**
 
 ---
 
@@ -1666,7 +1666,7 @@ Expected: 3 tests OK
 - Create: `~/Desktop/ai-project/hooks/ai_news/evolve.py`
 - Create: `~/Desktop/ai-project/hooks/ai_news/tests/test_evolve.py`
 
-- [ ] **Step 1: 写测试**
+- [x] **Step 1: 写测试**
 
 ```python
 # tests/test_evolve.py
@@ -1718,7 +1718,7 @@ if __name__ == "__main__":
     unittest.main()
 ```
 
-- [ ] **Step 2: 写 `evolve.py`**
+- [x] **Step 2: 写 `evolve.py`**
 
 ```python
 """evolve 辅助: 备份 source.md.v{N} + 写 diff log.
@@ -1781,12 +1781,12 @@ def write_evolve_log(entry: dict):
         f.write(json.dumps(entry, ensure_ascii=False) + "\n")
 ```
 
-- [ ] **Step 3: Run 测试**
+- [x] **Step 3: Run 测试**
 
 Run: `cd ~/Desktop/ai-project/hooks && python -m unittest ai_news.tests.test_evolve -v`
 Expected: 3 tests OK
 
-- [ ] **Step 4: Mark complete**
+- [x] **Step 4: Mark complete**
 
 ---
 
@@ -1797,12 +1797,12 @@ Expected: 3 tests OK
 
 **注意** (reviewer 反馈 High #4): 真正的抓取冒烟放在 Task 3.5 (Chunk 3 完成 source.md/examples.md 后). 本任务只做: 单测 + 写脚本 + 语法校验. **不**执行脚本.
 
-- [ ] **Step 1: 跑全部 Chunk 1 单测**
+- [x] **Step 1: 跑全部 Chunk 1 单测**
 
 Run: `cd ~/Desktop/ai-project/hooks && python -m unittest discover ai_news/tests -v`
 Expected: 所有测试 OK (约 20 个)
 
-- [ ] **Step 2: 重写 `fetch-ai-news.py`** (删掉原 534 行, 换成薄 wrapper)
+- [x] **Step 2: 重写 `fetch-ai-news.py`** (删掉原 534 行, 换成薄 wrapper)
 
 ```python
 #!/usr/bin/env python3
@@ -1860,12 +1860,12 @@ if __name__ == "__main__":
 
 yaml 模块在 Task 1.1 Step 1 已强制装好, 这里不再校验.
 
-- [ ] **Step 3: 验证脚本语法** (不执行)
+- [x] **Step 3: 验证脚本语法** (不执行)
 
 Run: `python3 -c "import ast; ast.parse(open('/Users/augus/.claude/hooks/fetch-ai-news.py').read())"`
 Expected: 无输出 (解析成功). **不执行脚本** — 执行需要 sources/<id>/source.md (Chunk 3) 和网络, 冒烟在 Task 3.5.
 
-- [ ] **Step 4: Mark complete**
+- [x] **Step 4: Mark complete**
 
 ---
 

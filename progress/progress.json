@@ -1,0 +1,8 @@
+{
+  "current_task": "2.0a",
+  "last_completed": "1.13",
+  "blocked_on": {"type": "MANUAL_WAIT", "task": "2.0a", "reason": "subagent model 覆盖验证，详见 progress/NEED-HUMAN-INPUT.md"},
+  "error_count": 0,
+  "started_at": "2026-04-22T03:01:18+09:00",
+  "last_heartbeat": "2026-04-22T03:52:04+09:00"
+}
