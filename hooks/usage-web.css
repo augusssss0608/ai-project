@@ -1888,6 +1888,115 @@ footer{
 }
 .news-pagination[hidden]{display:none}
 
+/* 顶部模式切换按钮 (源 ↔ 收藏) */
+.news-mode-toggle{
+  margin-left:var(--space-8);
+  padding:5px 12px;
+  font-family:var(--font-mono);
+  font-size:11px;letter-spacing:.14em;
+  color:var(--text-soft);
+  background:transparent;
+  border:1px solid var(--border);
+  border-radius:2px;
+  cursor:pointer;
+  transition:all .18s var(--ease-soft,ease);
+}
+.news-mode-toggle:hover{
+  color:var(--text,#cfe4ff);
+  border-color:var(--border-strong);
+  background:rgba(57,255,20,0.04);
+}
+.news-mode-toggle.active{
+  color:var(--accent-warning,#ffb800);
+  border-color:var(--accent-warning,#ffb800);
+  background:rgba(255,184,0,0.1);
+  box-shadow:0 0 8px rgba(255,184,0,0.3);
+}
+.news-mode-toggle .fav-count{
+  font-weight:700;
+  color:inherit;
+}
+
+/* 4 号按钮 - 收藏 🔖 (在 news-vote-group 内) */
+.news-fav-btn{
+  flex-shrink:0;
+  width:28px;height:28px;
+  border-radius:50%;
+  border:1px solid var(--border);
+  background:transparent;
+  font-size:14px;
+  line-height:1;
+  cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;
+  transition:all var(--dur-fast) var(--ease-soft);
+  opacity:0.4;
+  padding:0;
+  margin-left:10px;
+  position:relative;
+}
+.news-fav-btn::before{
+  content:'';
+  position:absolute;left:-6px;top:50%;transform:translateY(-50%);
+  width:1px;height:16px;
+  background:var(--border);
+}
+.news-fav-btn:hover{
+  border-color:var(--accent-warning,#ffb800);
+  opacity:0.9;transform:scale(1.08);
+}
+.news-fav-btn.faved{
+  background:rgba(255,184,0,0.22);
+  border-color:var(--accent-warning,#ffb800);
+  opacity:1;
+  box-shadow:0 0 12px rgba(255,184,0,0.45);
+}
+.news-art-actions .news-fav-btn{width:34px;height:34px;font-size:16px}
+
+/* 收藏模式下左侧列表项样式 */
+.news-fav-item{
+  padding:12px 14px;
+  grid-template-columns:10px 1fr !important;
+}
+.news-fav-item::before{
+  width:8px;height:8px;
+}
+.news-fav-item .label .name{
+  font-family:var(--font-mono);
+  font-size:12.5px;
+  line-height:1.45;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:100%;
+}
+.news-fav-item .label .stage{
+  text-transform:uppercase;
+  font-size:9px;
+  letter-spacing:.14em;
+}
+.news-fav-empty{
+  padding:30px 16px;
+  text-align:center;
+  font-family:var(--font-mono);
+  font-size:11px;
+  color:var(--text-faint);
+  line-height:1.8;
+  letter-spacing:.04em;
+}
+
+/* 文章被收藏时的轻指示 (左上角丝带) */
+.news-slide.is-fav > article::after{
+  content:'';
+  position:absolute;
+  top:0;right:40px;
+  width:0;height:0;
+  border-style:solid;
+  border-width:0 8px 12px 8px;
+  border-color:transparent transparent var(--accent-warning,#ffb800) transparent;
+  box-shadow:0 0 8px rgba(255,184,0,0.4);
+  pointer-events:none;
+}
+
 .news-vote-group{
   display:inline-flex;
   gap:4px;

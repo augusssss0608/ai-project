@@ -1280,6 +1280,19 @@ def _load_news_votes() -> dict:
         return {}
 
 
+def _load_news_favorites() -> dict:
+    """读收藏数据, 失败返回空 dict. 返回 {url: entry}."""
+    import json
+    if not os.path.isfile(NEWS_VOTES_PATH):
+        return {}
+    try:
+        with open(NEWS_VOTES_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return data.get("favorites", {}) if isinstance(data, dict) else {}
+    except Exception:
+        return {}
+
+
 def _fmt_news_ts(ts: str) -> str:
     """把 ISO 时间字符串转成 '2h ago' / '昨天' 之类相对时间."""
     if not ts:
@@ -1329,6 +1342,12 @@ def _render_news_panel(parts: list):
             f"<span class='news-vote-count'>"
             f"👎 {counts['down']} · 👍 {counts['up']} · ⭐ {counts['star']}</span>"
         )
+    # 收藏模式切换按钮 (默认源模式)
+    fav_total = len(_load_news_favorites())
+    parts.append(
+        f"<button class='news-mode-toggle' type='button' data-mode-current='sources' "
+        f"aria-label='切换收藏视图'>🔖 收藏 <b class='fav-count'>{fav_total}</b></button>"
+    )
     parts.append("</div>")
 
     if data.get("_missing"):
@@ -1345,12 +1364,14 @@ def _render_news_panel(parts: list):
         return
 
     sources = data.get("sources", [])
+    favorites_by_url = _load_news_favorites()
     # 内嵌数据供 JS reader 渲染 (源切换 / 翻页 / 投票 UI 全前端做)
     import json as _json
     payload = {
         "sources": sources,
         "stage_by_source": data.get("stage_by_source", {}),
         "votes": votes_by_url,
+        "favorites": favorites_by_url,
     }
     payload_json = _json.dumps(payload, ensure_ascii=False)
     # </script> 转义防穿透

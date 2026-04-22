@@ -619,20 +619,57 @@
 
   const state = {
     votes: DATA.votes || {},
+    favorites: DATA.favorites || {},   // {url: {title, source, ts}}
+    viewMode: 'sources',                // 'sources' | 'favorites'
     srcIdx: 0,
     pageIdx: 0,
   };
   let pendingWrapSnap = null;
 
+  const modeToggleEl = document.querySelector('.news-mode-toggle');
   const srcListEl = root.querySelector('#news-src-list');
   const vpEl      = root.querySelector('#news-viewport');
   const trackEl   = root.querySelector('#news-track');
   const pagEl     = root.querySelector('#news-pagination');
 
   function esc(s){return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
-  function curSource(){ return sources[state.srcIdx] || {items:[]}; }
-  function curItems(){ return curSource().items || []; }
+  function isFav(url){ return !!state.favorites[url]; }
   function getScore(url){ return (state.votes[url]||{}).score || ''; }
+
+  // 收藏模式下: 构造一条虚拟 source 含所有被收藏的文章 (从 sources 中查原 item)
+  function getFavoriteItems(){
+    const byUrl = {};
+    for (const s of sources){
+      for (const it of (s.items||[])){
+        byUrl[it.url] = {...it, _sourceId: s.id, _sourceLabel: s.label};
+      }
+    }
+    const out = [];
+    for (const [url, meta] of Object.entries(state.favorites)){
+      const real = byUrl[url];
+      if (real) {
+        out.push(real);
+      } else {
+        // 原数据里找不到 (可能被后续刷新移除), 仍显示一条残影占位
+        out.push({
+          url, title: meta.title || url, summary:'(原文已从源中移除)',
+          workspace_help:'无相关', claude_usage:'无相关', ts: meta.ts,
+          _sourceId: meta.source || 'hackernews', _sourceLabel: meta.source || '',
+        });
+      }
+    }
+    // 按收藏 ts desc
+    out.sort((a,b) => String(b.ts||'').localeCompare(String(a.ts||'')));
+    return out;
+  }
+
+  function curSource(){
+    if (state.viewMode === 'favorites'){
+      return { id: '_favorites', label: '收藏', items: getFavoriteItems() };
+    }
+    return sources[state.srcIdx] || {items:[]};
+  }
+  function curItems(){ return curSource().items || []; }
 
   function fmtTime(iso){
     if(!iso) return '';
@@ -695,6 +732,10 @@
   }
 
   function renderSrcList(){
+    if (state.viewMode === 'favorites'){
+      renderFavList();
+      return;
+    }
     const headHtml = `<div class='head'>SOURCES</div>`;
     const items = sources.map((s, i) => {
       const active = i === state.srcIdx ? 'active' : '';
@@ -720,19 +761,51 @@
     });
   }
 
+  // 收藏模式: 左侧栏改为收藏文章列表
+  function renderFavList(){
+    const items = getFavoriteItems();
+    const headHtml = `<div class='head'>🔖 FAVORITES · ${items.length}</div>`;
+    if (!items.length){
+      srcListEl.innerHTML = headHtml + `<div class='news-fav-empty'>// 暂无收藏<br>点击文章右上 🔖 加收藏</div>`;
+      return;
+    }
+    const html = items.map((it, i) => {
+      const active = i === state.pageIdx ? 'active' : '';
+      const srcId = it._sourceId || '';
+      return `<button class='news-src-item news-fav-item src-${esc(srcId)} ${active}' data-idx='${i}' title='${esc(it.title||'')}'>
+        <div class='label'>
+          <span class='name'>${esc(it.title||'').slice(0,40)}</span>
+          <span class='stage'>${esc(it._sourceLabel || srcId)}</span>
+        </div>
+      </button>`;
+    }).join('');
+    srcListEl.innerHTML = headHtml + html;
+    srcListEl.querySelectorAll('.news-src-item').forEach(b => {
+      b.addEventListener('click', () => {
+        const idx = parseInt(b.dataset.idx, 10);
+        if (idx === state.pageIdx) return;
+        state.pageIdx = idx;
+        renderSlides();
+        renderPagination();
+        renderFavList();  // 刷新 active
+      });
+    });
+  }
+
   function renderSlideHtml(it, srcId, ordN, total){
     const score = getScore(it.url);
+    const fav = isFav(it.url);
     const ws = it.workspace_help || '无相关';
     const cu = it.claude_usage || '无相关';
     const wsNA = ws === '无相关';
     const cuNA = cu === '无相关';
     const badge = score==='star' ? '⭐ STAR' : score==='up' ? '👍 USEFUL' : score==='down' ? '👎 SKIP' : '';
-    const srcLabelFull = (sources.find(s=>s.id===srcId)||{}).label || srcId;
+    const srcLabelFull = (sources.find(s=>s.id===srcId)||{}).label || it._sourceLabel || srcId;
     const title = it.title || '(no title)';
     const summary = it.summary || '(暂无摘要)';
     const safeTitle = esc(title.slice(0, 160));  // vote 按钮 data-title 不截, 后端原样收
     return `
-    <div class='news-slide src-${esc(srcId)} ${score?'voted-'+score:''}'>
+    <div class='news-slide src-${esc(srcId)} ${score?'voted-'+score:''} ${fav?'is-fav':''}'>
       <article>
         ${badge?`<span class='news-vote-badge'>${badge}</span>`:''}
         <div class='news-art-meta'>
@@ -749,6 +822,7 @@
             <button class='news-vote-btn ${score==='down'?'voted':''}' data-vote-url='${esc(it.url)}' data-vote-title='${safeTitle}' data-vote-source='${esc(srcId)}' data-vote-score='down' title='没兴趣 / 过滤同类'>👎</button>
             <button class='news-vote-btn ${score==='up'?'voted':''}' data-vote-url='${esc(it.url)}' data-vote-title='${safeTitle}' data-vote-source='${esc(srcId)}' data-vote-score='up' title='有用'>👍</button>
             <button class='news-vote-btn ${score==='star'?'voted':''}' data-vote-url='${esc(it.url)}' data-vote-title='${safeTitle}' data-vote-source='${esc(srcId)}' data-vote-score='star' title='超赞'>⭐</button>
+            <button class='news-fav-btn ${fav?'faved':''}' data-fav-url='${esc(it.url)}' data-fav-title='${safeTitle}' data-fav-source='${esc(srcId)}' title='${fav?"已收藏, 点击取消":"加入收藏"}'>🔖</button>
           </span>
           <a class='open-ext' href='${esc(it.url)}' target='_blank' rel='noopener'>原文 ↗</a>
         </div>
@@ -814,7 +888,6 @@
           });
           const data = await resp.json();
           if (!data.ok) throw new Error(data.error || 'vote failed');
-          // 更新顶部 vote 计数
           const countEl = document.querySelector('.news-vote-count');
           if (countEl && data.totals_by_score){
             const t = data.totals_by_score;
@@ -829,6 +902,57 @@
         }
       });
     });
+    // 收藏按钮
+    trackEl.querySelectorAll('.news-fav-btn').forEach(b => {
+      b.addEventListener('click', async e => {
+        e.stopPropagation();
+        const url = b.dataset.favUrl;
+        const title = b.dataset.favTitle || '';
+        const source = b.dataset.favSource || '';
+        if (!url) return;
+        const currently = isFav(url);
+        const next = !currently;
+        if (next) state.favorites[url] = {title, source, ts:new Date().toISOString()};
+        else delete state.favorites[url];
+        renderSlides();
+        if (state.viewMode === 'favorites') renderFavList();
+        updateModeToggleCount();
+        try {
+          const resp = await fetch('/news/favorite', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({url, title, source, fav: next}),
+          });
+          const data = await resp.json();
+          if (!data.ok) throw new Error(data.error || 'fav failed');
+        } catch(err){
+          console.error('[news fav]', err);
+          if (currently) state.favorites[url] = {title, source};
+          else delete state.favorites[url];
+          renderSlides();
+          if (state.viewMode === 'favorites') renderFavList();
+          updateModeToggleCount();
+        }
+      });
+    });
+  }
+
+  function updateModeToggleCount(){
+    if (!modeToggleEl) return;
+    const cnt = modeToggleEl.querySelector('.fav-count');
+    if (cnt) cnt.textContent = Object.keys(state.favorites).length;
+  }
+
+  function toggleViewMode(){
+    state.viewMode = state.viewMode === 'sources' ? 'favorites' : 'sources';
+    state.pageIdx = 0;
+    if (modeToggleEl){
+      modeToggleEl.dataset.modeCurrent = state.viewMode;
+      modeToggleEl.classList.toggle('active', state.viewMode === 'favorites');
+    }
+    renderSrcList();
+    renderSlides();
+    renderPagination();
   }
 
   function renderPagination(){
@@ -994,6 +1118,14 @@
       }
     });
     ro.observe(vpEl);
+  }
+
+  // 顶部模式切换按钮
+  if (modeToggleEl){
+    modeToggleEl.addEventListener('click', e => {
+      e.preventDefault();
+      toggleViewMode();
+    });
   }
 
   renderSrcList();
