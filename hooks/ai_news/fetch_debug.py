@@ -12,9 +12,12 @@ import sys
 import yaml
 from pathlib import Path
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from ai_news.fetchers import fetch_one
-from ai_news.filters import apply_hard_filter
+# hooks/ 根 (parent of ai_news/) 加进 sys.path
+_HOOKS_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _HOOKS_ROOT not in sys.path:
+    sys.path.insert(0, _HOOKS_ROOT)
+from ai_news.data.fetchers import fetch_one
+from ai_news.data.filters import apply_hard_filter
 
 SOURCES_DIR = Path.home() / "Desktop" / "ai-project" / ".claude" / "skills" / "ai-news-filter" / "sources"
 OUT_TPL = "/tmp/ai-news-raw-{}.json"

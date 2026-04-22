@@ -3,7 +3,7 @@ import os
 import tempfile
 import unittest
 
-from ai_news import io as ainews_io
+from ai_news.data import io as ainews_io
 
 
 class TestAiNewsJsonIO(unittest.TestCase):

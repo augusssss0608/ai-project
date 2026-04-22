@@ -1,5 +1,5 @@
 import unittest
-from ai_news.fetchers import _TrendingParser
+from ai_news.data.fetchers import _TrendingParser
 
 
 class TestTodayStarsInt(unittest.TestCase):

@@ -72,7 +72,7 @@ def get_explicit_negatives(source_id: str, feedback: dict, limit: int = 10) -> l
     return out[:limit]
 
 
-from ai_news import history as _history
+from . import history as _history
 
 
 def build_examples_inline(source_id: str, feedback: dict,

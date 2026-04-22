@@ -1,5 +1,5 @@
 import unittest
-from ai_news.filters import is_pure_ai_news, apply_hard_filter
+from ai_news.data.filters import is_pure_ai_news, apply_hard_filter
 
 
 class TestIsPureAiNews(unittest.TestCase):

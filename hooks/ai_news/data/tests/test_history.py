@@ -5,7 +5,7 @@ import unittest
 from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
 
-from ai_news import history
+from ai_news.data import history
 
 
 class TestHistoryAppendAndAggregate(unittest.TestCase):

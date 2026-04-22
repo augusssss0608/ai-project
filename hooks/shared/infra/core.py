@@ -22,7 +22,7 @@ from datetime import datetime, timedelta, timezone
 
 # Sibling module: summary
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import usage_web_summary as summary_mod
+from shared.infra import summary as summary_mod
 
 
 DB_FILE = os.path.expanduser("~/Desktop/ai-project/data/events.db")
@@ -595,9 +595,10 @@ PAIRED_ACTION_TYPES = ("skill_explicit", "subagent")
 # ============================================================
 # 区块: 渲染辅助 + 路径常量
 # ============================================================
-HOOKS_DIR = os.path.dirname(os.path.abspath(__file__))
-CSS_PATH = os.path.join(HOOKS_DIR, "usage-web.css")
-JS_PATH = os.path.join(HOOKS_DIR, "usage-web.js")
+# HOOKS_DIR = ~/Desktop/ai-project/hooks (从 shared/infra/core.py 回三层)
+HOOKS_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+CSS_PATH = os.path.join(HOOKS_DIR, "shared", "static", "style.css")
+JS_PATH = os.path.join(HOOKS_DIR, "shared", "static", "app.js")
 
 
 # ============================================================

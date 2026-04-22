@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch
-from ai_news.feedback import (
+from ai_news.data.feedback import (
     get_stage, get_positives, get_explicit_negatives, build_examples_inline,
 )
 
@@ -87,7 +87,7 @@ class TestBuildExamplesInline(unittest.TestCase):
                 "url_down": {"source": "hackernews", "title": "DOWN_C", "ts": "2026-04-20T12:00:00+09:00", "score": "down"},
             }
         }
-        with patch("ai_news.feedback._history") as mock_h:
+        with patch("ai_news.data.feedback._history") as mock_h:
             mock_h.get_negatives.return_value = []
             out = build_examples_inline("hackernews", fb)
         self.assertIn("强正例 ⭐", out)

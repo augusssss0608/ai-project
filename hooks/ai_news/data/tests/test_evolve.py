@@ -4,7 +4,7 @@ import shutil
 import tempfile
 import unittest
 
-from ai_news import evolve
+from ai_news.data import evolve
 
 
 class TestEvolveHelpers(unittest.TestCase):

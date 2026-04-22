@@ -7,16 +7,16 @@ import sqlite3
 from datetime import datetime, timedelta, timezone
 from urllib.parse import quote
 
-from usage_web_core import *
-from usage_web_core import (
+from shared.infra.core import *
+from shared.infra.core import (
     _init_tiktoken, _TIKTOKEN_STATUS, _TOKEN_CACHE,
 )
-from usage_web_queries import *
+from shared.data.queries import *
 # `import *` 排除底線開頭, 顯式 import render 需要的 queries 私有名
-from usage_web_queries import _collect_known_resources
+from shared.data.queries import _collect_known_resources
 
 # Summary module: render 需要讀取 summary status 在 page-header meter 顯示
-import usage_web_summary as summary_mod
+from shared.infra import summary as summary_mod
 def _get_summary_status():
     return summary_mod.get_status()
 
@@ -869,49 +869,46 @@ def render(days: int, owner_filter: str = "") -> str:
     # Tab viewport: 固定 min-height, 內部各 tab 自帶所需控件
     parts.append("<div class='tab-viewport'>")
 
-    # Tab 1: 总览 (Hero + Today + Health) — 完整 hero 含 pills/summary/sparkline
+    # 各 tab 通过各自模块的 render_X 入口调度 (feature-first 结构)
+    from overview.render import render_overview
+    from usage.render import render_usage
+    from context.render import render_context
+    from memory.render import render_memory
+    from ai_news.render import render_news
+
+    # Tab 1: 总览
     hero_agg = query_hero_aggregates(conn, days)
     parts.append("<div class='tab-content active' data-tab='overview'>")
-    _render_hero(parts, days, owner_filter, total, sessions, total_all, cold_total,
-                 this_week, last_week, sparkline_svg, hero_agg)
-    _render_today_panel(parts, owner_activity, days, conn)
-    _render_health_panel(parts, health, days, conn)
+    render_overview(parts, days=days, owner_filter=owner_filter,
+                    total=total, sessions=sessions, total_all=total_all, cold_total=cold_total,
+                    this_week=this_week, last_week=last_week,
+                    sparkline_svg=sparkline_svg, hero_agg=hero_agg,
+                    owner_activity=owner_activity, health=health, conn=conn)
     parts.append("</div>")
 
-    # Tab 2: 工具使用 (time pills + owner filter + Active + Cold)
+    # Tab 2: 工具使用
     parts.append("<div class='tab-content' data-tab='usage'>")
-    parts.append("<div class='tab-controls'>")
-    parts.append("<div class='control-row'>")
-    parts.append("<span class='control-label'>时间范围</span>")
-    _render_time_pills(parts, days, owner_filter)
-    parts.append("</div>")
-    parts.append("<div class='control-row'>")
-    parts.append("<span class='control-label'>目录归属</span>")
-    _render_owner_filter(parts, ordered_owners, owner_filter)
-    parts.append("</div>")
-    parts.append("</div>")
-    _render_active_section(parts, active_data, sessions_maps, paired_maps, days, conn, owner_filter)
-    _render_cold_section(parts, cold_data_by_id, last_seen_maps, overridden_user)
+    render_usage(parts, days=days, owner_filter=owner_filter,
+                 ordered_owners=ordered_owners,
+                 active_data=active_data, cold_data_by_id=cold_data_by_id,
+                 sessions_maps=sessions_maps, paired_maps=paired_maps,
+                 last_seen_maps=last_seen_maps, overridden_user=overridden_user,
+                 conn=conn)
     parts.append("</div>")
 
-    # Tab 3: 上下文 (CLAUDE.md 分析) — 極簡 header, 無 pills/filter
+    # Tab 3: 上下文
     parts.append("<div class='tab-content' data-tab='context'>")
-    _render_claude_md_panel(parts, claude_analyses)
+    render_context(parts, claude_analyses=claude_analyses)
     parts.append("</div>")
 
-    # Tab 4: 记忆 (Memory + Compact) — 極簡 header, 無 pills/filter
+    # Tab 4: 记忆
     parts.append("<div class='tab-content' data-tab='memory'>")
-    _render_file_list_panel(parts, "memory_panel",
-                            "按最近修改时间排序, 点击可在 Mac 打开",
-                            mem_files, with_size=True, panel_id="memory")
-    _render_file_list_panel(parts, "compact_panel",
-                            "所有 compact 存档按时间倒序",
-                            compact_files, panel_id="compact", show_stats=False)
+    render_memory(parts, mem_files=mem_files, compact_files=compact_files)
     parts.append("</div>")
 
-    # Tab 5: 每日AI大事 — 独立 JSON 数据源, 非 events.db
+    # Tab 5: 每日 AI 大事
     parts.append("<div class='tab-content' data-tab='news'>")
-    _render_news_panel(parts)
+    render_news(parts)
     parts.append("</div>")
 
     parts.append("</div>")  # tab-viewport end
@@ -1255,136 +1252,4 @@ def _render_claude_md_back(parts: list, analysis: dict):
 # ============================================================
 # AI News tab
 # ============================================================
-def _load_news_data() -> dict:
-    """读取 ai-news.json, 失败返回空 payload."""
-    import json
-    if not os.path.isfile(NEWS_JSON_PATH):
-        return {"updated_at": None, "sources": [], "_missing": True}
-    try:
-        with open(NEWS_JSON_PATH, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception as e:
-        return {"updated_at": None, "sources": [], "_error": str(e)}
-
-
-def _load_news_votes() -> dict:
-    """读投票数据, 失败返回空 dict. 返回 {url: entry}."""
-    import json
-    if not os.path.isfile(NEWS_VOTES_PATH):
-        return {}
-    try:
-        with open(NEWS_VOTES_PATH, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        return data.get("votes", {}) if isinstance(data, dict) else {}
-    except Exception:
-        return {}
-
-
-def _load_news_favorites() -> dict:
-    """读收藏数据, 失败返回空 dict. 返回 {url: entry}."""
-    import json
-    if not os.path.isfile(NEWS_VOTES_PATH):
-        return {}
-    try:
-        with open(NEWS_VOTES_PATH, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        return data.get("favorites", {}) if isinstance(data, dict) else {}
-    except Exception:
-        return {}
-
-
-def _fmt_news_ts(ts: str) -> str:
-    """把 ISO 时间字符串转成 '2h ago' / '昨天' 之类相对时间."""
-    if not ts:
-        return ""
-    try:
-        # 支持 +00:00 / Z 两种
-        t = ts.replace("Z", "+00:00")
-        dt = datetime.fromisoformat(t)
-        now = datetime.now(timezone.utc)
-        if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
-        diff = (now - dt).total_seconds()
-        if diff < 0:
-            return "刚刚"
-        if diff < 60:
-            return f"{int(diff)}s"
-        if diff < 3600:
-            return f"{int(diff // 60)}m"
-        if diff < 86400:
-            return f"{int(diff // 3600)}h"
-        if diff < 86400 * 7:
-            return f"{int(diff // 86400)}d"
-        return dt.strftime("%m-%d")
-    except Exception:
-        return ts[:10] if len(ts) >= 10 else ts
-
-
-def _render_news_panel(parts: list):
-    """每日 AI 大事 tab. 数据来自 ai-news.json (由 fetch-ai-news.py 生成)."""
-    data = _load_news_data()
-    votes_by_url = _load_news_votes()
-    voted_urls = set(votes_by_url.keys())
-    parts.append("<div class='section'>")
-    parts.append("<div class='section-head news-head'>")
-    parts.append(f"<h2>{LABELS['news_panel']}</h2>")
-    parts.append("<span class='meta'>HN / GitHub Trending / 量子位 / iThome 每日聚合</span>")
-    updated_disp = _fmt_news_ts(data.get("updated_at", "")) if data.get("updated_at") else ""
-    if updated_disp:
-        parts.append(f"<span class='news-global-ts'>数据 {updated_disp}</span>")
-    if voted_urls:
-        counts = {"down": 0, "up": 0, "star": 0}
-        for v in votes_by_url.values():
-            s = v.get("score")
-            if s in counts:
-                counts[s] += 1
-        parts.append(
-            f"<span class='news-vote-count'>"
-            f"👎 {counts['down']} · 👍 {counts['up']} · ⭐ {counts['star']}</span>"
-        )
-    # 收藏模式切换按钮 (默认源模式)
-    fav_total = len(_load_news_favorites())
-    parts.append(
-        f"<button class='news-mode-toggle' type='button' data-mode-current='sources' "
-        f"aria-label='切换收藏视图'>❤️ 收藏 <b class='fav-count'>{fav_total}</b></button>"
-    )
-    parts.append("</div>")
-
-    if data.get("_missing"):
-        parts.append(
-            "<div class='empty-note'>"
-            "尚未生成数据. 运行 <code>python3 ~/Desktop/ai-project/hooks/fetch-ai-news.py</code>."
-            "</div>"
-        )
-        parts.append("</div>")
-        return
-    if data.get("_error"):
-        parts.append(f"<div class='news-error'>读取失败: {html.escape(data['_error'])}</div>")
-        parts.append("</div>")
-        return
-
-    sources = data.get("sources", [])
-    favorites_by_url = _load_news_favorites()
-    # 内嵌数据供 JS reader 渲染 (源切换 / 翻页 / 投票 UI 全前端做)
-    import json as _json
-    payload = {
-        "sources": sources,
-        "stage_by_source": data.get("stage_by_source", {}),
-        "votes": votes_by_url,
-        "favorites": favorites_by_url,
-    }
-    payload_json = _json.dumps(payload, ensure_ascii=False)
-    # </script> 转义防穿透
-    payload_json = payload_json.replace("</", "<\\/")
-    parts.append(f"<script id='news-data' type='application/json'>{payload_json}</script>")
-
-    parts.append("<div class='news-reader' data-news-reader>")
-    parts.append("  <aside class='news-src-list' id='news-src-list'></aside>")
-    parts.append("  <section class='news-view'>")
-    parts.append("    <div class='news-slide-viewport' id='news-viewport'>")
-    parts.append("      <div class='news-slide-track' id='news-track'></div>")
-    parts.append("    </div>")
-    parts.append("    <nav class='news-pagination' id='news-pagination'></nav>")
-    parts.append("  </section>")
-    parts.append("</div>")
-    parts.append("</div>")  # close .section
+# 每日 AI 大事 tab 渲染已迁到 ai_news.render (保持低耦合, 数据层模块在 ai_news.data)

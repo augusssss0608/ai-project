@@ -14,14 +14,16 @@ import os
 import html
 import time
 
-# Sibling modules
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import usage_web_summary as summary_mod
-from usage_web_core import *
-from usage_web_queries import *
-from usage_web_render import *
+# 把 hooks/ 根目录加进 sys.path, 让 shared / ai_news / overview 等包能被 import
+_HOOKS_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if _HOOKS_ROOT not in sys.path:
+    sys.path.insert(0, _HOOKS_ROOT)
+from shared.infra import summary as summary_mod
+from shared.infra.core import *
+from shared.data.queries import *
+from shared.http.render import *
 # `import *` 排除底線開頭, 明確 import Handler 需要的私有名
-from usage_web_render import _file_link  # may be referenced
+from shared.http.render import _file_link  # may be referenced
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 from datetime import datetime, timedelta, timezone
