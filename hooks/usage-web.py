@@ -100,10 +100,10 @@ def save_news_votes(votes: dict):
 
 
 def _counts_by_score(votes: dict) -> dict:
-    """按 score 分桶计数, 无 score 字段的老数据当作 up."""
+    """按 score 分桶计数."""
     out = {"down": 0, "up": 0, "star": 0}
     for v in votes.values():
-        s = (v.get("score") or "up") if isinstance(v, dict) else "up"
+        s = v.get("score")
         if s in out:
             out[s] += 1
     return out
@@ -272,11 +272,8 @@ class Handler(BaseHTTPRequestHandler):
                 self._send_json(400, {"ok": False, "error": "invalid json body"})
                 return
             url = (payload.get("url") or "").strip()
-            # 三档 score: "down" / "up" / "star"; null / 空 → 删除投票
-            # 兼容旧前端: helpful=true/false → score="up"/null
+            # 三档 score: "down" / "up" / "star"; null 删除投票
             score = payload.get("score")
-            if score is None and "helpful" in payload:
-                score = "up" if payload.get("helpful") else None
             if score not in (None, "down", "up", "star"):
                 self._send_json(400, {"ok": False, "error": f"invalid score: {score}"})
                 return

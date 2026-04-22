@@ -1344,7 +1344,7 @@ def _render_news_item(parts: list, it: dict, source_id: str, votes_by_url: dict,
     """votes_by_url: {url: {"score": "up"|"down"|"star", ...}} — 由 _render_news_panel 传入."""
     title = it.get("title", "").strip() or "(no title)"
     url = it.get("url", "") or "#"
-    current_score = (votes_by_url.get(url) or {}).get("score") or ""
+    current_score = (votes_by_url.get(url) or {}).get("score", "")
     is_voted = current_score in ("up", "star", "down")
     cls = "news-item news-item-hidden" if hidden else "news-item"
     if is_voted:
@@ -1458,10 +1458,6 @@ def _render_news_panel(parts: list):
     """每日 AI 大事 tab. 数据来自 ai-news.json (由 fetch-ai-news.py 生成)."""
     data = _load_news_data()
     votes_by_url = _load_news_votes()
-    # 兼容老数据: 值是旧的 {ts, title, source} 无 score, 视作 up
-    for _u, _v in votes_by_url.items():
-        if isinstance(_v, dict) and "score" not in _v:
-            _v["score"] = "up"
     voted_urls = set(votes_by_url.keys())
     parts.append("<div class='section'>")
     parts.append("<div class='section-head news-head'>")
@@ -1473,7 +1469,7 @@ def _render_news_panel(parts: list):
     if voted_urls:
         counts = {"down": 0, "up": 0, "star": 0}
         for v in votes_by_url.values():
-            s = v.get("score") if isinstance(v, dict) else None
+            s = v.get("score")
             if s in counts:
                 counts[s] += 1
         parts.append(

@@ -34,27 +34,19 @@ def get_stage(source_id: str, feedback: dict) -> str:
     return "hot"
 
 
-def _normalize_score(v: dict) -> str:
-    """旧数据无 score 字段当作 'up' (向后兼容)."""
-    s = (v or {}).get("score")
-    if s in ("down", "up", "star"):
-        return s
-    return "up"
-
-
 def get_positives(source_id: str, feedback: dict, limit: int = 10) -> list:
     """返回该源正例 (score=up 或 star). star 优先排在前, 内部按 ts desc."""
     stars, ups = [], []
     for url, v in feedback.get("votes", {}).items():
-        if (v or {}).get("source") != source_id:
+        if v.get("source") != source_id:
             continue
-        score = _normalize_score(v)
-        if score == "down":
+        score = v.get("score")
+        if score not in ("up", "star"):
             continue
         entry = {
             "url": url,
-            "title": (v or {}).get("title", ""),
-            "ts": (v or {}).get("ts", ""),
+            "title": v.get("title", ""),
+            "ts": v.get("ts", ""),
             "score": score,
         }
         (stars if score == "star" else ups).append(entry)
@@ -67,14 +59,14 @@ def get_explicit_negatives(source_id: str, feedback: dict, limit: int = 10) -> l
     """返回该源显式负例 (score=down). ts desc."""
     out = []
     for url, v in feedback.get("votes", {}).items():
-        if (v or {}).get("source") != source_id:
+        if v.get("source") != source_id:
             continue
-        if _normalize_score(v) != "down":
+        if v.get("score") != "down":
             continue
         out.append({
             "url": url,
-            "title": (v or {}).get("title", ""),
-            "ts": (v or {}).get("ts", ""),
+            "title": v.get("title", ""),
+            "ts": v.get("ts", ""),
         })
     out.sort(key=lambda x: x["ts"], reverse=True)
     return out[:limit]
