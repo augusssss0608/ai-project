@@ -1445,6 +1445,11 @@ def _render_news_panel(parts: list):
     stage_map = data.get("stage_by_source", {}) if data else {}
     if stage_map:
         stage_emoji = {"cold": "🥶", "mid": "🌡️", "hot": "🔥"}
+        stage_tooltip = {
+            "cold": "冷启动: 反馈累计 <10 条, 用原生排序 (HN 分数 / GitHub stars / RSS pubDate), 尚未启用 AI 评分",
+            "mid": "中启动: 反馈累计 10-49 条, AI 根据你的点赞偏好打分, 已接近稳定",
+            "hot": "热启动: 反馈累计 >=50 条, AI 每累计 20 条新反馈自动演进 source.md 偏好",
+        }
         labels = {
             "hackernews": "HN",
             "github_trending": "GitHub",
@@ -1455,7 +1460,10 @@ def _render_news_panel(parts: list):
         for sid, stage in stage_map.items():
             emoji = stage_emoji.get(stage, "")
             label = labels.get(sid, sid)
-            bits.append(f"{label} {emoji}")
+            tooltip = stage_tooltip.get(stage, "")
+            bits.append(
+                f"{label} <span class='news-stage-emoji' title=\"{html.escape(tooltip)}\">{emoji}</span>"
+            )
         if bits:
             parts.append(f"<span class='news-stage-badges'>阶段: {' · '.join(bits)}</span>")
     parts.append("</div>")

@@ -1777,6 +1777,10 @@ footer{
   color:var(--text-muted);
   font-size:12px;
 }
+.news-stage-emoji{
+  cursor:help;
+  display:inline-block;
+}
 
 .news-expand-btn{
   margin-top:var(--space-8);
