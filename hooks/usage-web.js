@@ -649,11 +649,14 @@
     return w;
   }
 
-  // 全局最高 slide 高度缓存 (跨所有源的最长那篇). 翻页 / 换源都用同一高度, 避免容器跳动
+  // === viewport 高度固定: 按字段上限模板渲染, 与实际数据无关 ===
+  // 这些数字是 UI 约定的最大字数信封, 对应 agent md 契约的硬顶:
+  //   title 120 / summary 150 / workspace 80 / claude 80
+  // real 文章只要 ≤ 这些值就必然装进容器, > 这些值由 agent 端修短
+  const MAX_LIMITS = { title: 120, summary: 150, workspace_help: 80, claude_usage: 80 };
   let globalMaxH = 0;
 
-  // 一次性渲染所有源所有 slide 到离屏 ghost 容器, 测 scrollHeight 取 max
-  function computeGlobalMaxSlideHeight(){
+  function computeMaxLimitHeight(){
     const vpW = vpEl.clientWidth || 1000;
     updateSlideWidth();
     const ghost = document.createElement('div');
@@ -663,33 +666,29 @@
     ghostTrack.style.cssText = 'display:flex;align-items:flex-start;';
     ghost.appendChild(ghostTrack);
     document.body.appendChild(ghost);
-    let html = '';
-    for (const src of sources){
-      const items = src.items || [];
-      for (let i = 0; i < items.length; i++){
-        html += renderSlideHtml(items[i], src.id, i+1, items.length);
-      }
-    }
-    ghostTrack.innerHTML = html;
-    let maxH = 0;
-    for (const s of ghostTrack.children){
-      const h = s.scrollHeight;
-      if (h > maxH) maxH = h;
-    }
+    const ch = (n) => '字'.repeat(n);
+    const maxItem = {
+      title: ch(MAX_LIMITS.title),
+      summary: ch(MAX_LIMITS.summary),
+      workspace_help: ch(MAX_LIMITS.workspace_help),
+      claude_usage: ch(MAX_LIMITS.claude_usage),
+      ts: '2026-04-22T00:00:00Z',
+      ai_score: 10,
+      url: 'https://example.com/max-template',
+    };
+    const sid = (sources[0] && sources[0].id) || 'hackernews';
+    ghostTrack.innerHTML = renderSlideHtml(maxItem, sid, 1, 1);
+    const firstChild = ghostTrack.firstElementChild;
+    const h = firstChild ? firstChild.scrollHeight : 0;
     document.body.removeChild(ghost);
-    return maxH;
+    return h;
   }
 
-  // 锁 viewport 高度为全局最大. 首次计算用 ghost 测所有源; 每次 render 也顺手量当前 track 看是否要向上 bump
+  // viewport 高度: 一次性按 MAX_LIMITS 模板算出 upper bound, 之后永不变 (翻页/换源/投票都不动)
   function updateViewportHeight(){
     requestAnimationFrame(() => {
       if (!globalMaxH){
-        globalMaxH = computeGlobalMaxSlideHeight();
-      }
-      // 投票后 slide 可能加了 badge 略变高, 检查当前 track, 只向上 bump 不缩
-      for (const s of trackEl.children){
-        const h = s.scrollHeight;
-        if (h > globalMaxH) globalMaxH = h;
+        globalMaxH = computeMaxLimitHeight();
       }
       if (globalMaxH > 0) vpEl.style.height = globalMaxH + 'px';
     });
