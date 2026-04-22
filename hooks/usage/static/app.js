@@ -176,6 +176,30 @@
     }
   });
 
+  // ===== 行 name 溢出时 hover 触发跑马灯 =====
+  document.addEventListener('pointerover', e => {
+    const row = e.target.closest && e.target.closest('.active-card .row');
+    if (!row) return;
+    const name = row.querySelector('.name');
+    if (!name || name.classList.contains('marquee')) return;
+    if (name.scrollWidth > name.clientWidth + 2) {
+      const shift = -(name.scrollWidth - name.clientWidth + 12);
+      name.style.setProperty('--marquee-shift', shift + 'px');
+      name.classList.add('marquee');
+    }
+  });
+  document.addEventListener('pointerout', e => {
+    const row = e.target.closest && e.target.closest('.active-card .row');
+    if (!row) return;
+    // 离开整行才停, 否则在 row 内子元素间移动会闪
+    if (e.relatedTarget && row.contains(e.relatedTarget)) return;
+    const name = row.querySelector('.name');
+    if (name) {
+      name.classList.remove('marquee');
+      name.style.removeProperty('--marquee-shift');
+    }
+  });
+
   // ===== 一键批量禁用 (背面操作按钮) =====
   document.addEventListener('click', async e => {
     const btn = e.target.closest('[data-bulk-disable]');

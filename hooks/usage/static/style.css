@@ -145,17 +145,49 @@
    ============================================================ */
 .active-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-12)}
 
-.active-card{padding:var(--space-12) var(--space-16)}
+/* 固定卡片高度 (按背面聚合内容自然高度), 前面 row 列表溢出滑动 */
+.active-card{padding:0;height:480px}
+.active-card .flip-inner{height:100%}
 
-.active-card .flip-front,.active-card .flip-back{padding:var(--space-12) var(--space-16)}
+.active-card .flip-front{
+  padding:var(--space-12) var(--space-16);
+  height:100%;
+  overflow-y:auto;
+  scrollbar-gutter:stable;
+  scrollbar-width:thin;
+  scrollbar-color:transparent transparent;
+  transition:scrollbar-color var(--dur-med) var(--ease-soft);
+}
+.active-card .flip-front:hover{scrollbar-color:rgba(255,255,255,.18) transparent}
+.active-card .flip-front::-webkit-scrollbar{width:6px}
+.active-card .flip-front::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:3px}
+
+.active-card .flip-back{padding:var(--space-12) var(--space-16);height:100%;overflow-y:auto}
 
 .active-head{
+  position:sticky;
+  top:0;
+  z-index:2;
+  background:var(--card-bg);
   display:flex;
   justify-content:space-between;
   align-items:baseline;
   margin-bottom:var(--space-12);
   padding-bottom:var(--space-8);
   border-bottom:1px solid var(--border);
+}
+
+/* 行 hover 跑马灯: name 溢出时由 JS 加 .marquee 并写入 --marquee-shift */
+.active-card .row .name.marquee{text-overflow:clip;overflow:hidden}
+.active-card .row .name.marquee > *{
+  display:inline-block;
+  white-space:nowrap;
+  animation:row-name-marquee 6s ease-in-out infinite;
+}
+@keyframes row-name-marquee{
+  0%,15%   {transform:translateX(0)}
+  50%      {transform:translateX(var(--marquee-shift,0))}
+  85%,100% {transform:translateX(0)}
 }
 
 .active-title{

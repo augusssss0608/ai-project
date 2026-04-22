@@ -60,7 +60,7 @@ def _render_file_list_panel(parts: list, label_key: str, meta: str, items: list,
     parts.append("<div class='memory-list'>")
     if not items:
         parts.append(f"<div class='empty-note'>{EMPTY_STATES['no_data']}</div>")
-    for row in items[:10]:
+    for row in items:
         if with_size:
             name, path, mtime, size = row
             extra = f"{size} B"

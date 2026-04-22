@@ -70,7 +70,7 @@ LABELS = {
     "cold_plugins":       "未触发 Plugin 命令",
     "today_panel":        "跨项目 Today",
     "health_panel":       "子项目健康",
-    "memory_panel":       "Memory 最近更新",
+    "memory_panel":       "Memory 全部",
     "compact_panel":      "Compact 存档时间轴",
     "news_panel":         "每日 AI 大事",
     "claude_md_analysis": "CLAUDE.md 热度分析",

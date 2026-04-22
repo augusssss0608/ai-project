@@ -583,6 +583,23 @@
     });
   }
 
+  // 切换到 news tab 时, 默认重置为 sources 模式 (避免上次离开停在收藏)
+  const newsTab = document.querySelector('.tab-bar .tab[data-tab="news"]');
+  if (newsTab){
+    newsTab.addEventListener('click', () => {
+      if (state.viewMode !== 'favorites') return;
+      state.viewMode = 'sources';
+      state.pageIdx = 0;
+      if (modeToggleEl){
+        modeToggleEl.dataset.modeCurrent = 'sources';
+        modeToggleEl.classList.remove('active');
+      }
+      renderSrcList();
+      renderSlides();
+      renderPagination();
+    });
+  }
+
   renderSrcList();
   renderSlides();
   renderPagination();

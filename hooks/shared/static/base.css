@@ -212,7 +212,7 @@ body::after{
   flex:1;
   min-width:fit-content;
   padding:var(--space-12) var(--space-24);
-  border-radius:2px;
+  border-radius:var(--radius-sm);
   color:var(--text-soft);
   font-family:var(--font-mono);
   font-size:11px;
@@ -857,16 +857,17 @@ details.section.collapsible > summary.section-head:hover .collapse-chevron{
 
 .row .meta{
   flex-shrink:0;
-  width:48px;
+  width:72px;
   text-align:right;
   font-family:var(--font-mono);
   font-size:10px;
   color:var(--text-faint);
   font-variant-numeric:tabular-nums;
   letter-spacing:.06em;
+  white-space:nowrap;
 }
 
-.row .badge{flex-shrink:0;width:auto;min-width:72px;text-align:center;white-space:nowrap;padding:2px 10px}
+.row .badge{flex-shrink:0;width:96px;text-align:center;white-space:nowrap;padding:2px 10px}
 
 .row .owner-tag{flex-shrink:0}
 
