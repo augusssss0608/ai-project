@@ -1,5 +1,7 @@
 // overview/static/app.js — 总览 tab 特有交互 (count-up 数字动画)
 (function(){
+  const easeOut = t => 1 - Math.pow(1 - t, 3);
+
   // ===== count-up 动画 =====
   document.querySelectorAll('[data-countup]').forEach(el => {
     const target = parseInt(el.dataset.countup, 10) || 0;
