@@ -34,16 +34,47 @@ def get_stage(source_id: str, feedback: dict) -> str:
     return "hot"
 
 
+def _normalize_score(v: dict) -> str:
+    """旧数据无 score 字段当作 'up' (向后兼容)."""
+    s = (v or {}).get("score")
+    if s in ("down", "up", "star"):
+        return s
+    return "up"
+
+
 def get_positives(source_id: str, feedback: dict, limit: int = 10) -> list:
-    """按 ts desc 返回该源最近 limit 条正例."""
+    """返回该源正例 (score=up 或 star). star 优先排在前, 内部按 ts desc."""
+    stars, ups = [], []
+    for url, v in feedback.get("votes", {}).items():
+        if (v or {}).get("source") != source_id:
+            continue
+        score = _normalize_score(v)
+        if score == "down":
+            continue
+        entry = {
+            "url": url,
+            "title": (v or {}).get("title", ""),
+            "ts": (v or {}).get("ts", ""),
+            "score": score,
+        }
+        (stars if score == "star" else ups).append(entry)
+    stars.sort(key=lambda x: x["ts"], reverse=True)
+    ups.sort(key=lambda x: x["ts"], reverse=True)
+    return (stars + ups)[:limit]
+
+
+def get_explicit_negatives(source_id: str, feedback: dict, limit: int = 10) -> list:
+    """返回该源显式负例 (score=down). ts desc."""
     out = []
     for url, v in feedback.get("votes", {}).items():
         if (v or {}).get("source") != source_id:
             continue
+        if _normalize_score(v) != "down":
+            continue
         out.append({
             "url": url,
-            "title": v.get("title", ""),
-            "ts": v.get("ts", ""),
+            "title": (v or {}).get("title", ""),
+            "ts": (v or {}).get("ts", ""),
         })
     out.sort(key=lambda x: x["ts"], reverse=True)
     return out[:limit]
@@ -54,22 +85,52 @@ from ai_news import history as _history
 
 def build_examples_inline(source_id: str, feedback: dict,
                           pos_limit: int = 10, neg_limit: int = 10) -> str:
-    """现场生成 examples.md 内容 (不落盘), 直接嵌入 scorer prompt."""
-    positives = get_positives(source_id, feedback, limit=pos_limit)
-    negatives = _history.get_negatives(source_id, feedback, days=7, limit=neg_limit)
+    """现场生成 examples.md 内容 (不落盘), 直接嵌入 scorer prompt.
 
-    lines = ["# 正例 (用户标记有帮助)"]
-    if positives:
-        for p in positives:
+    四组信号 (强度从高到低):
+    - 强正例 ⭐ star: 用户明确标记超赞, scorer 对同类主题打分应最高
+    - 正例 👍 up: 用户标记有用
+    - 显式负例 👎 down: 用户明确不感兴趣, 强信号避开同类
+    - 隐式负例 (history): 曝光 >=7 天无任何反馈, 弱信号
+    """
+    positives = get_positives(source_id, feedback, limit=pos_limit)
+    stars = [p for p in positives if p.get("score") == "star"]
+    ups = [p for p in positives if p.get("score") == "up"]
+    neg_explicit = get_explicit_negatives(source_id, feedback, limit=neg_limit)
+    neg_implicit = _history.get_negatives(source_id, feedback, days=7, limit=neg_limit)
+
+    lines = []
+
+    lines.append("# 强正例 ⭐ (用户标记超赞, 权重最高)")
+    if stars:
+        for p in stars:
             date = (p.get("ts") or "")[:10]
             lines.append(f"- [{date}] {p.get('title', '')} — {p.get('url', '')}")
     else:
         lines.append("- (暂无)")
 
     lines.append("")
-    lines.append("# 负例 (展示过但未点赞, >= 7 天)")
-    if negatives:
-        for n in negatives:
+    lines.append("# 正例 👍 (用户标记有用)")
+    if ups:
+        for p in ups:
+            date = (p.get("ts") or "")[:10]
+            lines.append(f"- [{date}] {p.get('title', '')} — {p.get('url', '')}")
+    else:
+        lines.append("- (暂无)")
+
+    lines.append("")
+    lines.append("# 显式负例 👎 (用户明确不感兴趣, 强信号需避开同类主题)")
+    if neg_explicit:
+        for n in neg_explicit:
+            date = (n.get("ts") or "")[:10]
+            lines.append(f"- [{date}] {n.get('title', '')} — {n.get('url', '')}")
+    else:
+        lines.append("- (暂无)")
+
+    lines.append("")
+    lines.append("# 隐式负例 (曝光 >= 7 天从未点任何反馈, 弱信号)")
+    if neg_implicit:
+        for n in neg_implicit:
             date = (n.get("first_ts") or "")[:10]
             title = n.get("title", "")
             url = n.get("url", "")

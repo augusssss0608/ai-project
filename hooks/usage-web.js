@@ -616,7 +616,7 @@
   });
 })();
 
-// ===== 每日 AI 大事 tab: 投票 (有帮助) =====
+// ===== 每日 AI 大事 tab: 三档投票 (👎/👍/⭐) =====
 (function setupNewsVote(){
   document.querySelectorAll('.news-vote-btn').forEach(btn => {
     btn.addEventListener('click', async e => {
@@ -624,31 +624,51 @@
       const url = btn.dataset.voteUrl;
       const title = btn.dataset.voteTitle || '';
       const source = btn.dataset.voteSource || '';
-      if (!url) return;
-      const currentlyVoted = btn.classList.contains('voted');
-      const newState = !currentlyVoted;
-      // 乐观更新 UI
-      btn.classList.toggle('voted', newState);
-      btn.closest('.news-item')?.classList.toggle('voted', newState);
-      btn.title = newState ? '已标记有帮助 (再点取消)' : '标记为有帮助';
+      const score = btn.dataset.voteScore; // 'down' | 'up' | 'star'
+      if (!url || !score) return;
+      const item = btn.closest('.news-item');
+      const group = btn.closest('.news-vote-group');
+      if (!item || !group) return;
+      // 当前激活按钮 = 同 group 里有 .voted 的那个
+      const currentBtn = group.querySelector('.news-vote-btn.voted');
+      const currentScore = currentBtn?.dataset.voteScore || null;
+      // 点同一个按钮 → 取消; 点不同按钮 → 切换
+      const newScore = (currentScore === score) ? null : score;
+      // 乐观 UI: 清同 group 所有 voted, 再按 newScore 加
+      group.querySelectorAll('.news-vote-btn').forEach(b => b.classList.remove('voted'));
+      if (newScore) {
+        const target = group.querySelector(`.news-vote-btn[data-vote-score='${newScore}']`);
+        target?.classList.add('voted');
+      }
+      // item 外层状态 class: voted-down / voted-up / voted-star / 无
+      item.classList.remove('voted-down', 'voted-up', 'voted-star');
+      if (newScore) item.classList.add(`voted-${newScore}`);
       try {
         const resp = await fetch('/news/vote', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url, title, source, helpful: newState }),
+          body: JSON.stringify({ url, title, source, score: newScore }),
         });
         const data = await resp.json();
         if (!data.ok) throw new Error(data.error || 'vote failed');
-        // 更新顶部计数
+        // 更新顶部计数: 显示三档分别数量
         const countEl = document.querySelector('.news-vote-count');
-        if (countEl && typeof data.total === 'number') {
-          countEl.textContent = `✓ ${data.total} 条已标记`;
+        if (countEl && data.totals_by_score) {
+          const t = data.totals_by_score;
+          countEl.textContent = `👎 ${t.down||0} · 👍 ${t.up||0} · ⭐ ${t.star||0}`;
         }
       } catch (err) {
         console.error('[news vote]', err);
-        // 回滚 UI
-        btn.classList.toggle('voted', currentlyVoted);
-        btn.closest('.news-item')?.classList.toggle('voted', currentlyVoted);
+        // 回滚
+        group.querySelectorAll('.news-vote-btn').forEach(b => b.classList.remove('voted'));
+        if (currentScore) {
+          const target = group.querySelector(`.news-vote-btn[data-vote-score='${currentScore}']`);
+          target?.classList.add('voted');
+          item.classList.remove('voted-down', 'voted-up', 'voted-star');
+          item.classList.add(`voted-${currentScore}`);
+        } else {
+          item.classList.remove('voted-down', 'voted-up', 'voted-star');
+        }
       }
     });
   });

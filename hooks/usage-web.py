@@ -97,6 +97,16 @@ def save_news_votes(votes: dict):
     with open(tmp, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
     os.replace(tmp, NEWS_VOTES_PATH)
+
+
+def _counts_by_score(votes: dict) -> dict:
+    """按 score 分桶计数, 无 score 字段的老数据当作 up."""
+    out = {"down": 0, "up": 0, "star": 0}
+    for v in votes.values():
+        s = (v.get("score") or "up") if isinstance(v, dict) else "up"
+        if s in out:
+            out[s] += 1
+    return out
 # Summary 相關邏輯已搬到 usage_web_summary.py 模組, 見 import summary_mod as summary
 # 向下相容 aliases (減少下面代碼改動)
 _get_summary_status = summary_mod.get_status
@@ -262,24 +272,37 @@ class Handler(BaseHTTPRequestHandler):
                 self._send_json(400, {"ok": False, "error": "invalid json body"})
                 return
             url = (payload.get("url") or "").strip()
-            helpful = bool(payload.get("helpful", True))
+            # 三档 score: "down" / "up" / "star"; null / 空 → 删除投票
+            # 兼容旧前端: helpful=true/false → score="up"/null
+            score = payload.get("score")
+            if score is None and "helpful" in payload:
+                score = "up" if payload.get("helpful") else None
+            if score not in (None, "down", "up", "star"):
+                self._send_json(400, {"ok": False, "error": f"invalid score: {score}"})
+                return
             title = (payload.get("title") or "").strip()[:200]
             source = (payload.get("source") or "").strip()[:60]
             if not url:
                 self._send_json(400, {"ok": False, "error": "missing url"})
                 return
             votes = load_news_votes()
-            if helpful:
+            if score:
                 votes[url] = {
                     "ts": datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds"),
                     "title": title,
                     "source": source,
+                    "score": score,
                 }
             else:
                 votes.pop(url, None)
             try:
                 save_news_votes(votes)
-                self._send_json(200, {"ok": True, "voted": helpful, "total": len(votes)})
+                self._send_json(200, {
+                    "ok": True,
+                    "score": score,
+                    "total": len(votes),
+                    "totals_by_score": _counts_by_score(votes),
+                })
             except Exception as e:
                 self._send_json(500, {"ok": False, "error": str(e)})
             return
