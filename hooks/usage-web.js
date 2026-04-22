@@ -623,6 +623,7 @@
     viewMode: 'sources',                // 'sources' | 'favorites'
     srcIdx: 0,
     pageIdx: 0,
+    favFoldedSources: new Set(),        // 收藏模式下折叠的源 id 集合
   };
   let pendingWrapSnap = null;
 
@@ -636,7 +637,7 @@
   function isFav(url){ return !!state.favorites[url]; }
   function getScore(url){ return (state.votes[url]||{}).score || ''; }
 
-  // 收藏模式下: 构造一条虚拟 source 含所有被收藏的文章 (从 sources 中查原 item)
+  // 收藏模式下: 构造虚拟 source, 按原 sources 顺序分组, 组内按收藏 ts desc
   function getFavoriteItems(){
     const byUrl = {};
     for (const s of sources){
@@ -644,22 +645,34 @@
         byUrl[it.url] = {...it, _sourceId: s.id, _sourceLabel: s.label};
       }
     }
+    const favUrls = new Set(Object.keys(state.favorites));
     const out = [];
-    for (const [url, meta] of Object.entries(state.favorites)){
-      const real = byUrl[url];
-      if (real) {
-        out.push(real);
+    for (const url of favUrls){
+      if (byUrl[url]){
+        // 补 fav ts 用于排序
+        out.push({...byUrl[url], _favTs: state.favorites[url].ts || ''});
       } else {
-        // 原数据里找不到 (可能被后续刷新移除), 仍显示一条残影占位
+        // 原数据缺失, stub 占位
+        const meta = state.favorites[url];
+        const srcObj = sources.find(s => s.id === meta.source);
         out.push({
-          url, title: meta.title || url, summary:'(原文已从源中移除)',
-          workspace_help:'无相关', claude_usage:'无相关', ts: meta.ts,
-          _sourceId: meta.source || 'hackernews', _sourceLabel: meta.source || '',
+          url, title: meta.title || url, summary: '(原文已从源中移除)',
+          workspace_help: '无相关', claude_usage: '无相关', ts: meta.ts,
+          _sourceId: meta.source || 'unknown',
+          _sourceLabel: (srcObj && srcObj.label) || meta.source || '未知源',
+          _favTs: meta.ts || '',
         });
       }
     }
-    // 按收藏 ts desc
-    out.sort((a,b) => String(b.ts||'').localeCompare(String(a.ts||'')));
+    // 按 (源顺序, 组内 favTs desc) 排序
+    const srcOrder = {};
+    sources.forEach((s, i) => srcOrder[s.id] = i);
+    out.sort((a, b) => {
+      const ai = srcOrder[a._sourceId] ?? 999;
+      const bi = srcOrder[b._sourceId] ?? 999;
+      if (ai !== bi) return ai - bi;
+      return String(b._favTs || '').localeCompare(String(a._favTs || ''));
+    });
     return out;
   }
 
@@ -761,33 +774,62 @@
     });
   }
 
-  // 收藏模式: 左侧栏改为收藏文章列表
+  // 收藏模式: 左侧栏按源分组 + 可折叠
   function renderFavList(){
     const items = getFavoriteItems();
-    const headHtml = `<div class='head'>🔖 FAVORITES · ${items.length}</div>`;
+    let html = `<div class='head'>❤️ FAVORITES · ${items.length}</div>`;
     if (!items.length){
-      srcListEl.innerHTML = headHtml + `<div class='news-fav-empty'>// 暂无收藏<br>点击文章右上 🔖 加收藏</div>`;
+      srcListEl.innerHTML = html + `<div class='news-fav-empty'>// 暂无收藏<br>点击文章右上 ❤️ 加收藏</div>`;
       return;
     }
-    const html = items.map((it, i) => {
-      const active = i === state.pageIdx ? 'active' : '';
-      const srcId = it._sourceId || '';
-      return `<button class='news-src-item news-fav-item src-${esc(srcId)} ${active}' data-idx='${i}' title='${esc(it.title||'')}'>
-        <div class='label'>
-          <span class='name'>${esc(it.title||'').slice(0,40)}</span>
-          <span class='stage'>${esc(it._sourceLabel || srcId)}</span>
-        </div>
-      </button>`;
-    }).join('');
-    srcListEl.innerHTML = headHtml + html;
-    srcListEl.querySelectorAll('.news-src-item').forEach(b => {
+    // 按 _sourceId 分组, 保持 getFavoriteItems 已排序的顺序
+    const groups = [];
+    const groupByIdx = {};
+    items.forEach((it, idx) => {
+      const sid = it._sourceId || 'unknown';
+      if (!groupByIdx[sid]){
+        const g = { id: sid, label: it._sourceLabel || sid, items: [] };
+        groupByIdx[sid] = g;
+        groups.push(g);
+      }
+      groupByIdx[sid].items.push({ ...it, _favIdx: idx });
+    });
+    for (const grp of groups){
+      const folded = state.favFoldedSources.has(grp.id);
+      html += `<div class='news-fav-group src-${esc(grp.id)} ${folded?'folded':''}'>`;
+      html += `<button class='news-fav-group-head' data-fold='${esc(grp.id)}' aria-expanded='${folded?"false":"true"}'>`;
+      html += `<span class='chev'>▾</span>`;
+      html += `<span class='name'>${esc(grp.label)}</span>`;
+      html += `<span class='count'>${grp.items.length}</span>`;
+      html += `</button>`;
+      html += `<div class='news-fav-group-body'>`;
+      for (const it of grp.items){
+        const active = it._favIdx === state.pageIdx ? 'active' : '';
+        html += `<button class='news-src-item news-fav-item src-${esc(grp.id)} ${active}' data-idx='${it._favIdx}' title='${esc(it.title||'')}'>`;
+        html += `<div class='label'><span class='name'>${esc(it.title||'').slice(0, 60)}</span></div>`;
+        html += `</button>`;
+      }
+      html += `</div></div>`;
+    }
+    srcListEl.innerHTML = html;
+    // 折叠切换
+    srcListEl.querySelectorAll('.news-fav-group-head').forEach(b => {
+      b.addEventListener('click', () => {
+        const sid = b.dataset.fold;
+        if (state.favFoldedSources.has(sid)) state.favFoldedSources.delete(sid);
+        else state.favFoldedSources.add(sid);
+        renderFavList();
+      });
+    });
+    // 选择收藏项
+    srcListEl.querySelectorAll('.news-fav-item').forEach(b => {
       b.addEventListener('click', () => {
         const idx = parseInt(b.dataset.idx, 10);
         if (idx === state.pageIdx) return;
         state.pageIdx = idx;
         renderSlides();
         renderPagination();
-        renderFavList();  // 刷新 active
+        renderFavList();
       });
     });
   }
@@ -815,14 +857,16 @@
           ${it.ai_score!=null?`<span>·</span><span>💡 AI ${it.ai_score}</span>`:''}
           <span class='ord'>${String(ordN).padStart(2,'0')} / ${String(total).padStart(2,'0')}</span>
         </div>
-        <h3 class='news-art-title'><a href='${esc(it.url)}' target='_blank' rel='noopener'>${esc(title)}</a></h3>
+        <div class='news-art-title-row'>
+          <h3 class='news-art-title'><a href='${esc(it.url)}' target='_blank' rel='noopener'>${esc(title)}</a></h3>
+          <button class='news-fav-btn ${fav?'faved':''}' data-fav-url='${esc(it.url)}' data-fav-title='${safeTitle}' data-fav-source='${esc(srcId)}' title='${fav?"已收藏, 点击取消":"加入收藏"}'>${fav?'❤️':'🤍'}</button>
+        </div>
         <div class='news-art-actions'>
           <span class='lbl'>反馈</span>
           <span class='news-vote-group'>
             <button class='news-vote-btn ${score==='down'?'voted':''}' data-vote-url='${esc(it.url)}' data-vote-title='${safeTitle}' data-vote-source='${esc(srcId)}' data-vote-score='down' title='没兴趣 / 过滤同类'>👎</button>
             <button class='news-vote-btn ${score==='up'?'voted':''}' data-vote-url='${esc(it.url)}' data-vote-title='${safeTitle}' data-vote-source='${esc(srcId)}' data-vote-score='up' title='有用'>👍</button>
             <button class='news-vote-btn ${score==='star'?'voted':''}' data-vote-url='${esc(it.url)}' data-vote-title='${safeTitle}' data-vote-source='${esc(srcId)}' data-vote-score='star' title='超赞'>⭐</button>
-            <button class='news-fav-btn ${fav?'faved':''}' data-fav-url='${esc(it.url)}' data-fav-title='${safeTitle}' data-fav-source='${esc(srcId)}' title='${fav?"已收藏, 点击取消":"加入收藏"}'>🔖</button>
           </span>
           <a class='open-ext' href='${esc(it.url)}' target='_blank' rel='noopener'>原文 ↗</a>
         </div>
@@ -839,9 +883,12 @@
 
   function renderSlides(){
     const items = curItems();
-    if (!items.length){
-      trackEl.innerHTML = `<div class='news-slide'><div style='margin:auto;color:var(--text-faint);font-family:var(--font-mono);letter-spacing:.2em'>// 暂无数据</div></div>`;
+    // 空源 / 收藏模式默认未选 (pageIdx<0): 显示占位
+    if (!items.length || state.pageIdx < 0){
+      const msg = !items.length ? '// 暂无数据' : '// 从左侧选一条收藏文章';
+      trackEl.innerHTML = `<div class='news-slide'><div class='news-art-empty'>${msg}</div></div>`;
       trackEl.style.transform = 'translateX(0)';
+      updateViewportHeight();
       return;
     }
     const n = items.length;
@@ -859,8 +906,8 @@
     requestAnimationFrame(() => {
       trackEl.style.transition = 'transform .45s cubic-bezier(.22,1,.36,1)';
     });
-    // 单条源隐藏 grab cursor (拖拽已禁, 视觉也同步)
-    vpEl.style.cursor = items.length <= 1 ? 'default' : '';
+    // 单条源 / 未选中隐藏 grab cursor (拖拽已禁, 视觉也同步)
+    vpEl.style.cursor = (items.length <= 1 || state.pageIdx < 0) ? 'default' : '';
     bindVoteButtons();
     updateViewportHeight();
   }
@@ -945,7 +992,8 @@
 
   function toggleViewMode(){
     state.viewMode = state.viewMode === 'sources' ? 'favorites' : 'sources';
-    state.pageIdx = 0;
+    // 进收藏模式默认无选中, 进源模式回到第一篇
+    state.pageIdx = state.viewMode === 'favorites' ? -1 : 0;
     if (modeToggleEl){
       modeToggleEl.dataset.modeCurrent = state.viewMode;
       modeToggleEl.classList.toggle('active', state.viewMode === 'favorites');
@@ -958,8 +1006,9 @@
   function renderPagination(){
     const total = curItems().length;
     pagEl.hidden = false;  // 永远保留空间, 单条源也占位 (保持 reader 整体高度一致)
-    if (total <= 1){
-      pagEl.innerHTML = '';  // 内容空, 靠 CSS min-height 撑尺寸
+    // 收藏模式未选中 (pageIdx<0) 也保留空 pagination 占位, 但不渲染数字
+    if (total <= 1 || state.pageIdx < 0){
+      pagEl.innerHTML = '';
       return;
     }
     const parts = [];
@@ -977,6 +1026,7 @@
   function gotoPage(i){
     const total = curItems().length;
     if (total <= 1) return;  // 单条 / 空源: 不翻页
+    if (state.pageIdx < 0) return;  // 收藏模式默认未选中, 必须先点一条才能翻页
     const prevIdx = state.pageIdx;
     const vpW = vpEl.clientWidth || 1;
 
@@ -1042,8 +1092,8 @@
     const THRESHOLD = 60, AXIS_LOCK = 10;
     function baseTx(){ return -(state.pageIdx + 1) * (vpEl.clientWidth || 1); }
     function onStart(x, y){
-      // 单条 / 空源: 不启用拖拽 (无页可翻)
-      if (curItems().length <= 1) return;
+      // 单条 / 空源 / 未选中: 不启用拖拽 (无页可翻)
+      if (curItems().length <= 1 || state.pageIdx < 0) return;
       if (pendingWrapSnap){
         trackEl.removeEventListener('transitionend', pendingWrapSnap);
         pendingWrapSnap = null;

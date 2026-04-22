@@ -1346,7 +1346,7 @@ def _render_news_panel(parts: list):
     fav_total = len(_load_news_favorites())
     parts.append(
         f"<button class='news-mode-toggle' type='button' data-mode-current='sources' "
-        f"aria-label='切换收藏视图'>🔖 收藏 <b class='fav-count'>{fav_total}</b></button>"
+        f"aria-label='切换收藏视图'>❤️ 收藏 <b class='fav-count'>{fav_total}</b></button>"
     )
     parts.append("</div>")
 
