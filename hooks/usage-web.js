@@ -1076,6 +1076,8 @@
     }
     renderPagination();
     // 高度在源切换时已锁定为该源最长 slide 的高度, 翻页不动
+    // 收藏模式: 翻页后同步左栏 active
+    if (state.viewMode === 'favorites') renderFavList();
   }
 
   document.addEventListener('keydown', e => {

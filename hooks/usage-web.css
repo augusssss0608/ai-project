@@ -1714,11 +1714,15 @@ footer{
 }
 .news-src-item.active .count{color:var(--accent);border-color:var(--border-strong);background:var(--accent-soft)}
 
-/* 源色映射 */
-.news-src-item.src-hackernews{--src:#ff6600}
-.news-src-item.src-github_trending{--src:#8cff65}
-.news-src-item.src-qbitai{--src:#39ff14}
-.news-src-item.src-ithome_tw{--src:#ff2d95}
+/* 源色映射 (给 item 和 fav-group 同样生效) */
+.news-src-item.src-hackernews,
+.news-fav-group.src-hackernews{--src:#ff6600}
+.news-src-item.src-github_trending,
+.news-fav-group.src-github_trending{--src:#8cff65}
+.news-src-item.src-qbitai,
+.news-fav-group.src-qbitai{--src:#39ff14}
+.news-src-item.src-ithome_tw,
+.news-fav-group.src-ithome_tw{--src:#ff2d95}
 
 /* 右侧 view */
 .news-view{
