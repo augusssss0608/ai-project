@@ -6,3 +6,7 @@ __pycache__/
 .DS_Store
 .idea/
 .vscode/
+.playwright-mcp/
+.mcp.json
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
