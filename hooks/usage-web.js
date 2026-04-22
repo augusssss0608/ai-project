@@ -616,151 +616,343 @@
   });
 })();
 
-// ===== 每日 AI 大事 tab: 三档投票 (👎/👍/⭐) =====
-(function setupNewsVote(){
-  document.querySelectorAll('.news-vote-btn').forEach(btn => {
-    btn.addEventListener('click', async e => {
-      e.preventDefault();
-      const url = btn.dataset.voteUrl;
-      const title = btn.dataset.voteTitle || '';
-      const source = btn.dataset.voteSource || '';
-      const score = btn.dataset.voteScore; // 'down' | 'up' | 'star'
-      if (!url || !score) return;
-      const item = btn.closest('.news-item');
-      const group = btn.closest('.news-vote-group');
-      if (!item || !group) return;
-      // 当前激活按钮 = 同 group 里有 .voted 的那个
-      const currentBtn = group.querySelector('.news-vote-btn.voted');
-      const currentScore = currentBtn?.dataset.voteScore || null;
-      // 点同一个按钮 → 取消; 点不同按钮 → 切换
-      const newScore = (currentScore === score) ? null : score;
-      // 乐观 UI: 清同 group 所有 voted, 再按 newScore 加
-      group.querySelectorAll('.news-vote-btn').forEach(b => b.classList.remove('voted'));
-      if (newScore) {
-        const target = group.querySelector(`.news-vote-btn[data-vote-score='${newScore}']`);
-        target?.classList.add('voted');
-      }
-      // item 外层状态 class: voted-down / voted-up / voted-star / 无
-      item.classList.remove('voted-down', 'voted-up', 'voted-star');
-      if (newScore) item.classList.add(`voted-${newScore}`);
-      try {
-        const resp = await fetch('/news/vote', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url, title, source, score: newScore }),
-        });
-        const data = await resp.json();
-        if (!data.ok) throw new Error(data.error || 'vote failed');
-        // 更新顶部计数: 显示三档分别数量
-        const countEl = document.querySelector('.news-vote-count');
-        if (countEl && data.totals_by_score) {
-          const t = data.totals_by_score;
-          countEl.textContent = `👎 ${t.down||0} · 👍 ${t.up||0} · ⭐ ${t.star||0}`;
-        }
-      } catch (err) {
-        console.error('[news vote]', err);
-        // 回滚
-        group.querySelectorAll('.news-vote-btn').forEach(b => b.classList.remove('voted'));
-        if (currentScore) {
-          const target = group.querySelector(`.news-vote-btn[data-vote-score='${currentScore}']`);
-          target?.classList.add('voted');
-          item.classList.remove('voted-down', 'voted-up', 'voted-star');
-          item.classList.add(`voted-${currentScore}`);
-        } else {
-          item.classList.remove('voted-down', 'voted-up', 'voted-star');
-        }
-      }
-    });
-  });
-})();
-
-// ===== AI 大事轮播: 每源一页, prev/next + dots + 键盘 + 触屏 =====
-// 自动轮播接口已预留 (AUTO_MS), 默认关闭; 开启改成 >0 毫秒即可, 配合 pause-on-hover.
-(function setupNewsCarousel(){
-  const root = document.querySelector('.news-carousel[data-news-carousel]');
+// ===== AI 大事 reader: 左侧源 + 右侧单篇滑页 + 底部页码 + infinite wrap =====
+(function setupNewsReader(){
+  const root = document.querySelector('.news-reader[data-news-reader]');
   if (!root) return;
-  const track = root.querySelector('.news-carousel-track');
-  const slides = track ? Array.from(track.children) : [];
-  const dots = Array.from(root.querySelectorAll('.news-carousel-dot'));
-  const prevBtn = root.querySelector('.news-carousel-btn.prev');
-  const nextBtn = root.querySelector('.news-carousel-btn.next');
-  if (slides.length <= 1) {
-    // 单源 / 空: 隐藏导航
-    prevBtn?.setAttribute('hidden', '');
-    nextBtn?.setAttribute('hidden', '');
-    root.querySelector('.news-carousel-dots')?.setAttribute('hidden', '');
-    return;
-  }
-  const AUTO_MS = 0; // 轮播间隔 (毫秒), 0 关闭; 想开启改 > 0 数值
-  let idx = 0;
-  let autoTimer = null;
+  const dataEl = document.getElementById('news-data');
+  if (!dataEl) return;
+  let DATA;
+  try { DATA = JSON.parse(dataEl.textContent); } catch(e){ console.error('[news] bad data', e); return; }
+  const sources = DATA.sources || [];
+  if (!sources.length) return;
 
-  function refresh(){
-    if (track) track.style.transform = `translateX(-${idx * 100}%)`;
-    dots.forEach((d, di) => d.classList.toggle('active', di === idx));
-    if (prevBtn) prevBtn.disabled = (idx === 0);
-    if (nextBtn) nextBtn.disabled = (idx === slides.length - 1);
+  const STAGE_EMOJI = {cold:'🥶', mid:'🌡️', hot:'🔥'};
+  const STAGE_LABEL = {cold:'COLD', mid:'MID', hot:'HOT'};
+
+  const state = {
+    votes: DATA.votes || {},
+    srcIdx: 0,
+    pageIdx: 0,
+  };
+  let pendingWrapSnap = null;
+
+  const srcListEl = root.querySelector('#news-src-list');
+  const vpEl      = root.querySelector('#news-viewport');
+  const trackEl   = root.querySelector('#news-track');
+  const pagEl     = root.querySelector('#news-pagination');
+
+  function esc(s){return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+  function curSource(){ return sources[state.srcIdx] || {items:[]}; }
+  function curItems(){ return curSource().items || []; }
+  function getScore(url){ return (state.votes[url]||{}).score || ''; }
+
+  function fmtTime(iso){
+    if(!iso) return '';
+    const s = String(iso).replace(/Z/,'+00:00');
+    const d = new Date(s.includes('T')?s:s.replace(/\s+/,'T'));
+    if(isNaN(d)) return String(iso).slice(0,16);
+    const pad = n => String(n).padStart(2,'0');
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
-  function goto(i, opts){
-    const wrap = !!(opts && opts.wrap);
-    if (wrap) {
-      idx = (i + slides.length) % slides.length;
-    } else {
-      idx = Math.max(0, Math.min(slides.length - 1, i));
+
+  function updateSlideWidth(){
+    const w = vpEl.clientWidth || 0;
+    if (w > 0) document.documentElement.style.setProperty('--news-slide-w', w + 'px');
+    return w;
+  }
+
+  function renderSrcList(){
+    const headHtml = `<div class='head'>SOURCES</div>`;
+    const items = sources.map((s, i) => {
+      const active = i === state.srcIdx ? 'active' : '';
+      return `<button class='news-src-item src-${esc(s.id)} ${active}' data-idx='${i}'>
+        <div class='label'>
+          <span class='name'>${esc(s.label || s.id)}</span>
+          <span class='stage'>${STAGE_EMOJI[s.stage]||''} ${STAGE_LABEL[s.stage]||''}</span>
+        </div>
+        <span class='count'>${(s.items||[]).length}</span>
+      </button>`;
+    }).join('');
+    srcListEl.innerHTML = headHtml + items;
+    srcListEl.querySelectorAll('.news-src-item').forEach(b => {
+      b.addEventListener('click', () => {
+        const idx = parseInt(b.dataset.idx, 10);
+        if (idx === state.srcIdx) return;
+        state.srcIdx = idx;
+        state.pageIdx = 0;
+        renderSrcList();
+        renderSlides();
+        renderPagination();
+      });
+    });
+  }
+
+  function renderSlideHtml(it, srcId, ordN, total){
+    const score = getScore(it.url);
+    const wsNA = !it.workspace_help || it.workspace_help==='无相关';
+    const cuNA = !it.claude_usage || it.claude_usage==='无相关';
+    const badge = score==='star' ? '⭐ STAR' : score==='up' ? '👍 USEFUL' : score==='down' ? '👎 SKIP' : '';
+    const srcLabelFull = (sources.find(s=>s.id===srcId)||{}).label || srcId;
+    const title = it.title || '(no title)';
+    const safeTitle = esc(title.slice(0,160));
+    return `
+    <div class='news-slide src-${esc(srcId)} ${score?'voted-'+score:''}'>
+      <article>
+        ${badge?`<span class='news-vote-badge'>${badge}</span>`:''}
+        <div class='news-art-meta'>
+          <span class='src'>${esc(srcLabelFull)}</span>
+          <span>·</span>
+          <span>${fmtTime(it.ts)}</span>
+          ${it.ai_score!=null?`<span>·</span><span>💡 AI ${it.ai_score}</span>`:''}
+          <span class='ord'>${String(ordN).padStart(2,'0')} / ${String(total).padStart(2,'0')}</span>
+        </div>
+        <h3 class='news-art-title'><a href='${esc(it.url)}' target='_blank' rel='noopener'>${esc(title)}</a></h3>
+        <div class='news-art-actions'>
+          <span class='lbl'>反馈</span>
+          <span class='news-vote-group'>
+            <button class='news-vote-btn ${score==='down'?'voted':''}' data-vote-url='${esc(it.url)}' data-vote-title='${safeTitle}' data-vote-source='${esc(srcId)}' data-vote-score='down' title='没兴趣 / 过滤同类'>👎</button>
+            <button class='news-vote-btn ${score==='up'?'voted':''}' data-vote-url='${esc(it.url)}' data-vote-title='${safeTitle}' data-vote-source='${esc(srcId)}' data-vote-score='up' title='有用'>👍</button>
+            <button class='news-vote-btn ${score==='star'?'voted':''}' data-vote-url='${esc(it.url)}' data-vote-title='${safeTitle}' data-vote-source='${esc(srcId)}' data-vote-score='star' title='超赞'>⭐</button>
+          </span>
+          <a class='open-ext' href='${esc(it.url)}' target='_blank' rel='noopener'>原文 ↗</a>
+        </div>
+        <div class='news-art-section-label'>摘要</div>
+        <p class='news-art-summary'>${esc(it.summary||'(暂无摘要)')}</p>
+        <div class='news-art-section-label'>相关度分析</div>
+        <div class='news-art-analysis'>
+          <span class='k ${wsNA?'na':''}'>工作区</span><span class='v ${wsNA?'na':''}'>${esc(it.workspace_help||'无相关')}</span>
+          <span class='k ${cuNA?'na':''}'>Claude</span><span class='v ${cuNA?'na':''}'>${esc(it.claude_usage||'无相关')}</span>
+        </div>
+      </article>
+    </div>`;
+  }
+
+  function renderSlides(){
+    const items = curItems();
+    if (!items.length){
+      trackEl.innerHTML = `<div class='news-slide'><div style='margin:auto;color:var(--text-faint);font-family:var(--font-mono);letter-spacing:.2em'>// 暂无数据</div></div>`;
+      trackEl.style.transform = 'translateX(0)';
+      return;
     }
-    refresh();
-  }
-  function startAuto(){
-    if (!AUTO_MS) return;
-    stopAuto();
-    autoTimer = setInterval(() => goto(idx + 1, {wrap: true}), AUTO_MS);
-  }
-  function stopAuto(){
-    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+    const n = items.length;
+    const sid = curSource().id;
+    updateSlideWidth();
+    const vpW = vpEl.clientWidth || 1;
+    const html = [];
+    html.push(renderSlideHtml(items[n-1], sid, n, n));
+    items.forEach((it,i) => html.push(renderSlideHtml(it, sid, i+1, n)));
+    html.push(renderSlideHtml(items[0], sid, 1, n));
+    trackEl.innerHTML = html.join('');
+    trackEl.style.transition = 'none';
+    trackEl.style.transform = `translateX(${-(state.pageIdx + 1) * vpW}px)`;
+    trackEl.offsetHeight;
+    requestAnimationFrame(() => {
+      trackEl.style.transition = 'transform .45s cubic-bezier(.22,1,.36,1)';
+    });
+    bindVoteButtons();
   }
 
-  prevBtn?.addEventListener('click', () => goto(idx - 1));
-  nextBtn?.addEventListener('click', () => goto(idx + 1));
-  dots.forEach((d, di) => d.addEventListener('click', () => goto(di)));
+  function bindVoteButtons(){
+    trackEl.querySelectorAll('.news-vote-btn').forEach(b => {
+      b.addEventListener('click', async e => {
+        e.stopPropagation();
+        const url = b.dataset.voteUrl;
+        const title = b.dataset.voteTitle || '';
+        const source = b.dataset.voteSource || '';
+        const score = b.dataset.voteScore;
+        if (!url || !score) return;
+        const current = getScore(url);
+        const next = current === score ? null : score;
+        if (next) state.votes[url] = {score:next, title, source, ts:new Date().toISOString()};
+        else delete state.votes[url];
+        renderSlides();
+        renderPagination();
+        try {
+          const resp = await fetch('/news/vote', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({url, title, source, score: next}),
+          });
+          const data = await resp.json();
+          if (!data.ok) throw new Error(data.error || 'vote failed');
+          // 更新顶部 vote 计数
+          const countEl = document.querySelector('.news-vote-count');
+          if (countEl && data.totals_by_score){
+            const t = data.totals_by_score;
+            countEl.textContent = `👎 ${t.down||0} · 👍 ${t.up||0} · ⭐ ${t.star||0}`;
+          }
+        } catch(err){
+          console.error('[news vote]', err);
+          if (current) state.votes[url] = {score:current, title, source};
+          else delete state.votes[url];
+          renderSlides();
+          renderPagination();
+        }
+      });
+    });
+  }
 
-  // 键盘: 只在 news tab active 时响应 ← →
-  document.addEventListener('keydown', (e) => {
-    if (e.target && ['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
+  function renderPagination(){
+    const total = curItems().length;
+    if (total <= 1){
+      pagEl.innerHTML = `<span class='news-page-spacer'>— ${total} item${total!==1?'s':''} —</span>`;
+      return;
+    }
+    const parts = [];
+    for (let i = 0; i < total; i++){
+      const active = i === state.pageIdx ? 'active' : '';
+      parts.push(`<button class='news-page-btn ${active}' data-go='${i}' aria-label='第 ${i+1} 篇'>${String(i+1).padStart(2,'0')}</button>`);
+      if (i < total - 1) parts.push(`<span class='news-page-sep'>·</span>`);
+    }
+    pagEl.innerHTML = parts.join('');
+    pagEl.querySelectorAll('.news-page-btn').forEach(b => {
+      b.addEventListener('click', () => gotoPage(parseInt(b.dataset.go, 10)));
+    });
+  }
+
+  function gotoPage(i){
+    const total = curItems().length;
+    if (total === 0) return;
+    const prevIdx = state.pageIdx;
+    const vpW = vpEl.clientWidth || 1;
+
+    if (pendingWrapSnap){
+      trackEl.removeEventListener('transitionend', pendingWrapSnap);
+      pendingWrapSnap = null;
+    }
+
+    const isWrapNext = prevIdx === total - 1 && (i % total + total) % total === 0 && i > prevIdx;
+    const isWrapPrev = prevIdx === 0 && (i % total + total) % total === total - 1 && i < prevIdx;
+
+    if (isWrapNext){
+      trackEl.style.transition = 'transform .45s cubic-bezier(.22,1,.36,1)';
+      trackEl.style.transform = `translateX(${-(total + 1) * vpW}px)`;
+      state.pageIdx = 0;
+      const onEnd = () => {
+        trackEl.removeEventListener('transitionend', onEnd);
+        pendingWrapSnap = null;
+        if (state.pageIdx !== 0) return;
+        trackEl.style.transition = 'none';
+        trackEl.style.transform = `translateX(${-1 * vpW}px)`;
+        trackEl.offsetHeight;
+        requestAnimationFrame(() => trackEl.style.transition = 'transform .45s cubic-bezier(.22,1,.36,1)');
+      };
+      pendingWrapSnap = onEnd;
+      trackEl.addEventListener('transitionend', onEnd, {once:true});
+    } else if (isWrapPrev){
+      trackEl.style.transition = 'transform .45s cubic-bezier(.22,1,.36,1)';
+      trackEl.style.transform = `translateX(0px)`;
+      state.pageIdx = total - 1;
+      const onEnd = () => {
+        trackEl.removeEventListener('transitionend', onEnd);
+        pendingWrapSnap = null;
+        if (state.pageIdx !== total - 1) return;
+        trackEl.style.transition = 'none';
+        trackEl.style.transform = `translateX(${-total * vpW}px)`;
+        trackEl.offsetHeight;
+        requestAnimationFrame(() => trackEl.style.transition = 'transform .45s cubic-bezier(.22,1,.36,1)');
+      };
+      pendingWrapSnap = onEnd;
+      trackEl.addEventListener('transitionend', onEnd, {once:true});
+    } else {
+      const newIdx = ((i % total) + total) % total;
+      state.pageIdx = newIdx;
+      trackEl.style.transition = 'transform .45s cubic-bezier(.22,1,.36,1)';
+      trackEl.style.transform = `translateX(${-(state.pageIdx + 1) * vpW}px)`;
+    }
+    renderPagination();
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.target && ['INPUT','TEXTAREA'].includes(e.target.tagName)) return;
     const activeTab = document.querySelector('.tab-content.active')?.dataset.tab;
     if (activeTab !== 'news') return;
-    if (e.key === 'ArrowLeft')  { e.preventDefault(); goto(idx - 1); }
-    if (e.key === 'ArrowRight') { e.preventDefault(); goto(idx + 1); }
+    if (e.key === 'ArrowLeft')  { e.preventDefault(); gotoPage(state.pageIdx - 1); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); gotoPage(state.pageIdx + 1); }
   });
 
-  // 触屏 / 鼠标拖拽: 超过 60px 触发切页
-  const vp = root.querySelector('.news-carousel-viewport');
-  let startX = null;
-  let startY = null;
-  let dragging = false;
-  function onStart(x, y){ startX = x; startY = y; dragging = true; }
-  function onEnd(x){
-    if (!dragging || startX === null) return;
-    const dx = x - startX;
-    dragging = false;
-    if (Math.abs(dx) > 60) goto(idx + (dx < 0 ? 1 : -1));
-    startX = null; startY = null;
+  // 鼠标 / 触屏拖拽
+  (function setupDrag(){
+    let startX=null, startY=null, curDx=0, dragging=false, axisLocked=null;
+    const THRESHOLD = 60, AXIS_LOCK = 10;
+    function baseTx(){ return -(state.pageIdx + 1) * (vpEl.clientWidth || 1); }
+    function onStart(x, y){
+      if (pendingWrapSnap){
+        trackEl.removeEventListener('transitionend', pendingWrapSnap);
+        pendingWrapSnap = null;
+      }
+      startX = x; startY = y; curDx = 0; dragging = true; axisLocked = null;
+      trackEl.style.transition = 'none';
+      vpEl.classList.add('grabbing');
+    }
+    function onMove(x, y){
+      if (!dragging || startX===null) return false;
+      const dx = x - startX, dy = y - startY;
+      if (axisLocked === null){
+        if (Math.abs(dx) > AXIS_LOCK || Math.abs(dy) > AXIS_LOCK){
+          axisLocked = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+        }
+      }
+      if (axisLocked === 'x'){
+        curDx = dx;
+        trackEl.style.transform = `translateX(${baseTx() + dx}px)`;
+        return true;
+      }
+      return false;
+    }
+    function onEnd(){
+      if (!dragging) return;
+      dragging = false;
+      vpEl.classList.remove('grabbing');
+      trackEl.style.transition = 'transform .45s cubic-bezier(.22,1,.36,1)';
+      if (axisLocked === 'x' && Math.abs(curDx) > THRESHOLD){
+        gotoPage(state.pageIdx + (curDx < 0 ? 1 : -1));
+      } else {
+        trackEl.style.transform = `translateX(${baseTx()}px)`;
+      }
+      startX = startY = null; curDx = 0; axisLocked = null;
+    }
+    vpEl.addEventListener('mousedown', e => {
+      if (e.target.closest('button,a,input,textarea')) return;
+      onStart(e.clientX, e.clientY);
+      e.preventDefault();
+    });
+    document.addEventListener('mousemove', e => { if (dragging) onMove(e.clientX, e.clientY); });
+    document.addEventListener('mouseup', onEnd);
+    vpEl.addEventListener('mouseleave', () => { if (dragging) onEnd(); });
+    vpEl.addEventListener('touchstart', e => {
+      if (e.target.closest('button,a,input,textarea')) return;
+      const t = e.touches[0];
+      onStart(t.clientX, t.clientY);
+    }, {passive:true});
+    vpEl.addEventListener('touchmove', e => {
+      const t = e.touches[0];
+      const needPrevent = onMove(t.clientX, t.clientY);
+      if (needPrevent && e.cancelable) e.preventDefault();
+    }, {passive:false});
+    vpEl.addEventListener('touchend', onEnd);
+    vpEl.addEventListener('touchcancel', onEnd);
+  })();
+
+  // resize / tab 切换 viewport 尺寸变 → 重新 layout
+  if (window.ResizeObserver){
+    let lastW = 0;
+    const ro = new ResizeObserver(() => {
+      const w = vpEl.clientWidth;
+      if (w > 0 && w !== lastW){
+        lastW = w;
+        updateSlideWidth();
+        trackEl.style.transition = 'none';
+        trackEl.style.transform = `translateX(${-(state.pageIdx + 1) * w}px)`;
+        trackEl.offsetHeight;
+        requestAnimationFrame(() => trackEl.style.transition = 'transform .45s cubic-bezier(.22,1,.36,1)');
+      }
+    });
+    ro.observe(vpEl);
   }
-  vp?.addEventListener('touchstart', e => onStart(e.touches[0].clientX, e.touches[0].clientY), {passive: true});
-  vp?.addEventListener('touchmove',  e => {
-    if (!dragging) return;
-    const dx = e.touches[0].clientX - startX;
-    const dy = e.touches[0].clientY - startY;
-    if (Math.abs(dx) > Math.abs(dy) && e.cancelable) e.preventDefault();
-  }, {passive: false});
-  vp?.addEventListener('touchend', e => onEnd(e.changedTouches[0].clientX));
-  vp?.addEventListener('mousedown', e => onStart(e.clientX, e.clientY));
-  vp?.addEventListener('mouseup',   e => onEnd(e.clientX));
-  vp?.addEventListener('mouseleave', () => { dragging = false; startX = null; });
 
-  // 暂停自动播放 on hover (即使 AUTO_MS=0 也无害)
-  root.addEventListener('mouseenter', stopAuto);
-  root.addEventListener('mouseleave', startAuto);
-
-  refresh();
-  startAuto();
+  renderSrcList();
+  renderSlides();
+  renderPagination();
 })();

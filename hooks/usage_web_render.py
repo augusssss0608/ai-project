@@ -1517,26 +1517,25 @@ def _render_news_panel(parts: list):
         return
 
     sources = data.get("sources", [])
-    parts.append("<div class='news-carousel' data-news-carousel>")
-    parts.append("<button class='news-carousel-btn prev' type='button' aria-label='上一源'>‹</button>")
-    parts.append("<div class='news-carousel-viewport'>")
-    parts.append("<div class='news-carousel-track'>")
-    for src in sources:
-        parts.append("<div class='news-carousel-slide'>")
-        _render_news_source_card(parts, src, votes_by_url)
-        parts.append("</div>")
+    # 内嵌数据供 JS reader 渲染 (源切换 / 翻页 / 投票 UI 全前端做)
+    import json as _json
+    payload = {
+        "sources": sources,
+        "stage_by_source": data.get("stage_by_source", {}),
+        "votes": votes_by_url,
+    }
+    payload_json = _json.dumps(payload, ensure_ascii=False)
+    # </script> 转义防穿透
+    payload_json = payload_json.replace("</", "<\\/")
+    parts.append(f"<script id='news-data' type='application/json'>{payload_json}</script>")
+
+    parts.append("<div class='news-reader' data-news-reader>")
+    parts.append("  <aside class='news-src-list' id='news-src-list'></aside>")
+    parts.append("  <section class='news-view'>")
+    parts.append("    <div class='news-slide-viewport' id='news-viewport'>")
+    parts.append("      <div class='news-slide-track' id='news-track'></div>")
+    parts.append("    </div>")
+    parts.append("    <nav class='news-pagination' id='news-pagination'></nav>")
+    parts.append("  </section>")
     parts.append("</div>")
-    parts.append("</div>")
-    parts.append("<button class='news-carousel-btn next' type='button' aria-label='下一源'>›</button>")
-    # dots
-    parts.append("<div class='news-carousel-dots'>")
-    for i, src in enumerate(sources):
-        label = html.escape(src.get("label", src.get("id", "")))
-        active = " active" if i == 0 else ""
-        parts.append(
-            f"<button class='news-carousel-dot{active}' type='button' "
-            f"data-carousel-idx='{i}' aria-label='{label}' title='{label}'></button>"
-        )
-    parts.append("</div>")
-    parts.append("</div>")
-    parts.append("</div>")
+    parts.append("</div>")  # close .section
