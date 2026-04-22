@@ -2519,6 +2519,10 @@ rm -f /tmp/ai-news-scorer-*-{ts}.json /tmp/ai-news-scored-*-{ts}.json \
 
 ### Task 2.7: [MANUAL] Subagent 冒烟 (人工触发)
 
+**状态**: [PASS] 2026-04-22 已在 /loop 启动前完成 (见 `progress/logs/smoke-notes.md` Task 2.7). 证据: 3 条 HN 候选派 scorer, MCP server 第一 (ai_score=9), Claude framework 第二 (ai_score=8), Google earnings 被过滤. /loop 撞到此 task 直接打勾跳过.
+
+注: plan 原 Step 2 期望 "items 数组 3 条", 实测 scorer 会过滤偏好不符的负例只返回 2 条, 这是期望行为, 不是 bug.
+
 **Files:** 无写入, 只验证.
 
 - [ ] **Step 1: 在 Claude Code 会话里手工派 news-scorer 一次**
