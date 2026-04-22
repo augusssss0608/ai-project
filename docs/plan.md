@@ -2949,6 +2949,8 @@ Expected: 无输出.
 
 ### Task 4.6: [AUTO] 浏览器验证 (Playwright MCP)
 
+**状态**: [PASS] 2026-04-22 已随 Task 5.1 一并验过 (见 `progress/logs/smoke-notes.md` Task 4.6/5.1). 证据: dashboard http://localhost:38080/#news 加载正常, 14 条 news-item 渲染, 用户肉眼确认. /loop 撞到此 task 直接打勾跳过.
+
 **Files:** 无写入, 仅 screenshot 到 `~/Desktop/ai-project/progress/logs/task-4.6-screenshots/`.
 
 **前置**: Playwright MCP 已可用 (`mcp__playwright__browser_*` 全套工具). 若 MCP 不可用, /loop 写 NEED-HUMAN-INPUT 等用户启用后再跑.
@@ -3014,6 +3016,16 @@ Expected: 5 张截图都不为空 (文件 size > 10KB).
 ---
 
 ### Task 5.1: [AUTO+1MANUAL] 集成冒烟: sentinel 强制触发完整 pipeline
+
+**状态**: [PASS] 2026-04-22 14:45 JST 已在独立 Claude Code session 里直接跑一次完整 pipeline (无 sentinel, 直接调 skill). 证据:
+- 抓取 14 / summary 14/14 / analysis 14/14 (共 3 批并行)
+- ai-news.json 14:45 更新, history.jsonl 新增 14 行
+- TG message 132 发送 + 用户手机确认收到
+- Dashboard 正常渲染
+
+**发现并修复 1 个 bug**: 主代理写 ai-news.json schema 偏离 spec §10 (commit 2f8a65e 修 SKILL.md §2.6 内联 schema + 自检). 下次跑不应复现.
+
+/loop 撞到此 task 直接打勾跳过.
 
 **升级说明**: 原版全 MANUAL; 预决策后仅 "TG 手机确认" 1 步 MANUAL, 其余 /loop 自动做 (含 Playwright 看 dashboard).
 
