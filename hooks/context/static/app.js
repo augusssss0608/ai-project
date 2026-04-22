@@ -11,38 +11,18 @@
     e.stopPropagation();
     const card = dot.closest('.claude-md-card');
     if (!card) return;
-    // 排除 'prune-dot' 自身, 只匹配 prune-high / prune-mid / prune-low
     const matched = Array.from(dot.classList).find(c => c === 'prune-high' || c === 'prune-mid' || c === 'prune-low');
     if (!matched) return;
     const bucket = matched.replace('prune-', '');
     const current = card.dataset.pruneFilter || '';
     if (current === bucket) {
-      // 再次點擊 → 取消篩選
       delete card.dataset.pruneFilter;
       card.querySelectorAll('.prune-dot.active-filter').forEach(d => d.classList.remove('active-filter'));
     } else {
-      // 套用新篩選
       card.dataset.pruneFilter = bucket;
       card.querySelectorAll('.prune-dot.active-filter').forEach(d => d.classList.remove('active-filter'));
       card.querySelectorAll(`.prune-dot.prune-${bucket}`).forEach(d => d.classList.add('active-filter'));
     }
-  });
-
-  // 整張卡點擊翻面 (排除卡片內互動元素)
-  const FLIP_EXCLUDE_SELECTOR = 'a, input, select, textarea, button:not(.flip-btn), .archive-btn, .pill, .owner-chip, .owner-tag, .open-link, .sheet-btn, .summary-meter, .prune-dot';
-  document.addEventListener('click', e => {
-    const card = e.target.closest('.flip-card');
-    if (!card) return;
-    // 排除互動元素 (除非點的就是 .flip-btn 翻面按鈕本身)
-    if (e.target.closest('.flip-btn')) {
-      e.preventDefault();
-      e.stopPropagation();
-      flipCard(card, !card.classList.contains('flipped'));
-      return;
-    }
-    if (e.target.closest(FLIP_EXCLUDE_SELECTOR)) return;
-    e.preventDefault();
-    flipCard(card, !card.classList.contains('flipped'));
   });
 
   // ===== 复制可删减清单 (CLAUDE.md 背面) =====

@@ -1064,3 +1064,65 @@ footer{
   .news-src-item .label .stage{display:none}
   .news-slide{padding:24px 20px 36px}
 }
+
+
+/* ============================================================
+   防溢出: .page 内部容器不能撑得比 .page 宽
+   注意: 必须不含 .page 本身, 否则会覆盖前面 .page 的 max-width:1200px
+   ============================================================ */
+.tab-viewport,.tab-content,.tab-bar,.tab-controls,
+.active-grid,.cold-grid,.today-grid,.health-grid,.claude-md-grid,
+.active-card,.risk,.today-card,.health-card,.claude-md-card,.memory-list,.metric{
+  min-width:0;
+  max-width:100%;
+}
+
+/* ============================================================
+   AI 摘要 meter (page-header 右上, 跨 tab 显示) — 从 overview 误归 → 移回 base
+   ============================================================ */
+.summary-meter{
+  display:flex;
+  align-items:center;
+  gap:var(--space-12);
+  padding:var(--space-8) var(--space-12);
+  background:var(--card-bg);
+  border:1px solid var(--card-border);
+  border-radius:var(--radius-sm);
+  box-shadow:var(--shadow-sm);
+  font-family:var(--font-mono);
+  font-size:10px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.summary-meter-label{
+  color:var(--accent);
+  font-weight:600;
+  text-shadow:var(--glow-accent);
+}
+.summary-meter-quota,.summary-meter-cache{color:var(--text-soft)}
+.summary-meter-quota b,.summary-meter-cache b{
+  color:var(--text);
+  font-variant-numeric:tabular-nums;
+  font-weight:600;
+}
+.summary-meter-btn{
+  font-family:var(--font-mono);
+  font-size:10px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  padding:3px 10px;
+  border-radius:3px;
+  background:rgba(57,255,20,.06);
+  border:1px solid rgba(57,255,20,.2);
+  color:var(--accent);
+  cursor:pointer;
+  transition:background var(--dur-fast) var(--ease-soft),border-color var(--dur-fast) var(--ease-soft),color var(--dur-fast) var(--ease-soft);
+}
+.summary-meter-btn:hover{
+  background:rgba(57,255,20,.14);
+  border-color:rgba(57,255,20,.42);
+  color:var(--accent-bright);
+  text-shadow:var(--glow-accent);
+}
+.summary-meter-btn:disabled{opacity:.5;cursor:wait}

@@ -91,6 +91,22 @@
     flipOpenOrder.length = 0;
   }
 
+  // 整张卡点击翻面 (任何 tab 的 .flip-card 都生效)
+  const FLIP_EXCLUDE_SELECTOR = 'a, input, select, textarea, button:not(.flip-btn), .archive-btn, .pill, .owner-chip, .owner-tag, .open-link, .sheet-btn, .summary-meter, .prune-dot';
+  document.addEventListener('click', e => {
+    const card = e.target.closest('.flip-card');
+    if (!card) return;
+    if (e.target.closest('.flip-btn')) {
+      e.preventDefault();
+      e.stopPropagation();
+      flipCard(card, !card.classList.contains('flipped'));
+      return;
+    }
+    if (e.target.closest(FLIP_EXCLUDE_SELECTOR)) return;
+    e.preventDefault();
+    flipCard(card, !card.classList.contains('flipped'));
+  });
+
   // ===== Sheet 抽屜 (Memory/Compact 統計) =====
   // 啟動時把 .sheet 移到 body, 逃離 .tab-content 的 transform context (否則 position:fixed 失效)
   document.querySelectorAll('.sheet').forEach(s => document.body.appendChild(s));
@@ -316,5 +332,6 @@
   window.__dashboard = Object.assign(window.__dashboard||{}, {
     flipOpenOrder,
     showToast,
+    flipCard,
   });
 })();

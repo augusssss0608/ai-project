@@ -4,68 +4,6 @@
    ============================================================ */
 
 
-/* 骨架全域防溢出: 任何 tab 切換內容都不得撐寬 .page */
-.page,.tab-viewport,.tab-content,.tab-bar,.tab-controls,
-.active-grid,.cold-grid,.today-grid,.health-grid,.claude-md-grid,
-.active-card,.risk,.today-card,.health-card,.claude-md-card,.memory-list,.metric{
-  min-width:0;
-  max-width:100%;
-}
-
-.summary-meter{
-  display:flex;
-  align-items:center;
-  gap:var(--space-12);
-  padding:var(--space-8) var(--space-12);
-  background:var(--card-bg);
-  border:1px solid var(--card-border);
-  border-radius:var(--radius-sm);
-  box-shadow:var(--shadow-sm);
-  font-family:var(--font-mono);
-  font-size:10px;
-  letter-spacing:.08em;
-  text-transform:uppercase;
-  white-space:nowrap;
-}
-
-.summary-meter-label{
-  color:var(--accent);
-  font-weight:600;
-  text-shadow:var(--glow-accent);
-}
-
-.summary-meter-quota,.summary-meter-cache{color:var(--text-soft)}
-
-.summary-meter-quota b,.summary-meter-cache b{
-  color:var(--text);
-  font-variant-numeric:tabular-nums;
-  font-weight:600;
-}
-
-.summary-meter-btn{
-  font-family:var(--font-mono);
-  font-size:10px;
-  letter-spacing:.1em;
-  text-transform:uppercase;
-  padding:3px 10px;
-  border-radius:3px;
-  background:rgba(57,255,20,.06);
-  border:1px solid rgba(57,255,20,.2);
-  color:var(--accent);
-  cursor:pointer;
-  transition:background var(--dur-fast) var(--ease-soft),border-color var(--dur-fast) var(--ease-soft),color var(--dur-fast) var(--ease-soft);
-}
-
-.summary-meter-btn:hover{
-  background:rgba(57,255,20,.14);
-  border-color:rgba(57,255,20,.42);
-  color:var(--accent-bright);
-  text-shadow:var(--glow-accent);
-}
-
-.summary-meter-btn:disabled{opacity:.5;cursor:wait}
-
-
 /* ============================================================
    Hero (只在 overview tab 內)
    ============================================================ */
