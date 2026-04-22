@@ -649,18 +649,49 @@
     return w;
   }
 
-  // 取当前源所有 slide 的 scrollHeight 最大值, 作为固定 viewport 高度
-  // 这样翻页时高度不变, 每篇文章都按"最长那篇"的尺寸容纳; 用户不会感到跳动
-  function updateViewportHeight(){
-    const slides = trackEl.children;
-    if (!slides || !slides.length) return;
-    requestAnimationFrame(() => {
-      let maxH = 0;
-      for (const s of slides){
-        const h = s.scrollHeight;
-        if (h > maxH) maxH = h;
+  // 全局最高 slide 高度缓存 (跨所有源的最长那篇). 翻页 / 换源都用同一高度, 避免容器跳动
+  let globalMaxH = 0;
+
+  // 一次性渲染所有源所有 slide 到离屏 ghost 容器, 测 scrollHeight 取 max
+  function computeGlobalMaxSlideHeight(){
+    const vpW = vpEl.clientWidth || 1000;
+    updateSlideWidth();
+    const ghost = document.createElement('div');
+    ghost.style.cssText = `position:absolute;left:-99999px;top:0;visibility:hidden;pointer-events:none;width:${vpW}px;overflow:hidden;`;
+    const ghostTrack = document.createElement('div');
+    ghostTrack.className = 'news-slide-track';
+    ghostTrack.style.cssText = 'display:flex;align-items:flex-start;';
+    ghost.appendChild(ghostTrack);
+    document.body.appendChild(ghost);
+    let html = '';
+    for (const src of sources){
+      const items = src.items || [];
+      for (let i = 0; i < items.length; i++){
+        html += renderSlideHtml(items[i], src.id, i+1, items.length);
       }
-      if (maxH > 0) vpEl.style.height = maxH + 'px';
+    }
+    ghostTrack.innerHTML = html;
+    let maxH = 0;
+    for (const s of ghostTrack.children){
+      const h = s.scrollHeight;
+      if (h > maxH) maxH = h;
+    }
+    document.body.removeChild(ghost);
+    return maxH;
+  }
+
+  // 锁 viewport 高度为全局最大. 首次计算用 ghost 测所有源; 每次 render 也顺手量当前 track 看是否要向上 bump
+  function updateViewportHeight(){
+    requestAnimationFrame(() => {
+      if (!globalMaxH){
+        globalMaxH = computeGlobalMaxSlideHeight();
+      }
+      // 投票后 slide 可能加了 badge 略变高, 检查当前 track, 只向上 bump 不缩
+      for (const s of trackEl.children){
+        const h = s.scrollHeight;
+        if (h > globalMaxH) globalMaxH = h;
+      }
+      if (globalMaxH > 0) vpEl.style.height = globalMaxH + 'px';
     });
   }
 
@@ -944,7 +975,7 @@
     vpEl.addEventListener('touchcancel', onEnd);
   })();
 
-  // resize / tab 切换 viewport 尺寸变 → 重新 layout
+  // resize / tab 切换 viewport 尺寸变 → 重新 layout + 重新量全局最大高度
   if (window.ResizeObserver){
     let lastW = 0;
     const ro = new ResizeObserver(() => {
@@ -956,6 +987,7 @@
         trackEl.style.transform = `translateX(${-(state.pageIdx + 1) * w}px)`;
         trackEl.offsetHeight;
         requestAnimationFrame(() => trackEl.style.transition = 'transform .45s cubic-bezier(.22,1,.36,1)');
+        globalMaxH = 0;        // 宽度变了换行点变, 旧 max 作废
         updateViewportHeight();
       }
     });
