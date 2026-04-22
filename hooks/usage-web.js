@@ -906,8 +906,8 @@
     requestAnimationFrame(() => {
       trackEl.style.transition = 'transform .45s cubic-bezier(.22,1,.36,1)';
     });
-    // 单条源 / 未选中隐藏 grab cursor (拖拽已禁, 视觉也同步)
-    vpEl.style.cursor = (items.length <= 1 || state.pageIdx < 0) ? 'default' : '';
+    // 收藏模式 / 单条源 / 未选中: 隐藏 grab cursor (拖拽已禁, 视觉也同步)
+    vpEl.style.cursor = (state.viewMode === 'favorites' || items.length <= 1 || state.pageIdx < 0) ? 'default' : '';
     bindVoteButtons();
     updateViewportHeight();
   }
@@ -1004,9 +1004,15 @@
   }
 
   function renderPagination(){
+    // 收藏模式完全隐藏 pagination
+    if (state.viewMode === 'favorites'){
+      pagEl.hidden = true;
+      pagEl.innerHTML = '';
+      return;
+    }
+    pagEl.hidden = false;  // 源模式: 永远保留空间, 单条源也占位 (保持 reader 整体高度一致)
     const total = curItems().length;
-    pagEl.hidden = false;  // 永远保留空间, 单条源也占位 (保持 reader 整体高度一致)
-    // 收藏模式未选中 (pageIdx<0) 也保留空 pagination 占位, 但不渲染数字
+    // 单条源 / 未选中 (pageIdx<0): 保留空 pagination 占位, 不渲染数字
     if (total <= 1 || state.pageIdx < 0){
       pagEl.innerHTML = '';
       return;
@@ -1024,9 +1030,10 @@
   }
 
   function gotoPage(i){
+    if (state.viewMode === 'favorites') return;  // 收藏模式: 禁翻页/滑动 (只能点左栏切换)
     const total = curItems().length;
     if (total <= 1) return;  // 单条 / 空源: 不翻页
-    if (state.pageIdx < 0) return;  // 收藏模式默认未选中, 必须先点一条才能翻页
+    if (state.pageIdx < 0) return;
     const prevIdx = state.pageIdx;
     const vpW = vpEl.clientWidth || 1;
 
@@ -1094,7 +1101,8 @@
     const THRESHOLD = 60, AXIS_LOCK = 10;
     function baseTx(){ return -(state.pageIdx + 1) * (vpEl.clientWidth || 1); }
     function onStart(x, y){
-      // 单条 / 空源 / 未选中: 不启用拖拽 (无页可翻)
+      // 收藏模式 / 单条 / 空源 / 未选中: 不启用拖拽
+      if (state.viewMode === 'favorites') return;
       if (curItems().length <= 1 || state.pageIdx < 0) return;
       if (pendingWrapSnap){
         trackEl.removeEventListener('transitionend', pendingWrapSnap);
