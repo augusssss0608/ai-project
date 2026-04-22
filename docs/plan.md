@@ -1899,6 +1899,8 @@ Expected: 无输出 (解析成功). **不执行脚本** — 执行需要 sources
 
 ### Task 2.0a: [MANUAL] 架构根基 smoke — subagent model 覆盖验证 (前置自 Chunk 5)
 
+**状态**: [PASS] 2026-04-22 已在 /loop 启动前完成 (见 `progress/logs/smoke-notes.md` Task 2.0a). 证据: 派 news-scorer (声明 haiku) 10s 完成 5k tokens, 符合 Haiku 特征; agent md 声明 `model: claude-haiku-4-5`. /loop 撞到此 task 直接打勾跳过.
+
 **目的**: 确认主 agent 是 Sonnet 时, 派的 subagent (Haiku/Opus) 真的按 subagent md 里 `model:` 跑, 不是继承主 agent 模型. **若此步失败, 整个 spec §4 + §9 架构作废, 需改用 subprocess 路径**.
 
 - [ ] **Step 1: 先完成 Task 2.1 (临时) — 仅为这次验证, 写 news-scorer.md**
@@ -1960,6 +1962,8 @@ Spec §4 假设失败. 记录到 `~/Desktop/ai-news-v2-smoke-notes.md`:
 ---
 
 ### Task 2.0b: [MANUAL] 架构根基 smoke — Agent tool 并发上限
+
+**状态**: [PASS] 2026-04-22 已在 /loop 启动前完成 (见 `progress/logs/smoke-notes.md` Task 2.0b). 证据: 一条 message 同时派 10 个 news-summary, 9/10 成功写入文件 (1 个 LLM 拒答非并发问题), 所有 agent 时间戳同秒完成 → 真并行. spec §3 的 10 并发假设成立. /loop 撞到此 task 直接打勾跳过.
 
 **目的**: 主 agent 一次 message 内能并发派几个 Agent tool call? Spec §3 假设 10 (summary 批次), 实测.
 
