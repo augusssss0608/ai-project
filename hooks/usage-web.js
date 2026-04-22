@@ -630,16 +630,6 @@
   const pagEl     = root.querySelector('#news-pagination');
 
   function esc(s){return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
-  // 字数硬截断 (Array.from 处理 emoji/组合字符): 保证超长内容不撑爆容器
-  function truncate(str, max){
-    if(!str) return '';
-    const chars = Array.from(String(str));
-    if (chars.length <= max) return str;
-    return chars.slice(0, max).join('') + '…';
-  }
-  // 字数上限配合 reader 高度 (760px) 选定, 保证最拥挤场景仍不滚动:
-  //   title 60 字 ≈ 2 行, summary 80 字 ≈ 3 行, analysis 40 字 ≈ 1-2 行
-  const LIMIT = { title: 60, summary: 80, analysis: 40 };
   function curSource(){ return sources[state.srcIdx] || {items:[]}; }
   function curItems(){ return curSource().items || []; }
   function getScore(url){ return (state.votes[url]||{}).score || ''; }
@@ -657,6 +647,20 @@
     const w = vpEl.clientWidth || 0;
     if (w > 0) document.documentElement.style.setProperty('--news-slide-w', w + 'px');
     return w;
+  }
+
+  // 按当前所见 slide 的实际高度调 viewport, 不固定. 所有 slide 做全量渲染后, 取当前 slide 的 scrollHeight
+  function updateViewportHeight(){
+    // track 里的 visualIdx = pageIdx + 1
+    const slides = trackEl.children;
+    if (!slides || !slides.length) return;
+    const active = slides[state.pageIdx + 1] || slides[0];
+    if (!active) return;
+    // 用 requestAnimationFrame 等 DOM 布局完成再量
+    requestAnimationFrame(() => {
+      const h = active.scrollHeight;
+      if (h > 0) vpEl.style.height = h + 'px';
+    });
   }
 
   function renderSrcList(){
@@ -687,22 +691,15 @@
 
   function renderSlideHtml(it, srcId, ordN, total){
     const score = getScore(it.url);
-    const ws_raw = it.workspace_help || '无相关';
-    const cu_raw = it.claude_usage || '无相关';
-    const wsNA = ws_raw === '无相关';
-    const cuNA = cu_raw === '无相关';
+    const ws = it.workspace_help || '无相关';
+    const cu = it.claude_usage || '无相关';
+    const wsNA = ws === '无相关';
+    const cuNA = cu === '无相关';
     const badge = score==='star' ? '⭐ STAR' : score==='up' ? '👍 USEFUL' : score==='down' ? '👎 SKIP' : '';
     const srcLabelFull = (sources.find(s=>s.id===srcId)||{}).label || srcId;
-    const rawTitle = it.title || '(no title)';
-    const title = truncate(rawTitle, LIMIT.title);
-    const summary = truncate(it.summary || '(暂无摘要)', LIMIT.summary);
-    const ws = wsNA ? '无相关' : truncate(ws_raw, LIMIT.analysis);
-    const cu = cuNA ? '无相关' : truncate(cu_raw, LIMIT.analysis);
-    const safeTitle = esc(rawTitle.slice(0, 160));  // vote 按钮 data-title 不截, 后端原样收
-    // 超长内容加 title 属性让 hover 看全文
-    const summaryTitleAttr = (it.summary && it.summary.length > LIMIT.summary) ? ` title="${esc(it.summary)}"` : '';
-    const wsTitleAttr = (!wsNA && ws_raw.length > LIMIT.analysis) ? ` title="${esc(ws_raw)}"` : '';
-    const cuTitleAttr = (!cuNA && cu_raw.length > LIMIT.analysis) ? ` title="${esc(cu_raw)}"` : '';
+    const title = it.title || '(no title)';
+    const summary = it.summary || '(暂无摘要)';
+    const safeTitle = esc(title.slice(0, 160));  // vote 按钮 data-title 不截, 后端原样收
     return `
     <div class='news-slide src-${esc(srcId)} ${score?'voted-'+score:''}'>
       <article>
@@ -714,7 +711,7 @@
           ${it.ai_score!=null?`<span>·</span><span>💡 AI ${it.ai_score}</span>`:''}
           <span class='ord'>${String(ordN).padStart(2,'0')} / ${String(total).padStart(2,'0')}</span>
         </div>
-        <h3 class='news-art-title'><a href='${esc(it.url)}' target='_blank' rel='noopener' title='${esc(rawTitle)}'>${esc(title)}</a></h3>
+        <h3 class='news-art-title'><a href='${esc(it.url)}' target='_blank' rel='noopener'>${esc(title)}</a></h3>
         <div class='news-art-actions'>
           <span class='lbl'>反馈</span>
           <span class='news-vote-group'>
@@ -725,11 +722,11 @@
           <a class='open-ext' href='${esc(it.url)}' target='_blank' rel='noopener'>原文 ↗</a>
         </div>
         <div class='news-art-section-label'>摘要</div>
-        <p class='news-art-summary'${summaryTitleAttr}>${esc(summary)}</p>
+        <p class='news-art-summary'>${esc(summary)}</p>
         <div class='news-art-section-label'>相关度分析</div>
         <div class='news-art-analysis'>
-          <span class='k ${wsNA?'na':''}'>工作区</span><span class='v ${wsNA?'na':''}'${wsTitleAttr}>${esc(ws)}</span>
-          <span class='k ${cuNA?'na':''}'>Claude</span><span class='v ${cuNA?'na':''}'${cuTitleAttr}>${esc(cu)}</span>
+          <span class='k ${wsNA?'na':''}'>工作区</span><span class='v ${wsNA?'na':''}'>${esc(ws)}</span>
+          <span class='k ${cuNA?'na':''}'>Claude</span><span class='v ${cuNA?'na':''}'>${esc(cu)}</span>
         </div>
       </article>
     </div>`;
@@ -758,6 +755,7 @@
       trackEl.style.transition = 'transform .45s cubic-bezier(.22,1,.36,1)';
     });
     bindVoteButtons();
+    updateViewportHeight();
   }
 
   function bindVoteButtons(){
@@ -871,6 +869,7 @@
       trackEl.style.transform = `translateX(${-(state.pageIdx + 1) * vpW}px)`;
     }
     renderPagination();
+    updateViewportHeight();
   }
 
   document.addEventListener('keydown', e => {
@@ -956,6 +955,7 @@
         trackEl.style.transform = `translateX(${-(state.pageIdx + 1) * w}px)`;
         trackEl.offsetHeight;
         requestAnimationFrame(() => trackEl.style.transition = 'transform .45s cubic-bezier(.22,1,.36,1)');
+        updateViewportHeight();
       }
     });
     ro.observe(vpEl);

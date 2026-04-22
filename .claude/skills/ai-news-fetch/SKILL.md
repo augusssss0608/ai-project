@@ -152,9 +152,9 @@ payload = {
                     "ts": "2026-04-21T03:43:03Z",
                     "ai_score": null,          # cold 阶段 null, mid/hot 才有 0-10 分
                     "reason": null,            # scorer 给的中文理由, cold 阶段 null
-                    "summary": "news-summary 的中文摘要, 硬上限 80 字 (前端超了截断加 …)",
-                    "workspace_help": "news-analysis 给 workspace 的建议, 硬上限 40 字, 或 '无相关'",
-                    "claude_usage": "news-analysis 给 Claude Code 使用的建议, 硬上限 40 字, 或 '无相关'",
+                    "summary": "news-summary 的中文摘要, 50-80 字",
+                    "workspace_help": "news-analysis 给 workspace 的建议, 30-60 字, 或 '无相关'",
+                    "claude_usage": "news-analysis 给 Claude Code 使用的建议, 30-60 字, 或 '无相关'",
                     "hn_url": "https://news.ycombinator.com/item?id=...",  # HN only, 其他源空串
                     "summary_error": "",       # 子代理失败时填 error 原因, 否则空串
                 }
