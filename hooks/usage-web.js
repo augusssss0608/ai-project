@@ -786,6 +786,8 @@
     requestAnimationFrame(() => {
       trackEl.style.transition = 'transform .45s cubic-bezier(.22,1,.36,1)';
     });
+    // 单条源隐藏 grab cursor (拖拽已禁, 视觉也同步)
+    vpEl.style.cursor = items.length <= 1 ? 'default' : '';
     bindVoteButtons();
     updateViewportHeight();
   }
@@ -852,7 +854,7 @@
 
   function gotoPage(i){
     const total = curItems().length;
-    if (total === 0) return;
+    if (total <= 1) return;  // 单条 / 空源: 不翻页
     const prevIdx = state.pageIdx;
     const vpW = vpEl.clientWidth || 1;
 
@@ -918,6 +920,8 @@
     const THRESHOLD = 60, AXIS_LOCK = 10;
     function baseTx(){ return -(state.pageIdx + 1) * (vpEl.clientWidth || 1); }
     function onStart(x, y){
+      // 单条 / 空源: 不启用拖拽 (无页可翻)
+      if (curItems().length <= 1) return;
       if (pendingWrapSnap){
         trackEl.removeEventListener('transitionend', pendingWrapSnap);
         pendingWrapSnap = null;
