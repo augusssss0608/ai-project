@@ -637,8 +637,9 @@
     if (chars.length <= max) return str;
     return chars.slice(0, max).join('') + '…';
   }
-  // 字数上限配合 reader 高度选定: 摘要 4 行, analysis 每项 2 行左右
-  const LIMIT = { title: 100, summary: 120, analysis: 60 };
+  // 字数上限配合 reader 高度 (760px) 选定, 保证最拥挤场景仍不滚动:
+  //   title 60 字 ≈ 2 行, summary 80 字 ≈ 3 行, analysis 40 字 ≈ 1-2 行
+  const LIMIT = { title: 60, summary: 80, analysis: 40 };
   function curSource(){ return sources[state.srcIdx] || {items:[]}; }
   function curItems(){ return curSource().items || []; }
   function getScore(url){ return (state.votes[url]||{}).score || ''; }
