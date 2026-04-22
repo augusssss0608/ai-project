@@ -2756,6 +2756,8 @@ evolve_count: 0
 
 ### Task 3.5: [MANUAL] 抓取层冒烟 (fetch-ai-news.py) — 合并 Task 1.13 Step 2
 
+**状态**: [PASS] 2026-04-22 已补验 (见 `progress/logs/smoke-notes.md` Task 3.5). 证据: 4 源全部 `error: null`, HN 9 / GitHub 3 / qbitai 1 / ithome 1 条数据真实. 中文源保留率偏低 (7-10%) 但非 bug 是 filter 设计 (硬件/IPO/会议被硬噪音过滤). /loop 撞到此 task 直接打勾跳过.
+
 **Files:** 无写入, 验证抓取.
 
 - [ ] **Step 1: 跑 fetch-ai-news.py**
