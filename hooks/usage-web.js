@@ -783,9 +783,11 @@
   function renderPagination(){
     const total = curItems().length;
     if (total <= 1){
-      pagEl.innerHTML = `<span class='news-page-spacer'>— ${total} item${total!==1?'s':''} —</span>`;
+      pagEl.innerHTML = '';
+      pagEl.hidden = true;
       return;
     }
+    pagEl.hidden = false;
     const parts = [];
     for (let i = 0; i < total; i++){
       const active = i === state.pageIdx ? 'active' : '';
