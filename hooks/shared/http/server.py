@@ -403,9 +403,19 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         u = urlparse(self.path)
-        # 静态资源
+        # 静态资源 — 新模块化路由: /static/<module>/<file>
+        # 允许的 module 白名单
+        import re as _re
+        m = _re.match(r"^/static/(shared|overview|usage|context|memory|ai_news)/([\w\-.]+\.(?:css|js))$", u.path)
+        if m:
+            module, filename = m.groups()
+            sub = "static" if module == "shared" else "static"
+            fpath = os.path.join(HOOKS_DIR, module, sub, filename)
+            mime = "text/css; charset=utf-8" if filename.endswith(".css") else "application/javascript; charset=utf-8"
+            return _serve_static(self, fpath, mime)
+        # 兼容: 旧 /style.css /app.js 仍保留指向 shared/static/ 以防其他脚本硬编码
         if u.path == "/style.css":
-            return _serve_static(self, CSS_PATH, "text/css; charset=utf-8")
+            return _serve_static(self, os.path.join(HOOKS_DIR, "shared", "static", "base.css"), "text/css; charset=utf-8")
         if u.path == "/app.js":
             return _serve_static(self, JS_PATH, "application/javascript; charset=utf-8")
         # /news/votes 返回当前所有已投票条目 (url -> entry)

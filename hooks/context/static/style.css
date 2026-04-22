@@ -1,0 +1,209 @@
+/* ============================================================
+   context
+   (auto-split from shared/static/style.css)
+   ============================================================ */
+
+
+
+/* ============================================================
+   CLAUDE.md 熱度分析
+   ============================================================ */
+.legend{
+  display:flex;
+  flex-wrap:wrap;
+  gap:var(--space-12);
+  padding:var(--space-8) var(--space-12);
+  margin-bottom:var(--space-12);
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  font-size:11px;
+  color:var(--text-soft);
+}
+
+.legend-item{display:flex;align-items:center;gap:var(--space-4);white-space:nowrap}
+
+.legend-item .sec-icon{width:auto}
+
+.legend-group{display:inline-flex;align-items:center;gap:var(--space-4);padding-right:var(--space-12);border-right:1px solid var(--border);margin-right:var(--space-4)}
+
+.legend-group:last-child{border-right:none}
+
+
+.claude-md-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-16)}
+
+.claude-md-card{padding:var(--space-16)}
+
+.claude-md-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  margin-bottom:var(--space-8);
+  padding-bottom:var(--space-8);
+  border-bottom:1px solid var(--border);
+}
+
+.claude-md-name{
+  font-size:var(--text-card-size);
+  font-weight:var(--text-card-weight);
+  letter-spacing:var(--text-card-track);
+  color:var(--text);
+}
+
+.claude-md-total{color:var(--text-faint);font-size:11px;font-variant-numeric:tabular-nums}
+
+.claude-md-suggest{
+  background:rgba(248,81,73,.06);
+  border:1px solid rgba(248,81,73,.18);
+  border-radius:var(--radius-sm);
+  padding:var(--space-8) var(--space-12);
+  font-size:11px;
+  color:var(--danger);
+  margin-bottom:var(--space-8);
+}
+
+.claude-md-suggest .saveable-pct{color:var(--warning);font-weight:600}
+
+.claude-md-sections{
+  list-style:none;
+  font-size:11px;
+  color:var(--text-soft);
+  max-height:400px;
+  overflow-y:auto;
+  /* 預留 scrollbar 位置避免滑動時 reflow 文字內縮 */
+  scrollbar-gutter:stable;
+  scrollbar-width:thin;
+  scrollbar-color:transparent transparent;
+  transition:scrollbar-color var(--dur-med) var(--ease-soft);
+}
+
+.claude-md-sections::-webkit-scrollbar{width:6px}
+
+.claude-md-sections::-webkit-scrollbar-track{background:transparent}
+
+.claude-md-sections::-webkit-scrollbar-thumb{background:transparent;border-radius:99px;transition:background var(--dur-med) var(--ease-soft)}
+
+/* hover 卡片或正在滑動時才顯示 thumb */
+.claude-md-card:hover .claude-md-sections{scrollbar-color:rgba(57,255,20,.2) transparent}
+
+.claude-md-card:hover .claude-md-sections::-webkit-scrollbar-thumb{background:rgba(57,255,20,.2)}
+
+.claude-md-sections li{
+  padding:var(--space-4) 0;
+  border-bottom:1px dashed var(--border);
+  display:flex;
+  gap:var(--space-8);
+  align-items:center;
+  position:relative;
+  min-width:0;
+}
+
+.claude-md-sections li:last-child{border-bottom:none}
+
+.sec-heading{flex:1 1 0;min-width:0;width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
+
+.sec-tokens{
+  flex:0 0 auto;
+  flex-shrink:0;
+  color:var(--text-faint);
+  font-family:var(--font-mono);
+  font-variant-numeric:tabular-nums;
+  font-size:10px;
+  min-width:64px;
+  max-width:none;
+  text-align:right;
+  white-space:nowrap;
+  overflow:visible;
+  padding-left:var(--space-8);
+  box-sizing:content-box;
+}
+
+.sec-l3{padding-left:22px !important}
+
+.sec-l3 .sec-heading{font-size:10px;opacity:.85}
+
+.sec-l3::before{
+  content:'└';
+  color:var(--text-faint);
+  position:absolute;
+  margin-left:-18px;
+  font-size:10px;
+}
+
+
+/* 熱度 pill - 固定寬度對齊 */
+.heat-tag{
+  flex-shrink:0;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:36px;
+  height:18px;
+  padding:0;
+  border-radius:99px;
+  font-size:10px;
+  font-weight:600;
+  line-height:1;
+  background:var(--tag-bg);
+  color:var(--tag-text);
+  border:1px solid var(--border);
+  box-sizing:border-box;
+}
+
+.heat-tag.heat-hot{background:rgba(63,185,80,.14);color:var(--success);border-color:rgba(63,185,80,.26)}
+
+.heat-tag.heat-warm{background:rgba(210,153,34,.14);color:var(--warning);border-color:rgba(210,153,34,.26)}
+
+.heat-tag.heat-cold{background:rgba(107,114,128,.14);color:var(--text-faint);border-color:rgba(107,114,128,.26)}
+
+.heat-tag.heat-warn{background:rgba(180,160,255,.14);color:#b4a0ff;border-color:rgba(180,160,255,.26)}
+
+
+/* 刪減收益 dot */
+.prune-dot{
+  flex-shrink:0;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:20px;
+  height:20px;
+  padding:0;
+  border-radius:50%;
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  font-size:10px;
+  font-weight:500;
+  font-variant-numeric:tabular-nums;
+  line-height:1;
+  background:var(--tag-bg);
+  color:var(--tag-text);
+  border:1.5px solid var(--border);
+  cursor:help;
+  user-select:none;
+  box-sizing:border-box;
+  position:relative;
+  transition:transform var(--dur-fast) var(--ease-soft),
+             box-shadow var(--dur-fast) var(--ease-soft);
+}
+
+.prune-dot span{
+  display:block;
+  transform:scale(.8);
+  transform-origin:center;
+}
+
+.prune-dot{cursor:pointer}
+
+.prune-dot:hover{transform:scale(1.12);box-shadow:var(--shadow-sm);z-index:5}
+
+/* 卡片在篩選態時隱藏不匹配的 sections */
+.claude-md-card[data-prune-filter='high'] .claude-md-sections li:not(.prune-high){display:none}
+
+.claude-md-card[data-prune-filter='mid'] .claude-md-sections li:not(.prune-mid){display:none}
+
+.claude-md-card[data-prune-filter='low'] .claude-md-sections li:not(.prune-low){display:none}
+
+.prune-dot.prune-high{background:rgba(248,81,73,.18);color:var(--danger);border-color:var(--danger)}
+
+.prune-dot.prune-mid{background:rgba(210,153,34,.16);color:var(--warning);border-color:var(--warning)}
+
+.prune-dot.prune-low{background:rgba(63,185,80,.14);color:var(--success);border-color:var(--success)}

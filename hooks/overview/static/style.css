@@ -1,0 +1,347 @@
+/* ============================================================
+   overview
+   (auto-split from shared/static/style.css)
+   ============================================================ */
+
+
+/* 骨架全域防溢出: 任何 tab 切換內容都不得撐寬 .page */
+.page,.tab-viewport,.tab-content,.tab-bar,.tab-controls,
+.active-grid,.cold-grid,.today-grid,.health-grid,.claude-md-grid,
+.active-card,.risk,.today-card,.health-card,.claude-md-card,.memory-list,.metric{
+  min-width:0;
+  max-width:100%;
+}
+
+.summary-meter{
+  display:flex;
+  align-items:center;
+  gap:var(--space-12);
+  padding:var(--space-8) var(--space-12);
+  background:var(--card-bg);
+  border:1px solid var(--card-border);
+  border-radius:var(--radius-sm);
+  box-shadow:var(--shadow-sm);
+  font-family:var(--font-mono);
+  font-size:10px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+
+.summary-meter-label{
+  color:var(--accent);
+  font-weight:600;
+  text-shadow:var(--glow-accent);
+}
+
+.summary-meter-quota,.summary-meter-cache{color:var(--text-soft)}
+
+.summary-meter-quota b,.summary-meter-cache b{
+  color:var(--text);
+  font-variant-numeric:tabular-nums;
+  font-weight:600;
+}
+
+.summary-meter-btn{
+  font-family:var(--font-mono);
+  font-size:10px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  padding:3px 10px;
+  border-radius:3px;
+  background:rgba(57,255,20,.06);
+  border:1px solid rgba(57,255,20,.2);
+  color:var(--accent);
+  cursor:pointer;
+  transition:background var(--dur-fast) var(--ease-soft),border-color var(--dur-fast) var(--ease-soft),color var(--dur-fast) var(--ease-soft);
+}
+
+.summary-meter-btn:hover{
+  background:rgba(57,255,20,.14);
+  border-color:rgba(57,255,20,.42);
+  color:var(--accent-bright);
+  text-shadow:var(--glow-accent);
+}
+
+.summary-meter-btn:disabled{opacity:.5;cursor:wait}
+
+
+/* ============================================================
+   Hero (只在 overview tab 內)
+   ============================================================ */
+.hero{
+  background:var(--card-bg);
+  border:1px solid var(--card-border);
+  border-radius:var(--radius-lg);
+  padding:var(--space-24) var(--space-32);
+  margin-bottom:var(--space-24);
+  box-shadow:var(--shadow-card);
+  position:relative;
+  overflow:hidden;
+}
+
+.hero::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(110,168,254,.4),transparent);
+  pointer-events:none;
+}
+
+.hero-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  margin-bottom:var(--space-24);
+  flex-wrap:wrap;
+  gap:var(--space-16);
+}
+
+.hero-copy{flex:1;min-width:0}
+
+.hero-sub{
+  color:var(--text-soft);
+  font-size:15px;
+  font-weight:var(--text-body-weight);
+  line-height:1.65;
+}
+
+.hero-sub b{
+  font-family:var(--font-mono);
+  color:var(--accent-bright);
+  font-weight:600;
+  letter-spacing:-.01em;
+  font-variant-numeric:tabular-nums;
+}
+
+.hero-sub .danger{
+  font-family:var(--font-mono);
+  color:var(--danger);
+  font-weight:600;
+  font-variant-numeric:tabular-nums;
+}
+
+.hero-sub.hero-wow{
+  margin-top:var(--space-8);
+  font-size:var(--text-meta-size);
+  color:var(--text-faint);
+}
+
+.hero-wow .wow.success{color:var(--success)}
+
+.hero-wow .wow.warning{color:var(--warning)}
+
+
+/* ============================================================
+   Summary 4 metric 卡
+   ============================================================ */
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-16)}
+
+
+/* 父卡片自動移除 padding (因為前後面自帶 padding) */
+.active-card:has(.flip-inner),
+.risk:has(.flip-inner),
+.claude-md-card:has(.flip-inner),
+.metric:has(.flip-inner),
+.today-card:has(.flip-inner),
+.health-card:has(.flip-inner){padding:0}
+
+
+/* ============================================================
+   統一卡片材質 Mixin (所有 card 類型共享)
+   ============================================================ */
+.metric,
+.active-card,
+.today-card,
+.health-card,
+.claude-md-card,
+.risk,
+.memory-list{
+  background:var(--card-bg);
+  border:1px solid var(--card-border);
+  border-radius:var(--radius-md);
+  box-shadow:var(--shadow-card);
+  position:relative;
+  transition:transform var(--dur-fast) var(--ease-soft),
+             box-shadow var(--dur-fast) var(--ease-soft),
+             border-color var(--dur-fast) var(--ease-soft);
+}
+
+.metric::before,
+.active-card::before,
+.today-card::before,
+.health-card::before,
+.claude-md-card::before,
+.risk::before{
+  content:'';
+  position:absolute;
+  top:0;left:12px;right:12px;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent);
+  pointer-events:none;
+}
+
+.metric:hover,
+.active-card:hover,
+.today-card:hover,
+.health-card:hover,
+.claude-md-card:hover,
+.risk:hover,
+.memory-list:hover{
+  transform:translateY(-1px);
+  border-color:var(--card-border-hover);
+  box-shadow:var(--shadow-card-hover);
+}
+
+
+.metric{padding:var(--space-16) var(--space-16) var(--space-12);position:relative}
+
+.metric-label{
+  font-family:var(--font-mono);
+  color:var(--text-faint);
+  font-size:10px;
+  font-weight:500;
+  letter-spacing:.18em;
+  margin-bottom:var(--space-8);
+  text-transform:uppercase;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.metric-label::before{
+  content:'>';
+  color:var(--accent);
+  font-weight:700;
+  margin-right:4px;
+  text-shadow:var(--glow-accent);
+}
+
+.metric-value{
+  font-family:var(--font-mono);
+  color:var(--accent-bright);
+  font-size:var(--text-num-size);
+  font-weight:var(--text-num-weight);
+  letter-spacing:var(--text-num-track);
+  font-variant-numeric:tabular-nums;
+  font-feature-settings:"tnum","zero";
+  margin-bottom:var(--space-12);
+  line-height:1.05;
+  text-shadow:0 0 12px rgba(57,255,20,.2);
+}
+
+
+.sparkline-wrap{margin-top:var(--space-8)}
+
+.sparkline{display:block;width:100%;height:40px}
+
+.sparkline-area{fill:rgba(110,168,254,.12)}
+
+.sparkline-line{stroke:var(--accent);stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round;fill:none}
+
+.sparkline-dot{fill:var(--accent);opacity:.5}
+
+.sparkline-dot:hover{opacity:1;r:3}
+
+.sparkline-peak{fill:var(--warning);stroke:var(--warning);stroke-width:1}
+
+.sparkline-peak:hover{r:4}
+
+.sparkline-axis{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:4px;
+  font-size:10px;
+  color:var(--text-faint);
+  font-variant-numeric:tabular-nums;
+  letter-spacing:.01em;
+}
+
+.sparkline-peak-label{
+  color:var(--warning);
+  font-weight:600;
+  cursor:help;
+}
+
+.sparkline-empty{color:var(--text-faint);font-size:11px;margin-top:var(--space-8);text-align:center;padding:var(--space-8);background:rgba(255,255,255,.03);border-radius:var(--radius-sm)}
+
+
+/* ============================================================
+   Today 面板
+   ============================================================ */
+.today-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-16)}
+
+.today-card{padding:var(--space-12) var(--space-16)}
+
+.today-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:var(--space-8);
+  padding-bottom:var(--space-8);
+  border-bottom:1px solid var(--border);
+}
+
+.today-meta{
+  font-family:var(--font-mono);
+  color:var(--text-faint);
+  font-size:10px;
+  letter-spacing:.08em;
+  font-variant-numeric:tabular-nums;
+}
+
+.today-list{list-style:none;font-size:11px}
+
+.today-list li{padding:var(--space-4) 0;display:flex;gap:var(--space-8);overflow:hidden;font-family:var(--font-mono);font-size:10px}
+
+.today-type{color:var(--text-faint);flex-shrink:0;width:96px;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.today-name{color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1 1 0;min-width:0}
+
+.today-time{color:var(--text-faint);flex-shrink:0;font-variant-numeric:tabular-nums;letter-spacing:.04em;margin-left:var(--space-8);font-size:9px}
+
+
+/* ============================================================
+   Health 面板
+   ============================================================ */
+.health-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-16)}
+
+.health-card{
+  padding:var(--space-12) var(--space-16);
+  border-left:3px solid var(--neutral);
+}
+
+.health-card.hot{border-left-color:var(--success)}
+
+.health-card.warm{border-left-color:#8bc34a}
+
+.health-card.cool{border-left-color:var(--warning)}
+
+.health-card.cold{border-left-color:var(--danger)}
+
+.health-card.dim{border-left-color:var(--text-faint);opacity:.65}
+
+.health-title{margin-bottom:var(--space-8)}
+
+.health-signals{display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-8);font-size:11px}
+
+.signal{display:flex;flex-direction:column;gap:3px}
+
+.signal-label{
+  font-family:var(--font-mono);
+  color:var(--text-faint);
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:.15em;
+  font-weight:500;
+}
+
+.signal-value{
+  font-family:var(--font-mono);
+  color:var(--text);
+  font-weight:600;
+  font-size:13px;
+  font-variant-numeric:tabular-nums;
+}

@@ -1,0 +1,298 @@
+/* ============================================================
+   usage
+   (auto-split from shared/static/style.css)
+   ============================================================ */
+
+
+
+/* ============================================================
+   Pills / Owner filter
+   ============================================================ */
+.pills{display:flex;gap:var(--space-8);flex-wrap:wrap}
+
+.pill{
+  padding:var(--space-8) var(--space-16);
+  border-radius:3px;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border);
+  color:var(--text-soft);
+  font-family:var(--font-mono);
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  cursor:pointer;
+  text-decoration:none;
+  transition:background var(--dur-fast) var(--ease-soft),
+             border-color var(--dur-fast) var(--ease-soft),
+             color var(--dur-fast) var(--ease-soft);
+}
+
+.pill:hover{background:rgba(57,255,20,.06);border-color:rgba(57,255,20,.2);color:var(--accent-bright)}
+
+.pill.active{
+  background:rgba(255,45,149,.12);
+  color:#ff6fb4;
+  border-color:var(--accent-secondary);
+  font-weight:700;
+  box-shadow:0 0 0 1px rgba(255,45,149,.22),0 0 14px rgba(255,45,149,.25);
+  text-shadow:0 0 8px rgba(255,45,149,.5);
+}
+
+
+/* tab 內部控件區 (usage tab 頂部放 pills + filter, 分兩行) */
+.tab-controls{
+  display:flex;
+  flex-direction:column;
+  gap:var(--space-12);
+  margin-bottom:var(--space-16);
+  padding:var(--space-16);
+  background:var(--card-bg);
+  border:1px solid var(--card-border);
+  border-radius:var(--radius-md);
+  box-shadow:var(--shadow-sm);
+}
+
+.control-row{
+  display:flex;
+  align-items:center;
+  gap:var(--space-12);
+  min-width:0;
+}
+
+.control-row + .control-row{
+  padding-top:var(--space-12);
+  border-top:1px solid var(--border);
+}
+
+.control-label{
+  flex-shrink:0;
+  width:92px;
+  font-family:var(--font-mono);
+  color:var(--accent);
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  text-shadow:var(--glow-accent);
+}
+
+.control-label::before{content:'>> '}
+
+
+.owner-filter{
+  display:flex;
+  flex-wrap:wrap;
+  gap:var(--space-8);
+  align-items:center;
+  flex:1;
+  min-width:0;
+}
+
+.owner-filter-label{display:none}
+
+.owner-chip{
+  padding:var(--space-8) var(--space-16);
+  border-radius:3px;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border);
+  color:var(--text-soft);
+  font-family:var(--font-mono);
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  cursor:pointer;
+  text-decoration:none;
+  transition:background var(--dur-fast) var(--ease-soft),
+             border-color var(--dur-fast) var(--ease-soft),
+             color var(--dur-fast) var(--ease-soft);
+}
+
+.owner-chip:hover{background:rgba(57,255,20,.06);border-color:rgba(57,255,20,.2);color:var(--accent-bright)}
+
+.owner-chip.active{
+  background:rgba(255,45,149,.12);
+  color:#ff6fb4;
+  border-color:var(--accent-secondary);
+  font-weight:700;
+  box-shadow:0 0 0 1px rgba(255,45,149,.22),0 0 14px rgba(255,45,149,.25);
+  text-shadow:0 0 8px rgba(255,45,149,.5);
+}
+
+.flip-card a,.flip-card button,.flip-card .owner-tag,.flip-card .archive-btn{cursor:pointer}
+
+
+.cold-progress-bar{
+  height:8px;
+  background:rgba(255,255,255,.04);
+  border-radius:99px;
+  overflow:hidden;
+  border:1px solid var(--border);
+}
+
+.cold-progress-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--accent),var(--accent-bright));
+  border-radius:99px;
+  transition:width var(--dur-med) var(--ease-soft);
+  box-shadow:0 0 12px rgba(57,255,20,.3);
+}
+
+
+/* ============================================================
+   Active usage (2 欄)
+   ============================================================ */
+.active-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-12)}
+
+.active-card{padding:var(--space-12) var(--space-16)}
+
+.active-card .flip-front,.active-card .flip-back{padding:var(--space-12) var(--space-16)}
+
+.active-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  margin-bottom:var(--space-12);
+  padding-bottom:var(--space-8);
+  border-bottom:1px solid var(--border);
+}
+
+.active-title{
+  font-family:var(--font-mono);
+  font-size:var(--text-card-size);
+  font-weight:var(--text-card-weight);
+  letter-spacing:var(--text-card-track);
+  color:var(--text);
+  text-transform:uppercase;
+}
+
+.active-count{
+  font-family:var(--font-mono);
+  color:var(--text-faint);
+  font-size:10px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+.prune-dot.active-filter{
+  transform:scale(1.2);
+  box-shadow:0 0 0 2px var(--accent),0 0 12px var(--accent);
+  z-index:5;
+}
+
+
+/* ============================================================
+   Cold 候選
+   ============================================================ */
+.cold-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--space-16)}
+
+.risk{
+  padding:var(--space-16);
+  border-left:3px solid var(--warning);
+}
+
+.risk.high{border-left-color:var(--danger)}
+
+.risk.mid{border-left-color:var(--warning)}
+
+.risk.low{border-left-color:var(--neutral)}
+
+.risk-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:var(--space-8)}
+
+.risk-title{
+  font-family:var(--font-mono);
+  font-size:var(--text-card-size);
+  font-weight:var(--text-card-weight);
+  letter-spacing:.06em;
+  color:var(--text);
+  text-transform:uppercase;
+}
+
+.risk-count{
+  font-family:var(--font-mono);
+  color:var(--text-faint);
+  font-size:10px;
+  letter-spacing:.1em;
+  font-variant-numeric:tabular-nums;
+}
+
+.risk-bar{height:3px;background:rgba(255,255,255,.05);border-radius:99px;overflow:hidden;margin-bottom:var(--space-12)}
+
+.risk-bar-fill{height:100%;background:var(--danger);border-radius:99px;transform-origin:left center;transition:width var(--dur-med) var(--ease-soft)}
+
+.risk.mid .risk-bar-fill{background:var(--warning)}
+
+.risk.low .risk-bar-fill{background:var(--neutral)}
+
+.risk-list{
+  list-style:none;
+  font-size:var(--text-meta-size);
+  color:var(--text-soft);
+  max-height:320px;
+  overflow-y:auto;
+  scrollbar-gutter:stable;
+  scrollbar-width:thin;
+  scrollbar-color:transparent transparent;
+  transition:scrollbar-color var(--dur-med) var(--ease-soft);
+  padding-right:var(--space-4);
+}
+
+.risk-list::-webkit-scrollbar{width:5px}
+
+.risk-list::-webkit-scrollbar-track{background:transparent}
+
+.risk-list::-webkit-scrollbar-thumb{background:transparent;border-radius:99px;transition:background var(--dur-med) var(--ease-soft)}
+
+.risk:hover .risk-list{scrollbar-color:rgba(57,255,20,.18) transparent}
+
+.risk:hover .risk-list::-webkit-scrollbar-thumb{background:rgba(57,255,20,.18)}
+
+.risk-list li{padding:var(--space-8) 0;border-bottom:1px dashed var(--border);display:flex;justify-content:space-between;align-items:center;gap:var(--space-8);font-family:var(--font-mono);font-size:11px}
+
+.risk-list li:last-child{border-bottom:none}
+
+.risk-list .name{flex:1 1 0;width:0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.risk-list .name a{color:inherit;text-decoration:none;transition:color var(--dur-fast) var(--ease-soft)}
+
+.risk-list .name a:hover{color:var(--accent)}
+
+.risk-list .owner-tag{font-size:9px;padding:1px 5px;letter-spacing:.04em;flex-shrink:0;margin-left:0;min-width:0;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.risk-list .last-seen{font-size:10px;color:var(--text-faint);flex-shrink:0;font-variant-numeric:tabular-nums;min-width:60px;text-align:right;white-space:nowrap}
+
+
+/* .risk-more 已移除: cold list 改用 scroll */
+
+/* 禁用/啟用 按鈕 */
+.archive-btn{
+  flex-shrink:0;
+  padding:2px 10px;
+  border-radius:99px;
+  background:rgba(248,81,73,.08);
+  color:var(--danger);
+  border:1px solid rgba(248,81,73,.2);
+  font-size:10px;
+  font-weight:500;
+  cursor:pointer;
+  font-family:inherit;
+  margin-left:var(--space-4);
+  transition:background var(--dur-fast) var(--ease-soft),
+             border-color var(--dur-fast) var(--ease-soft);
+}
+
+.archive-btn:hover:not(:disabled){background:rgba(248,81,73,.18);border-color:rgba(248,81,73,.4)}
+
+.archive-btn:disabled{opacity:.5;cursor:wait}
+
+.archive-btn.restored{
+  background:rgba(63,185,80,.08);
+  color:var(--success);
+  border-color:rgba(63,185,80,.2);
+}
+
+.archive-btn.restored:hover:not(:disabled){
+  background:rgba(63,185,80,.18);
+  border-color:rgba(63,185,80,.4);
+}

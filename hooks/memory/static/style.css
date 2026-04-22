@@ -1,0 +1,33 @@
+/* ============================================================
+   memory
+   (auto-split from shared/static/style.css)
+   ============================================================ */
+
+
+
+/* ============================================================
+   Memory / Compact 列表
+   ============================================================ */
+.memory-list{padding:var(--space-12)}
+
+.mem-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:var(--space-8);
+  font-size:12px;
+  border-radius:var(--radius-sm);
+  transition:background var(--dur-fast) var(--ease-soft);
+}
+
+.mem-row:hover{background:rgba(255,255,255,.03)}
+
+.mem-row:not(:last-child){border-bottom:1px solid var(--border)}
+
+.mem-name{color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+
+.mem-name a{color:inherit;text-decoration:none}
+
+.mem-name a:hover{color:var(--accent)}
+
+.mem-meta{color:var(--text-faint);font-size:10px;font-variant-numeric:tabular-nums;flex-shrink:0;margin-left:var(--space-8)}

@@ -116,7 +116,13 @@ def _render_head(parts: list, owner_filter: str):
         "family=JetBrains+Mono:wght@400;500;600;700&"
         "display=swap'>"
     )
-    parts.append("<link rel='stylesheet' href='/style.css'>")
+    # 6 个 feature-first CSS: base 先载入, 之后按 tab 顺序
+    parts.append("<link rel='stylesheet' href='/static/shared/base.css'>")
+    parts.append("<link rel='stylesheet' href='/static/overview/style.css'>")
+    parts.append("<link rel='stylesheet' href='/static/usage/style.css'>")
+    parts.append("<link rel='stylesheet' href='/static/context/style.css'>")
+    parts.append("<link rel='stylesheet' href='/static/memory/style.css'>")
+    parts.append("<link rel='stylesheet' href='/static/ai_news/style.css'>")
     parts.append("</head>")
     parts.append(f"<body data-initial-owner='{html.escape(owner_filter)}'>")
     parts.append("<div class='page'>")
