@@ -1638,11 +1638,83 @@ footer{
   cursor:wait;
 }
 
-.news-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(340px,1fr));
-  gap:var(--space-16);
-  padding:var(--space-16) 0;
+/* ===== AI 大事轮播 (每源一页, 横向切换) ===== */
+.news-carousel{
+  position:relative;
+  padding:var(--space-16) 48px;
+}
+.news-carousel-viewport{
+  overflow:hidden;
+  border-radius:var(--radius-md);
+}
+.news-carousel-track{
+  display:flex;
+  transition:transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change:transform;
+}
+.news-carousel-slide{
+  flex:0 0 100%;
+  min-width:0;
+  padding:0 4px;
+  box-sizing:border-box;
+}
+.news-carousel-slide > .news-card{
+  width:100%;
+  height:100%;
+}
+.news-carousel-btn{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  border:1px solid var(--border-strong,rgba(255,255,255,0.2));
+  background:var(--bg-card,#1a1d2b);
+  color:var(--text-soft,#cfd4e0);
+  font-size:24px;
+  line-height:1;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:5;
+  transition:background var(--dur-fast,150ms) var(--ease-soft,ease), opacity var(--dur-fast,150ms) var(--ease-soft,ease);
+  padding:0;
+}
+.news-carousel-btn:hover{
+  background:var(--accent-soft,rgba(80,168,255,0.15));
+  color:var(--accent,#57b9ff);
+}
+.news-carousel-btn:disabled{
+  opacity:0.25;
+  cursor:default;
+}
+.news-carousel-btn.prev{left:0}
+.news-carousel-btn.next{right:0}
+.news-carousel-dots{
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  margin-top:var(--space-12);
+}
+.news-carousel-dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  border:1px solid var(--border-strong,rgba(255,255,255,0.25));
+  background:transparent;
+  cursor:pointer;
+  padding:0;
+  transition:all var(--dur-fast,150ms) var(--ease-soft,ease);
+}
+.news-carousel-dot:hover{
+  border-color:var(--accent,#57b9ff);
+}
+.news-carousel-dot.active{
+  background:var(--accent,#57b9ff);
+  border-color:var(--accent,#57b9ff);
+  transform:scale(1.15);
 }
 
 .news-card{
@@ -1940,6 +2012,7 @@ footer{
 }
 
 @media (max-width:640px){
-  .news-grid{grid-template-columns:1fr;gap:var(--space-12)}
+  .news-carousel{padding:var(--space-12) 36px}
+  .news-carousel-btn{width:32px;height:32px;font-size:20px}
   .news-card{padding:var(--space-12)}
 }

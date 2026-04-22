@@ -673,3 +673,94 @@
     });
   });
 })();
+
+// ===== AI 大事轮播: 每源一页, prev/next + dots + 键盘 + 触屏 =====
+// 自动轮播接口已预留 (AUTO_MS), 默认关闭; 开启改成 >0 毫秒即可, 配合 pause-on-hover.
+(function setupNewsCarousel(){
+  const root = document.querySelector('.news-carousel[data-news-carousel]');
+  if (!root) return;
+  const track = root.querySelector('.news-carousel-track');
+  const slides = track ? Array.from(track.children) : [];
+  const dots = Array.from(root.querySelectorAll('.news-carousel-dot'));
+  const prevBtn = root.querySelector('.news-carousel-btn.prev');
+  const nextBtn = root.querySelector('.news-carousel-btn.next');
+  if (slides.length <= 1) {
+    // 单源 / 空: 隐藏导航
+    prevBtn?.setAttribute('hidden', '');
+    nextBtn?.setAttribute('hidden', '');
+    root.querySelector('.news-carousel-dots')?.setAttribute('hidden', '');
+    return;
+  }
+  const AUTO_MS = 0; // 轮播间隔 (毫秒), 0 关闭; 想开启改 > 0 数值
+  let idx = 0;
+  let autoTimer = null;
+
+  function refresh(){
+    if (track) track.style.transform = `translateX(-${idx * 100}%)`;
+    dots.forEach((d, di) => d.classList.toggle('active', di === idx));
+    if (prevBtn) prevBtn.disabled = (idx === 0);
+    if (nextBtn) nextBtn.disabled = (idx === slides.length - 1);
+  }
+  function goto(i, opts){
+    const wrap = !!(opts && opts.wrap);
+    if (wrap) {
+      idx = (i + slides.length) % slides.length;
+    } else {
+      idx = Math.max(0, Math.min(slides.length - 1, i));
+    }
+    refresh();
+  }
+  function startAuto(){
+    if (!AUTO_MS) return;
+    stopAuto();
+    autoTimer = setInterval(() => goto(idx + 1, {wrap: true}), AUTO_MS);
+  }
+  function stopAuto(){
+    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+  }
+
+  prevBtn?.addEventListener('click', () => goto(idx - 1));
+  nextBtn?.addEventListener('click', () => goto(idx + 1));
+  dots.forEach((d, di) => d.addEventListener('click', () => goto(di)));
+
+  // 键盘: 只在 news tab active 时响应 ← →
+  document.addEventListener('keydown', (e) => {
+    if (e.target && ['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
+    const activeTab = document.querySelector('.tab-content.active')?.dataset.tab;
+    if (activeTab !== 'news') return;
+    if (e.key === 'ArrowLeft')  { e.preventDefault(); goto(idx - 1); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); goto(idx + 1); }
+  });
+
+  // 触屏 / 鼠标拖拽: 超过 60px 触发切页
+  const vp = root.querySelector('.news-carousel-viewport');
+  let startX = null;
+  let startY = null;
+  let dragging = false;
+  function onStart(x, y){ startX = x; startY = y; dragging = true; }
+  function onEnd(x){
+    if (!dragging || startX === null) return;
+    const dx = x - startX;
+    dragging = false;
+    if (Math.abs(dx) > 60) goto(idx + (dx < 0 ? 1 : -1));
+    startX = null; startY = null;
+  }
+  vp?.addEventListener('touchstart', e => onStart(e.touches[0].clientX, e.touches[0].clientY), {passive: true});
+  vp?.addEventListener('touchmove',  e => {
+    if (!dragging) return;
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+    if (Math.abs(dx) > Math.abs(dy) && e.cancelable) e.preventDefault();
+  }, {passive: false});
+  vp?.addEventListener('touchend', e => onEnd(e.changedTouches[0].clientX));
+  vp?.addEventListener('mousedown', e => onStart(e.clientX, e.clientY));
+  vp?.addEventListener('mouseup',   e => onEnd(e.clientX));
+  vp?.addEventListener('mouseleave', () => { dragging = false; startX = null; });
+
+  // 暂停自动播放 on hover (即使 AUTO_MS=0 也无害)
+  root.addEventListener('mouseenter', stopAuto);
+  root.addEventListener('mouseleave', startAuto);
+
+  refresh();
+  startAuto();
+})();

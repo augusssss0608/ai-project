@@ -1516,8 +1516,27 @@ def _render_news_panel(parts: list):
         parts.append("</div>")
         return
 
-    parts.append("<div class='news-grid'>")
-    for src in data.get("sources", []):
+    sources = data.get("sources", [])
+    parts.append("<div class='news-carousel' data-news-carousel>")
+    parts.append("<button class='news-carousel-btn prev' type='button' aria-label='上一源'>‹</button>")
+    parts.append("<div class='news-carousel-viewport'>")
+    parts.append("<div class='news-carousel-track'>")
+    for src in sources:
+        parts.append("<div class='news-carousel-slide'>")
         _render_news_source_card(parts, src, votes_by_url)
+        parts.append("</div>")
+    parts.append("</div>")
+    parts.append("</div>")
+    parts.append("<button class='news-carousel-btn next' type='button' aria-label='下一源'>›</button>")
+    # dots
+    parts.append("<div class='news-carousel-dots'>")
+    for i, src in enumerate(sources):
+        label = html.escape(src.get("label", src.get("id", "")))
+        active = " active" if i == 0 else ""
+        parts.append(
+            f"<button class='news-carousel-dot{active}' type='button' "
+            f"data-carousel-idx='{i}' aria-label='{label}' title='{label}'></button>"
+        )
+    parts.append("</div>")
     parts.append("</div>")
     parts.append("</div>")
