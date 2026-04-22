@@ -603,19 +603,6 @@
   });
 })();
 
-// ===== 每日 AI 大事 tab: 展开/折叠 =====
-(function setupNewsExpand(){
-  document.querySelectorAll('.news-expand-btn').forEach(btn => {
-    const hiddenCount = btn.dataset.newsExpand;
-    btn.addEventListener('click', () => {
-      const card = btn.closest('.news-card');
-      if (!card) return;
-      const isOpen = card.classList.toggle('expanded');
-      btn.textContent = isOpen ? '收起' : `展开剩余 ${hiddenCount} 条`;
-    });
-  });
-})();
-
 // ===== AI 大事 reader: 左侧源 + 右侧单篇滑页 + 底部页码 + infinite wrap =====
 (function setupNewsReader(){
   const root = document.querySelector('.news-reader[data-news-reader]');
