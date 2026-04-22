@@ -191,7 +191,13 @@ _SUMMARY_CACHE = {}
 def _render_footer(parts: list):
     parts.append(f"<footer>数据源: SQLite · jsonl 仅作备份 · {LABELS['refresh_hint']}</footer>")
     parts.append("</div>")  # page end
-    parts.append("<script src='/app.js'></script>")
+    # 5 个 feature-first JS (memory 无独立交互, 不出 script). base 先加载建立 window.__dashboard,
+    # 其余 feature 读取 window.__dashboard.showToast / flipOpenOrder
+    parts.append("<script defer src='/static/shared/base.js'></script>")
+    parts.append("<script defer src='/static/overview/app.js'></script>")
+    parts.append("<script defer src='/static/usage/app.js'></script>")
+    parts.append("<script defer src='/static/context/app.js'></script>")
+    parts.append("<script defer src='/static/ai_news/app.js'></script>")
     parts.append("</body></html>")
 
 

@@ -413,11 +413,11 @@ class Handler(BaseHTTPRequestHandler):
             fpath = os.path.join(HOOKS_DIR, module, sub, filename)
             mime = "text/css; charset=utf-8" if filename.endswith(".css") else "application/javascript; charset=utf-8"
             return _serve_static(self, fpath, mime)
-        # 兼容: 旧 /style.css /app.js 仍保留指向 shared/static/ 以防其他脚本硬编码
+        # 兼容: 旧 /style.css /app.js (留给书签之类的硬编码)
         if u.path == "/style.css":
             return _serve_static(self, os.path.join(HOOKS_DIR, "shared", "static", "base.css"), "text/css; charset=utf-8")
         if u.path == "/app.js":
-            return _serve_static(self, JS_PATH, "application/javascript; charset=utf-8")
+            return _serve_static(self, os.path.join(HOOKS_DIR, "shared", "static", "base.js"), "application/javascript; charset=utf-8")
         # /news/votes 返回当前所有已投票条目 (url -> entry)
         if u.path == "/news/votes":
             import json
