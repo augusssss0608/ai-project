@@ -12,17 +12,9 @@ from datetime import datetime, timedelta, timezone
 从 usage-web.py 拆出: 常量、查询、分析、渲染、archive、security 全部在此.
 usage-web.py 保留 HTTP Handler + main() 作为薄壳, 通过 `from usage_web_impl import *` 使用.
 """
-import sqlite3
-import subprocess
-import sys
 import os
-import html
 import time
 from datetime import datetime, timedelta, timezone
-
-# Sibling module: summary
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from shared.infra import summary as summary_mod
 
 
 DB_FILE = os.path.expanduser("~/Desktop/ai-project/data/events.db")

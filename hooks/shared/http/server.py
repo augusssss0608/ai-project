@@ -12,7 +12,6 @@ import subprocess
 import sys
 import os
 import html
-import time
 
 # 把 hooks/ 根目录加进 sys.path, 让 shared / ai_news / overview 等包能被 import
 _HOOKS_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -22,11 +21,9 @@ from shared.infra import summary as summary_mod
 from shared.infra.core import *
 from shared.data.queries import *
 from shared.http.render import *
-# `import *` 排除底線開頭, 明確 import Handler 需要的私有名
-from shared.http.render import _file_link  # may be referenced
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 
 

@@ -8,9 +8,8 @@ from shared.infra.core import (
 from shared.data.queries import query_claude_md_aggregate
 from shared.http.render import (
     _open_flip_card, _between_flip_faces, _close_flip_card,
-    _flip_back_section, _flip_back_title,
+    _flip_back_title,
     _flip_stat, _flip_stat_grid,
-    _file_link_plain,
 )
 
 

@@ -3,8 +3,8 @@ import html
 import os
 from datetime import datetime, timezone
 
-from shared.infra.core import LABELS, EMPTY_STATES, days_ago, fmt_local_time, fmt_relative_time
-from shared.http.render import _file_link, _file_link_plain, _open_url
+from shared.infra.core import LABELS, EMPTY_STATES, days_ago, fmt_relative_time
+from shared.http.render import _file_link_plain
 
 
 def _file_preview(path: str, limit: int = 500) -> str:

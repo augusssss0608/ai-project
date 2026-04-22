@@ -2,12 +2,9 @@
 """Queries module: SQL 查詢 + 分析.
 依賴 core 模組."""
 import os
-import sqlite3
-import html
 from datetime import datetime, timedelta, timezone
 from shared.infra.core import *
-# `import *` 排除底線開頭, 顯式 import queries 需要的核心私有名
-from shared.infra.core import _init_tiktoken, _TOKEN_CACHE, _PLUGIN_SKILL_CACHE
+from shared.infra.core import _TOKEN_CACHE  # `import *` 不带 _
 
 
 

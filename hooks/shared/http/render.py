@@ -1,21 +1,14 @@
 #!/usr/bin/env python3
-"""Render module: HTML 渲染 helpers + 所有 _render_* 函數 + render() orchestrator.
-依賴 core + queries."""
-import os
+"""Render module: 页面骨架 + 通用 helpers + render() 调度.
+按 tab 拆分的 leaf 函数在 overview/usage/context/memory/ai_news/render.py."""
 import html
 import sqlite3
-from datetime import datetime, timedelta, timezone
 from urllib.parse import quote
 
 from shared.infra.core import *
-from shared.infra.core import (
-    _init_tiktoken, _TIKTOKEN_STATUS, _TOKEN_CACHE,
-)
 from shared.data.queries import *
-# `import *` 排除底線開頭, 顯式 import render 需要的 queries 私有名
-from shared.data.queries import _collect_known_resources
+from shared.data.queries import _collect_known_resources  # `import *` 不带 _
 
-# Summary module: render 需要讀取 summary status 在 page-header meter 顯示
 from shared.infra import summary as summary_mod
 def _get_summary_status():
     return summary_mod.get_status()

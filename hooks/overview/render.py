@@ -1,6 +1,5 @@
 """总览 tab: Hero + Today + Health (3 主 panel) + 其 flip 背面渲染."""
 import html
-from datetime import datetime, timezone
 
 from shared.infra.core import (
     LABELS, EMPTY_STATES, EVENT_TYPES,
@@ -11,7 +10,7 @@ from shared.http.render import (
     render_sparkline, _render_time_pills,
     _open_flip_card, _between_flip_faces, _close_flip_card,
     _flip_stat, _flip_stat_grid, _flip_back_section, _flip_back_title,
-    _owner_dist_html, _owner_bar_row, _owner_col, _owner_tag_label,
+    _owner_dist_html,
 )
 
 

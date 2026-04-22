@@ -2,22 +2,18 @@
 import html
 
 from shared.infra.core import (
-    LABELS, EMPTY_STATES, CATEGORIES, COLD_SECTIONS,
-    PAIRABLE_READ_TYPES,
-    days_ago, fmt_local_time, fmt_relative_time, fmt_last_seen, fmt_pct_change,
+    LABELS, CATEGORIES, COLD_SECTIONS, PAIRABLE_READ_TYPES,
+    fmt_relative_time, fmt_last_seen,
     severity_cls,
 )
-from shared.data.queries import (
-    attach_owner_active, compute_cold_items,
-    query_etype_aggregate, query_cold_progress,
-)
+from shared.data.queries import query_etype_aggregate, query_cold_progress
 from shared.http.render import (
     OWNER_PREFERRED,
     render_sparkline, _render_time_pills,
     _open_flip_card, _between_flip_faces, _close_flip_card,
     _flip_stat, _flip_stat_grid, _flip_back_section, _flip_back_title,
-    _owner_dist_html, _owner_bar_row, _owner_col, _owner_tag_label,
-    _file_link, _file_link_plain,
+    _owner_dist_html, _owner_tag_label,
+    _file_link,
 )
 
 
