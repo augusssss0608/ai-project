@@ -123,14 +123,83 @@ print(f'fetched: {[(s[\"id\"], len(s.get(\"items\", []))) for s in out]}')
 
 #### 2.6 写 ai-news.json + history.jsonl
 
+**payload schema 必须严格按以下结构** (spec §10, 不许偷懒平铺 / 改字段名):
+
+```python
+payload = {
+    "updated_at": "2026-04-22T14:45:00+09:00",   # ISO 带时区, 本次 pipeline 启动时间
+    "version": 2,
+    "stage_by_source": {
+        "hackernews": "cold",        # 'cold' | 'mid' | 'hot' 三值之一
+        "github_trending": "cold",
+        "qbitai": "cold",
+        "ithome_tw": "cold",
+    },
+    "sources": [                     # list, 不是 dict! 顺序: HN / GitHub / 量子位 / iThome
+        {
+            "id": "hackernews",
+            "label": "Hacker News",
+            "source_url": "https://news.ycombinator.com/",
+            "updated_at": "2026-04-22T14:45:00+09:00",
+            "stage": "cold",
+            "items": [
+                {
+                    "title": "...",
+                    "url": "...",
+                    "desc": "...",
+                    "score": 484,              # HN points / GitHub stars, 无则 null
+                    "comments": 276,           # HN 评论数, 无则 null
+                    "ts": "2026-04-21T03:43:03Z",
+                    "ai_score": null,          # cold 阶段 null, mid/hot 才有 0-10 分
+                    "reason": null,            # scorer 给的中文理由, cold 阶段 null
+                    "summary": "news-summary 的中文摘要",
+                    "workspace_help": "news-analysis 给 workspace 的建议",
+                    "claude_usage": "news-analysis 给 Claude Code 使用的建议",
+                    "hn_url": "https://news.ycombinator.com/item?id=...",  # HN only, 其他源空串
+                    "summary_error": "",       # 子代理失败时填 error 原因, 否则空串
+                }
+            ],
+            "error": null,            # 该源抓取/pipeline 失败时填 error 字符串
+        }
+    ],
+}
+```
+
+**禁止项 (reviewer 反馈, 防止 schema 偏离)**:
+- 不许用 `generated_at` 代替 `updated_at`
+- 不许把 `sources` 写成 dict (必须 list, items 嵌套在 source 内)
+- 不许把 `items` 放顶层 (必须嵌套在 `sources[].items`)
+- 不许把 workspace_help + claude_usage 合并成一个 analysis 字段
+
+**组装后, 按以下顺序写入**:
+
 ```python
 from ai_news.io import write_ai_news_atomic
 from ai_news.history import append_items
 
-# 主列表已组装完成, 格式见 spec §10
 write_ai_news_atomic(payload)
-append_items([{"source": ..., "url": ..., "title": ..., "desc": ...} for ... in payload])
+# history.jsonl: 每条 item 一行, 格式 spec §11.1
+append_items([
+    {"ts": payload["updated_at"], "source": src["id"], "url": it["url"],
+     "title": it["title"], "desc": it["desc"]}
+    for src in payload["sources"] for it in src["items"]
+])
 ```
+
+**写完后必须自检**:
+```python
+import json
+data = json.load(open("/Users/augus/Desktop/ai-project/data/ai-news.json"))
+assert "updated_at" in data and "sources" in data, "schema 错误: 顶层缺字段"
+assert isinstance(data["sources"], list), f"sources 必须是 list, got {type(data['sources'])}"
+for src in data["sources"]:
+    assert "items" in src and isinstance(src["items"], list), f"source {src.get('id')} 缺 items list"
+    for it in src["items"]:
+        for k in ("title", "url", "summary", "workspace_help", "claude_usage"):
+            assert k in it, f"item 缺字段 {k}: {it.get('title', '')[:40]}"
+print("schema 自检通过")
+```
+自检失败就不要发 TG, 写 log 后停止 pipeline (不覆盖旧 ai-news.json 已由 write_atomic 保证).
 
 #### 2.7 发 TG 通知
 
