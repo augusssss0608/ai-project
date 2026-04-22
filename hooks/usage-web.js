@@ -649,17 +649,18 @@
     return w;
   }
 
-  // 按当前所见 slide 的实际高度调 viewport, 不固定. 所有 slide 做全量渲染后, 取当前 slide 的 scrollHeight
+  // 取当前源所有 slide 的 scrollHeight 最大值, 作为固定 viewport 高度
+  // 这样翻页时高度不变, 每篇文章都按"最长那篇"的尺寸容纳; 用户不会感到跳动
   function updateViewportHeight(){
-    // track 里的 visualIdx = pageIdx + 1
     const slides = trackEl.children;
     if (!slides || !slides.length) return;
-    const active = slides[state.pageIdx + 1] || slides[0];
-    if (!active) return;
-    // 用 requestAnimationFrame 等 DOM 布局完成再量
     requestAnimationFrame(() => {
-      const h = active.scrollHeight;
-      if (h > 0) vpEl.style.height = h + 'px';
+      let maxH = 0;
+      for (const s of slides){
+        const h = s.scrollHeight;
+        if (h > maxH) maxH = h;
+      }
+      if (maxH > 0) vpEl.style.height = maxH + 'px';
     });
   }
 
@@ -869,7 +870,7 @@
       trackEl.style.transform = `translateX(${-(state.pageIdx + 1) * vpW}px)`;
     }
     renderPagination();
-    updateViewportHeight();
+    // 高度在源切换时已锁定为该源最长 slide 的高度, 翻页不动
   }
 
   document.addEventListener('keydown', e => {
