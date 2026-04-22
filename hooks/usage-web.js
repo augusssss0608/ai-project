@@ -834,12 +834,11 @@
 
   function renderPagination(){
     const total = curItems().length;
+    pagEl.hidden = false;  // 永远保留空间, 单条源也占位 (保持 reader 整体高度一致)
     if (total <= 1){
-      pagEl.innerHTML = '';
-      pagEl.hidden = true;
+      pagEl.innerHTML = '';  // 内容空, 靠 CSS min-height 撑尺寸
       return;
     }
-    pagEl.hidden = false;
     const parts = [];
     for (let i = 0; i < total; i++){
       const active = i === state.pageIdx ? 'active' : '';

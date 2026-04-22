@@ -1841,6 +1841,8 @@ footer{
   position:relative;
   display:flex;align-items:center;justify-content:center;gap:4px;
   padding:18px 28px 16px;
+  min-height:64px;        /* 保证空 pagination (单条源) 也占位, reader 总高一致 */
+  box-sizing:border-box;
   border-top:1px solid var(--border);
   background:
     radial-gradient(ellipse at 50% 120%, rgba(57,255,20,0.06), transparent 55%),
