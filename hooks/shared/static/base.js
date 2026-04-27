@@ -46,6 +46,8 @@
         history.replaceState({ tab: tabId }, '', '#' + tabId);
       }
     }
+    // 通知各 tab 内部模块 (如 ai_news/app.js): 本次激活了哪个 tab
+    document.dispatchEvent(new CustomEvent('app:tabchange', { detail: { tabId } }));
   }
 
   document.querySelectorAll('.tab-bar .tab').forEach(tab => {

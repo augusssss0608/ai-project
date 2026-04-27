@@ -139,11 +139,17 @@
 .news-src-item.src-github_trending,
 .news-fav-group.src-github_trending{--src:#8cff65}
 
+.news-src-item.src-simonw,
+.news-fav-group.src-simonw{--src:#4da6ff}
+
 .news-src-item.src-qbitai,
 .news-fav-group.src-qbitai{--src:#39ff14}
 
 .news-src-item.src-ithome_tw,
 .news-fav-group.src-ithome_tw{--src:#ff2d95}
+
+.news-src-item.src-threads,
+.news-fav-group.src-threads{--src:#b794f4}
 
 
 /* 右侧 view */
@@ -153,6 +159,7 @@
   min-height:0;
   background:radial-gradient(circle at 80% 0%,rgba(57,255,20,0.03),transparent 40%),var(--bg-elevated);
 }
+
 
 .news-slide-viewport{
   overflow:hidden;
@@ -189,13 +196,89 @@
   color:var(--text-faint);
   text-transform:uppercase;
   margin-bottom:14px;
+  /* 锁定行高: 徽标 (有 padding+border) 和 .ord (纯文本) 共用同一行盒, 切换不撑高 */
+  min-height:22px;
 }
 
 .news-art-meta .src{color:var(--src,var(--accent))}
 
-.news-art-meta .ord{margin-left:auto;color:var(--text-faint);font-size:10px;letter-spacing:.2em}
+.news-art-meta .ord{
+  margin-left:auto;
+  color:var(--text-faint);
+  font-size:10px;letter-spacing:.2em;
+  /* 与 .news-vote-badge 同 padding + 透明 border 占位, 两者切换不挤动布局 */
+  padding:3px 10px;
+  border:1px solid transparent;
+  line-height:1;
+}
 
 .news-art-meta .ord b{color:var(--accent);font-weight:400}
+
+/* github 源在左栏激活时的时间维度标签 (日/周/月/总): 贴在 stage 行前面, 不加框以免撑高按钮 */
+.gh-sort-tag{
+  display:inline;
+  margin-right:6px;
+  color:var(--accent-bright);
+  font-weight:600;
+  letter-spacing:.12em;
+  text-shadow:0 0 6px rgba(57,255,20,0.45);
+}
+
+.gh-sort-tag::after{
+  content:'·';
+  margin-left:6px;
+  color:var(--text-faint);
+  font-weight:400;
+  opacity:0.6;
+}
+
+/* github 源专属: 4 维 star 徽章条 */
+.news-art-stars{
+  display:flex;gap:8px;flex-wrap:wrap;
+  margin-bottom:14px;
+  font-family:var(--font-mono);
+  font-size:11px;letter-spacing:.08em;
+}
+
+/* inline 版: 塞进反馈行, 跟 vote-group 并列, "原文↗" 仍靠右 */
+.news-art-stars--inline{
+  margin-bottom:0;
+  gap:6px;
+  margin-left:10px;
+}
+
+.github-star{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:3px 10px;
+  border:1px solid var(--border);
+  border-radius:2px;
+  color:var(--text-faint);
+  background:rgba(255,255,255,0.02);
+  transition:color .18s, border-color .18s, background .18s;
+}
+
+.github-star .lbl{
+  color:var(--text-faint);
+  opacity:0.7;
+}
+
+.github-star .val{
+  color:var(--text,#cfe4ff);
+  font-weight:500;
+}
+
+.github-star.active{
+  border-color:var(--accent);
+  color:var(--accent-bright);
+  background:rgba(57,255,20,0.1);
+  box-shadow:0 0 8px rgba(57,255,20,0.25);
+}
+
+.github-star.active .lbl,
+.github-star.active .val{
+  color:var(--accent-bright);
+  opacity:1;
+}
 
 .news-art-title{
   font-family:var(--font-display);
@@ -271,17 +354,19 @@
 .news-art-analysis .v.na{color:var(--text-faint);font-style:italic}
 
 
-/* voted 徽标 (slide 右上) */
+/* voted 徽标: 与 .ord 同位置 (meta 行右端), 替换 .ord 显示 */
 .news-vote-badge{
-  position:absolute;top:0;right:0;
+  margin-left:auto;
   font-family:var(--font-mono);
   font-size:10px;letter-spacing:.14em;
-  padding:4px 10px;
+  padding:3px 10px;
   border:1px solid var(--accent);
-  border-radius:2px;
+  border-radius:var(--radius-sm,4px);
   color:var(--accent);
-  background:var(--card-solid);
+  background:transparent;
   text-transform:uppercase;
+  line-height:1;
+  white-space:nowrap;
 }
 
 .news-slide.voted-star .news-vote-badge{border-color:var(--accent-warning,#ffb800);color:var(--accent-warning,#ffb800);box-shadow:0 0 10px rgba(255,184,0,0.3)}

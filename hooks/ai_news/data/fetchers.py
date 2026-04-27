@@ -3,6 +3,7 @@
 items 每条包含: title, url, desc, ts (ISO), 以及源特有字段 (HN: score/comments, GH: today_stars_int/lang).
 """
 import json
+import os
 import re
 import urllib.request
 import urllib.error
@@ -186,6 +187,150 @@ def fetch_github_trending(params: dict) -> list:
     return items
 
 
+def _parse_int_compact(s: str) -> int:
+    """把 GitHub 展示的 '8,069' / '60k' 这种文字 star 数转 int."""
+    if not s:
+        return 0
+    s = s.strip().replace(",", "")
+    m = re.search(r"(\d+(?:\.\d+)?)\s*([kKmM]?)", s)
+    if not m:
+        return 0
+    val = float(m.group(1))
+    unit = m.group(2).lower()
+    if unit == "k":
+        val *= 1000
+    elif unit == "m":
+        val *= 1000000
+    return int(val)
+
+
+def fetch_github_search(params: dict) -> list:
+    """GitHub Search API: 按总 star 排序, 找 Claude 生态仓库 (不受 trending 池限制).
+
+    匿名限流 60 次/小时, 每次 pipeline 跑 len(queries) 次请求.
+    params:
+    - queries: 查询列表 (默认含 claude name/desc/readme + topic:mcp)
+    - per_query_limit: 每个 query 取前 N (默认 30, GitHub Search API 上限 100)
+    - min_stars: 最低总 star 门槛 (默认 30, 过滤不成熟小项目)
+    """
+    import urllib.parse as _up
+    queries = params.get("queries") or [
+        "claude in:name,description,readme",
+        "topic:mcp",
+    ]
+    per_query_limit = int(params.get("per_query_limit", 30))
+    min_stars = int(params.get("min_stars", 30))
+
+    merged = {}
+    for q in queries:
+        q_full = f"{q} stars:>={min_stars}"
+        url = (
+            "https://api.github.com/search/repositories"
+            f"?q={_up.quote(q_full)}"
+            f"&sort=stars&order=desc&per_page={per_query_limit}"
+        )
+        try:
+            raw = _fetch(url, headers={"Accept": "application/vnd.github+json"})
+            data = json.loads(raw)
+        except Exception:
+            continue
+        for r in data.get("items", []):
+            full_name = r.get("full_name", "")
+            html_url = r.get("html_url", "")
+            if not full_name or not html_url:
+                continue
+            if html_url in merged:
+                continue
+            stars_n = int(r.get("stargazers_count", 0) or 0)
+            merged[html_url] = {
+                "title": full_name,
+                "url": html_url,
+                "desc": (r.get("description") or "")[:200],
+                "ts": r.get("pushed_at", "") or _now_iso(),
+                "lang": r.get("language") or "",
+                "stars": f"{stars_n:,}",
+                "total_stars_int": stars_n,
+                "daily_stars": 0,
+                "weekly_stars": 0,
+                "monthly_stars": 0,
+            }
+    return list(merged.values())
+
+
+def fetch_github_trending_multi(params: dict) -> list:
+    """抓 daily + weekly + monthly 三个 trending 页面, 为每个维度独立产出一个榜单.
+
+    返回扁平 list, 每条 item 带 `dimension` 字段标识属于哪个榜单:
+    - dimension='daily':   daily trending 页面 top N, 按日增长排
+    - dimension='weekly':  weekly trending 页面 top N, 按周增长排
+    - dimension='monthly': monthly trending 页面 top N, 按月增长排
+    - dimension='total':   三页面合并去重后, 按历史总 star 取 top N
+
+    同一仓库可能在多个维度重复出现 (各维度各保留一条), 因为用户要"各榜单纯粹 top N".
+
+    params:
+    - per_fetch_limit: 每个 trending 页面抓多少 (默认 25, trending 页面约 25 条, 够用)
+    - per_dim_limit:   每个维度展示多少 top (默认 15)
+    """
+    per_fetch = int(params.get("per_fetch_limit", 25))
+    per_dim = int(params.get("per_dim_limit", 15))
+
+    raw_by_url = {}
+    for since in ("daily", "weekly", "monthly"):
+        sub = fetch_github_trending({"since": since, "limit": per_fetch})
+        for it in sub:
+            url = it["url"]
+            if url not in raw_by_url:
+                raw_by_url[url] = {
+                    "title": it["title"],
+                    "url": url,
+                    "desc": it.get("desc", ""),
+                    "ts": it.get("ts", ""),
+                    "lang": it.get("lang", ""),
+                    "stars": it.get("stars", ""),
+                    "total_stars_int": _parse_int_compact(it.get("stars", "")),
+                    "daily_stars": 0,
+                    "weekly_stars": 0,
+                    "monthly_stars": 0,
+                }
+            raw_by_url[url][f"{since}_stars"] = it.get("today_stars_int", 0)
+
+    pool = list(raw_by_url.values())
+
+    # fetcher 不截 top — 返回完整候选池. 过 filter 后前端按维度再截 top N
+    # 每个 dimension 只保留"本维度 star > 0"的仓库 (意即真正出现在该 trending 页面的), 避免从别维度合并来的 0 值仓库混入
+    dim_map = {
+        "daily": sorted([it for it in pool if it.get("daily_stars", 0) > 0],
+                        key=lambda x: x["daily_stars"], reverse=True),
+        "weekly": sorted([it for it in pool if it.get("weekly_stars", 0) > 0],
+                         key=lambda x: x["weekly_stars"], reverse=True),
+        "monthly": sorted([it for it in pool if it.get("monthly_stars", 0) > 0],
+                          key=lambda x: x["monthly_stars"], reverse=True),
+    }
+
+    # total 维度改走 Search API, 真正"全站 Claude 相关按总 star 排", 不受 trending 池限制
+    total_search_params = {
+        "queries": params.get("total_queries") or [
+            "claude in:name,description,readme",
+            "topic:mcp",
+        ],
+        "per_query_limit": int(params.get("total_per_query_limit", 30)),
+        "min_stars": int(params.get("total_min_stars", 30)),
+    }
+    try:
+        search_pool = fetch_github_search(total_search_params)
+    except Exception:
+        search_pool = []
+    search_pool.sort(key=lambda x: x.get("total_stars_int", 0), reverse=True)
+    dim_map["total"] = search_pool
+
+    flat = []
+    for dim in ("daily", "weekly", "monthly", "total"):
+        for it in dim_map[dim]:
+            flat.append({**it, "dimension": dim})
+    return flat
+
+
 def _parse_rss2(xml_bytes: bytes, max_items: int = 20) -> list:
     """通用 RSS 2.0 <channel><item> 解析. 返回 [{title,url,desc,ts,author}]."""
     import xml.etree.ElementTree as ET
@@ -246,6 +391,81 @@ def fetch_rss(params: dict) -> list:
     return kept[:limit]
 
 
+def _parse_atom(xml_bytes: bytes, max_items: int = 50) -> list:
+    """解析 Atom 1.0 feed. 返回 [{title,url,desc,ts,author}].
+    author 可能是作者名或空串.
+    """
+    import xml.etree.ElementTree as ET
+    NS = "{http://www.w3.org/2005/Atom}"
+    root = ET.fromstring(xml_bytes)
+    out = []
+    for entry in root.findall(f"{NS}entry"):
+        title = (entry.findtext(f"{NS}title") or "").strip()
+        if not title:
+            continue
+        # link: 取 rel="alternate" (或第一个 link)
+        link = ""
+        for l in entry.findall(f"{NS}link"):
+            rel = l.get("rel", "alternate")
+            if rel == "alternate" and l.get("href"):
+                link = l.get("href", "").strip()
+                break
+        if not link:
+            for l in entry.findall(f"{NS}link"):
+                if l.get("href"):
+                    link = l.get("href", "").strip()
+                    break
+        # summary 或 content 都作摘要, 清洗 HTML
+        summary_raw = entry.findtext(f"{NS}summary") or entry.findtext(f"{NS}content") or ""
+        desc = re.sub(r"<[^>]+>", "", summary_raw).strip()
+        desc = re.sub(r"\s+", " ", desc)[:200]
+        # published / updated
+        ts = (entry.findtext(f"{NS}published") or entry.findtext(f"{NS}updated") or "").strip()
+        # 归一化
+        try:
+            ts_dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
+            if ts_dt.tzinfo is None:
+                ts_dt = ts_dt.replace(tzinfo=timezone.utc)
+            ts = ts_dt.astimezone(timezone.utc).isoformat(timespec="seconds")
+        except Exception:
+            pass
+        # author
+        author_el = entry.find(f"{NS}author/{NS}name")
+        author = author_el.text.strip() if author_el is not None and author_el.text else ""
+        out.append({
+            "title": title, "url": link, "desc": desc, "ts": ts, "author": author,
+        })
+        if len(out) >= max_items:
+            break
+    return out
+
+
+def fetch_atom(params: dict) -> list:
+    """Atom feed 抓取. params:
+    - url: Atom feed 地址
+    - time_window_hours: 只保留窗口内条目 (按 published)
+    - limit: 最多返回多少条
+    """
+    url = params["url"]
+    window = int(params.get("time_window_hours", 48))
+    limit = int(params.get("limit", 15))
+    raw = _fetch(url)
+    items = _parse_atom(raw, max_items=max(50, limit * 2))
+
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=window)
+    kept = []
+    for it in items:
+        try:
+            ts_dt = datetime.fromisoformat(it["ts"].replace("Z", "+00:00"))
+            if ts_dt.tzinfo is None:
+                ts_dt = ts_dt.replace(tzinfo=timezone.utc)
+            if ts_dt >= cutoff:
+                kept.append(it)
+        except Exception:
+            kept.append(it)
+    return kept[:limit]
+
+
 ARTICLE_TIMEOUT = 30
 ARTICLE_MAX_CHARS = 6000
 
@@ -267,10 +487,455 @@ def fetch_article_text(url: str) -> tuple:
         return "", f"{type(e).__name__}: {e}"
 
 
+THREADS_GRAPHQL_URL = "https://www.threads.com/graphql/query"
+THREADS_IG_APP_ID = "238260118697367"
+
+
+def _load_threads_session(session_path: str) -> dict:
+    path = os.path.expanduser(session_path)
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _threads_post(endpoint: str, headers: dict, form: dict, timeout: int = TIMEOUT) -> dict:
+    import urllib.parse as _up
+    body = _up.urlencode(form).encode("utf-8")
+    req = urllib.request.Request(endpoint, data=body, headers=headers, method="POST")
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        raw = resp.read()
+    # 响应首行就是 JSON (Meta 有时发 NDJSON, 取第一段够用)
+    text = raw.decode("utf-8", errors="replace")
+    return json.loads(text.split("\n", 1)[0])
+
+
+def _walk_threads_posts(obj, seen: dict):
+    """递归找 Threads post 节点. 判据: 同时含 code + caption + user.
+    找到即 append 到 seen (以 pk 为 key 去重), 不再往下钻避免把引用/回复帖子也当顶层抓入.
+    """
+    if isinstance(obj, dict):
+        if "code" in obj and "caption" in obj and "user" in obj:
+            pk = obj.get("pk") or obj.get("id")
+            if pk and pk not in seen:
+                seen[pk] = obj
+            return
+        for v in obj.values():
+            _walk_threads_posts(v, seen)
+    elif isinstance(obj, list):
+        for v in obj:
+            _walk_threads_posts(v, seen)
+
+
+def _find_next_cursor(obj):
+    """递归找 page_info.end_cursor (has_next_page=True)."""
+    if isinstance(obj, dict):
+        pi = obj.get("page_info")
+        if isinstance(pi, dict) and pi.get("has_next_page") and pi.get("end_cursor"):
+            return pi.get("end_cursor")
+        for v in obj.values():
+            c = _find_next_cursor(v)
+            if c:
+                return c
+    elif isinstance(obj, list):
+        for v in obj:
+            c = _find_next_cursor(v)
+            if c:
+                return c
+    return None
+
+
+def _has_chinese(text: str) -> bool:
+    """判断字符串是否包含至少一个 CJK 汉字 (U+4E00..U+9FFF).
+    注: 这个范围覆盖简中 + 繁中 + 日文汉字, 不覆盖日文假名和韩文谚文——
+    所以纯日文假名 / 纯韩文 post 会被判为 no-CN, 和"过滤非中文 post"意图一致.
+    """
+    if not text:
+        return False
+    return any("一" <= c <= "鿿" for c in text)
+
+
+def _build_feed_view_info(prev_posts: list, ai_pattern=None) -> str:
+    """从上一页的 post 列表构造 feed_view_info JSON 字符串.
+
+    AI 命中的 post 标 5-15 秒 dwell (正向兴趣信号), 其他 post 标 500-1800 毫秒 (快速划过).
+    Meta 的 online learner 会把这解读为"用户在 AI 帖子停留、非 AI 快速跳过", 推更多 AI.
+
+    schema 基于逆向工程社区常见形状; Meta 内部 schema 没公开, 不保证 100% 匹配.
+    如果 Meta 拒绝, 等价于发空 [] (fallback 到原行为).
+    """
+    import random as _rnd
+    entries = []
+    for idx, p in enumerate(prev_posts):
+        pk = p.get("pk") or p.get("id") or p.get("code")
+        if not pk:
+            continue
+        caption = (p.get("caption") or {}).get("text", "") or ""
+        is_ai = bool(ai_pattern and ai_pattern.search(caption))
+        if is_ai:
+            view_time = _rnd.randint(5000, 15000)
+        else:
+            view_time = _rnd.randint(500, 1800)
+        entries.append({
+            "media_id": str(pk),
+            "view_time": view_time,
+            "is_visible": True,
+            "distance_from_top": idx,
+        })
+    return json.dumps(entries, separators=(",", ":"))
+
+
+def _normalize_threads_post(p: dict) -> dict:
+    user = p.get("user") or {}
+    username = user.get("username", "") or ""
+    caption = p.get("caption") or {}
+    text = (caption.get("text") or "").strip()
+    first_line = text.split("\n", 1)[0][:120] or f"@{username}"
+    code = p.get("code", "") or ""
+    taken_at = p.get("taken_at")
+    try:
+        ts = datetime.fromtimestamp(int(taken_at), tz=timezone.utc).isoformat(timespec="seconds")
+    except Exception:
+        ts = _now_iso()
+    post_url = f"https://www.threads.com/@{username}/post/{code}" if username and code else ""
+    tpai = p.get("text_post_app_info") or {}
+    like_count = int(p.get("like_count", 0) or 0)
+    reply_count = int(tpai.get("direct_reply_count", 0) or 0)
+    return {
+        "title": first_line,
+        "url": post_url,
+        "desc": text[:300],
+        "ts": ts,
+        "author": username,
+        # 前端 payload schema 需要的兼容字段 (score ↔ like_count, comments ↔ reply_count)
+        "score": like_count,
+        "comments": reply_count,
+        "hn_url": "",
+        # threads 原生字段 (保留给未来扩展)
+        "like_count": like_count,
+        "reply_count": reply_count,
+        "repost_count": int(tpai.get("repost_count", 0) or 0),
+    }
+
+
+def fetch_threads_home(params: dict) -> list:
+    """用已登录 cookie 直调 Meta Relay GraphQL 抓 Threads 个人首页 feed.
+
+    抓取策略: 多阶段 initial_load + pagination, 累计满/翻不动就 refresh.
+    - 初始: `after=null, reason=initial_load` → 翻页累计 48h 内去重 post
+    - Refresh 触发条件 (任一即触发):
+        a) 48h 内累计数 >= `refresh_at` 的下一个倍数 (50 → refresh → 100 → refresh → ...)
+        b) 翻页卡死 (response 里没 end_cursor / 下页全是 dup)
+    - Refresh = 下一轮 `after=null, reason=initial_load`, 让 Meta 重推一批 top-of-feed
+    - 终止: 累计 >= `limit` 或 refresh 次数 >= `max_refreshes` 或 page 次数 >= `pages`
+
+    params:
+    - session_file: 凭据 JSON 路径 (默认 ~/Desktop/ai-project/data/.threads-session.json)
+    - limit: 最终目标累计数 (默认 100)
+    - refresh_at: 每累计到这个倍数触发一次 refresh (默认 50)
+    - max_refreshes: refresh 次数上限 (默认 10, 防止死循环; 一般用到 2-5 次就够)
+    - pages: 所有阶段合计 HTTP 请求数硬上限 (默认 60)
+    - time_window_hours: 只保留这个窗口内的 post (默认 48)
+    - cursor_key: variables 里分页游标字段名 (默认 'after')
+    - page_size_key / page_size: 分页大小字段名/值 (默认 'first'/25, 只在 variables 没提供时注入)
+
+    凭据 JSON 结构 (浏览器 sniff 得到):
+        {
+          "cookie": "sessionid=...; csrftoken=...; ...",
+          "headers": { "x-fb-lsd": "...", "x-fb-friendly-name": "...", ... },
+          "body":    { "av": "...", "fb_dtsg": "...", "lsd": "...", "doc_id": "...", ... },
+          "variables": { "first": 25, "after": null, ... }
+        }
+    fetcher 会把 variables 里的 cursor_key 换成当前游标, 其他字段原样 replay 浏览器发的请求.
+    """
+    session_path = params.get("session_file", "~/Desktop/ai-project/data/.threads-session.json")
+    limit = int(params.get("limit", 100))
+    refresh_at = int(params.get("refresh_at", 50))
+    max_refreshes = int(params.get("max_refreshes", 10))
+    pages = int(params.get("pages", 60))
+    window = int(params.get("time_window_hours", 48))
+    cursor_key = params.get("cursor_key", "after")
+    page_size_key = params.get("page_size_key", "first")
+    page_size = int(params.get("page_size", 25))
+    require_chinese = bool(params.get("require_chinese", True))
+    simulate_ai_dwell = bool(params.get("simulate_ai_dwell", True))
+    # 页间 sleep 范围 (秒), 模拟真人阅读速度, 兼顾 Meta 反爬
+    page_delay_min = float(params.get("page_delay_min", 4.0))
+    page_delay_max = float(params.get("page_delay_max", 9.0))
+
+    session = _load_threads_session(session_path)
+    cookie = session.get("cookie") or ""
+    sniff_headers = session.get("headers") or {}
+    body_base = session.get("body") or {}
+    variables_tpl = dict(session.get("variables") or {})
+    endpoint = session.get("endpoint") or THREADS_GRAPHQL_URL
+    if page_size_key not in variables_tpl:
+        variables_tpl[page_size_key] = page_size
+
+    headers = {
+        "content-type": "application/x-www-form-urlencoded",
+        "cookie": cookie,
+        "x-ig-app-id": THREADS_IG_APP_ID,
+        "accept": "*/*",
+        "origin": "https://www.threads.com",
+        "referer": "https://www.threads.com/",
+        "user-agent": sniff_headers.get("user-agent") or UA,
+    }
+    for k, v in sniff_headers.items():
+        if v is not None:
+            headers[k.lower()] = v
+    # cookie 如果 sniff_headers 里也有, session.cookie 优先 (明确字段)
+    headers["cookie"] = cookie
+
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=window)
+
+    def _in_window(post) -> bool:
+        ta = post.get("taken_at")
+        if not ta:
+            return True  # 拿不到时间就保守放行, 最终正规化时会再过一遍窗口
+        try:
+            return datetime.fromtimestamp(int(ta), tz=timezone.utc) >= cutoff
+        except Exception:
+            return True
+
+    def _count_in_window(seen_map):
+        return sum(1 for p in seen_map.values() if _in_window(p))
+
+    # 懒 import, 避免给模块顶部增加不必要依赖
+    import random as _rnd
+    import time as _time
+    # 延迟 import filters 避免循环依赖 (filters.py 没 import fetchers, 所以安全)
+    _ai_pat = None
+    if simulate_ai_dwell:
+        try:
+            from ai_news.data.filters import THREADS_LOOSE_RE as _ai_pat
+        except Exception:
+            _ai_pat = None
+
+    seen = {}
+    cursor = None
+    reason = "initial_load"
+    refresh_count = 0
+    just_refreshed = False  # 上一轮是否刚 refresh (用于检测 dry refresh)
+    # 已经触发过 milestone refresh 的"累计值档位"集合, 防止反复触发同一档位
+    milestones_hit = set()
+    # 上一次 walker 抓到的 posts 列表 (用于构造下一次的 feed_view_info)
+    prev_page_posts = []
+    page_idx = 0
+    for _ in range(max(1, pages)):
+        variables_tpl[cursor_key] = cursor
+        if isinstance(variables_tpl.get("data"), dict):
+            variables_tpl["data"]["reason"] = reason
+            # AI dwell simulation: 从第 2 页开始 (第 1 页是 initial_load 没有前一页可报)
+            if simulate_ai_dwell and page_idx > 0 and prev_page_posts:
+                variables_tpl["data"]["feed_view_info"] = _build_feed_view_info(prev_page_posts, _ai_pat)
+            else:
+                variables_tpl["data"].setdefault("feed_view_info", "[]")
+        # 页间 sleep: 模拟真人阅读速度
+        if page_idx > 0 and page_delay_max > 0:
+            _time.sleep(_rnd.uniform(page_delay_min, page_delay_max))
+        page_idx += 1
+
+        form = dict(body_base)
+        form["variables"] = json.dumps(variables_tpl, ensure_ascii=False)
+        try:
+            resp = _threads_post(endpoint, headers, form)
+        except Exception:
+            break
+        if not isinstance(resp, dict) or resp.get("errors"):
+            break
+        before = len(seen)
+        # 记录这一页新增的 post (用于下一轮 feed_view_info)
+        page_snapshot = {}
+        _walk_threads_posts(resp, page_snapshot)
+        prev_page_posts = list(page_snapshot.values())
+        # 合并到全量 seen
+        for pk, p in page_snapshot.items():
+            if pk not in seen:
+                seen[pk] = p
+        got_new = len(seen) > before
+        in_window_count = _count_in_window(seen)
+
+        # Refresh 完的第一页就没新 post = Meta 已经没 fresh 内容可给, 早停
+        if just_refreshed and not got_new:
+            break
+        just_refreshed = False
+
+        if in_window_count >= limit:
+            break
+
+        next_cursor = _find_next_cursor(resp)
+        stuck = (not got_new) or (not next_cursor) or (next_cursor == cursor)
+        # milestone: 当前累计值所处的 refresh_at 档位 (50→1, 100→2, ...)
+        tier = in_window_count // refresh_at if refresh_at > 0 else 0
+        need_milestone_refresh = (tier >= 1 and tier not in milestones_hit
+                                   and in_window_count < limit)
+
+        if stuck or need_milestone_refresh:
+            # Refresh 只允许发生在已经攒到 refresh_at 之后
+            # (在这之前翻不动就直接结束, 不拿 refresh 当兜底)
+            if in_window_count < refresh_at:
+                break
+            if refresh_count >= max_refreshes:
+                break
+            if need_milestone_refresh:
+                milestones_hit.add(tier)
+            cursor = None
+            reason = "initial_load"
+            refresh_count += 1
+            just_refreshed = True
+            continue
+
+        cursor = next_cursor
+        reason = "pagination"
+
+    items = []
+    for p in seen.values():
+        it = _normalize_threads_post(p)
+        # 非中文 post 过滤 (title + desc 都不含汉字就剔)
+        if require_chinese and not _has_chinese(it.get("title", "") + " " + it.get("desc", "")):
+            continue
+        try:
+            ts_dt = datetime.fromisoformat(it["ts"].replace("Z", "+00:00"))
+            if ts_dt.tzinfo is None:
+                ts_dt = ts_dt.replace(tzinfo=timezone.utc)
+            if ts_dt >= cutoff:
+                items.append(it)
+        except Exception:
+            items.append(it)
+    items.sort(key=lambda x: (x.get("like_count", 0), x.get("reply_count", 0)), reverse=True)
+    return items[:limit]
+
+
+_TS_LABEL_RE = re.compile(r"^(\d+)\s*(小時|分鐘|天|週|月|年|hour|hours|minute|minutes|day|days|week|month|year)s?$")
+_DATE_LABEL_RE = re.compile(r"^\d{4}-\d{1,2}-\d{1,2}$")
+
+
+def _parse_threads_timestamp_label(label, snapshot_ts):
+    """'9小時' / '1天' / '2026-3-13' -> ISO datetime, 失败返回 None."""
+    if not label:
+        return None
+    if _DATE_LABEL_RE.match(label):
+        try:
+            d = datetime.strptime(label, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+            return d.isoformat(timespec="seconds")
+        except Exception:
+            return None
+    m = _TS_LABEL_RE.match(label)
+    if not m:
+        return None
+    n = int(m.group(1))
+    unit = m.group(2)
+    try:
+        base = datetime.fromisoformat(snapshot_ts.replace("Z", "+00:00"))
+    except Exception:
+        base = datetime.now(timezone.utc)
+    if base.tzinfo is None:
+        base = base.replace(tzinfo=timezone.utc)
+    if unit in ("小時", "hour", "hours"):
+        return (base - timedelta(hours=n)).isoformat(timespec="seconds")
+    if unit in ("分鐘", "minute", "minutes"):
+        return (base - timedelta(minutes=n)).isoformat(timespec="seconds")
+    if unit in ("天", "day", "days"):
+        return (base - timedelta(days=n)).isoformat(timespec="seconds")
+    if unit in ("週", "week"):
+        return (base - timedelta(weeks=n)).isoformat(timespec="seconds")
+    if unit in ("月",):
+        return (base - timedelta(days=n * 30)).isoformat(timespec="seconds")
+    if unit in ("年",):
+        return (base - timedelta(days=n * 365)).isoformat(timespec="seconds")
+    return None
+
+
+def _clean_threads_body(body: str, timestamp_label: str, username: str) -> str:
+    """去掉 body 开头的时间戳标签和尾部的 '翻譯' 等噪声."""
+    if not body:
+        return ""
+    txt = body.strip()
+    # 去头部重复的时间戳 (DOM 拼接时可能把时间戳插到正文开头)
+    if timestamp_label and txt.startswith(timestamp_label):
+        txt = txt[len(timestamp_label):].strip()
+    # 去头部重复的 username (有时 DOM 把 username 也拼进 body)
+    for prefix in (username, f"@{username}"):
+        if prefix and txt.startswith(prefix):
+            txt = txt[len(prefix):].strip()
+    # 去尾部 "翻譯" / "Translate"
+    txt = re.sub(r"\s*(翻譯|Translate)\s*$", "", txt)
+    return txt.strip()
+
+
+def fetch_threads_snapshot(params: dict) -> list:
+    """读取浏览器一次性导出的 Threads For You 快照 (由 Playwright MCP 采集).
+
+    快照 JSON schema (ai-project/data/threads-snapshot.json):
+        { "ts": ISO8601,  "source": "threads_for_you_dom_scrape",
+          "count": int,   "posts": [
+            {"username", "code", "url", "datetime" | null,
+             "timestamp_label", "title", "body", "engagement_nums": [...]}
+          ] }
+
+    params:
+    - snapshot_file: 快照路径 (默认 ~/Desktop/ai-project/data/threads-snapshot.json)
+    - time_window_hours: 只保留窗口内 post (默认 48)
+    - limit: 最多返回 (默认 200)
+    - min_body_len: 过滤 body 太短的 post (默认 10 字符, 防止只有 emoji)
+    """
+    path = os.path.expanduser(params.get("snapshot_file", "~/Desktop/ai-project/data/threads-snapshot.json"))
+    window = int(params.get("time_window_hours", 48))
+    limit = int(params.get("limit", 200))
+    min_body = int(params.get("min_body_len", 10))
+    require_chinese = bool(params.get("require_chinese", True))
+    with open(path, "r", encoding="utf-8") as f:
+        snap = json.load(f)
+    snapshot_ts = snap.get("ts") or _now_iso()
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=window)
+
+    items = []
+    for p in snap.get("posts", []):
+        username = (p.get("username") or "").strip()
+        code = (p.get("code") or "").strip()
+        if not username or not code:
+            continue
+        ts_iso = p.get("datetime") or _parse_threads_timestamp_label(p.get("timestamp_label"), snapshot_ts) or snapshot_ts
+        # 时窗过滤 (保守: 解析失败保留)
+        try:
+            ts_dt = datetime.fromisoformat(ts_iso.replace("Z", "+00:00"))
+            if ts_dt.tzinfo is None:
+                ts_dt = ts_dt.replace(tzinfo=timezone.utc)
+            if ts_dt < cutoff:
+                continue
+        except Exception:
+            pass
+        body = _clean_threads_body(p.get("body", ""), p.get("timestamp_label", ""), username)
+        if len(body) < min_body:
+            continue
+        if require_chinese and not _has_chinese(body):
+            continue
+        first_line = body.split("\n", 1)[0]
+        # title 换成 body 首句 (避免之前 '9小時' 这种脏数据)
+        title = first_line[:120].strip() or f"@{username}"
+        eng = p.get("engagement_nums") or []
+        # 经验: Threads 数字行 = [views(有时), likes, replies, reposts], 末尾三个常见
+        like_count = int(eng[0]) if eng else 0
+        items.append({
+            "title": title,
+            "url": p.get("url") or f"https://www.threads.com/@{username}/post/{code}",
+            "desc": body[:300],
+            "ts": ts_iso,
+            "author": username,
+            "like_count": like_count,
+            "engagement": eng,
+        })
+    items.sort(key=lambda x: x.get("like_count", 0), reverse=True)
+    return items[:limit]
+
+
 _TYPE_DISPATCH = {
     "hn_algolia": fetch_hn_algolia,
     "github_trending": fetch_github_trending,
+    "github_trending_multi": fetch_github_trending_multi,
     "rss": fetch_rss,
+    "atom": fetch_atom,
+    "threads_home": fetch_threads_home,
+    "threads_snapshot": fetch_threads_snapshot,
 }
 
 

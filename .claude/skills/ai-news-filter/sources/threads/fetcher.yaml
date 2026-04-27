@@ -1,0 +1,20 @@
+type: threads_home
+params:
+  session_file: "~/Desktop/ai-project/data/.threads-session.json"
+  limit: 100            # 最终目标: 48h 内去重后累计条数
+  refresh_at: 999       # 禁用 milestone refresh (不希望 fetch 期间多次刷新, 容易被判机器人)
+  max_refreshes: 0      # 禁用所有 refresh
+  pages: 3              # 单次 fetch 翻 3 页左右 (1 initial + 2 pagination, 接近真人初次刷 feed 的节奏)
+  time_window_hours: 48
+  require_chinese: true   # 非中文 post 剔掉 (U+4E00..U+9FFF 无命中)
+  simulate_ai_dwell: true # 把上一页的 AI 命中 post 标 5-15s dwell, 其他标 0.5-1.8s, 正向训练 Meta 推更多 AI
+  page_delay_min: 4       # 页间 sleep 下限 (秒)
+  page_delay_max: 9       # 页间 sleep 上限 (秒)
+
+# DOM scrape 备用方案 (不需要 cookie, 但需要 Playwright MCP 驱动浏览器)
+# type: threads_snapshot
+# params:
+#   snapshot_file: "~/Desktop/ai-project/data/threads-snapshot.json"
+#   time_window_hours: 48
+#   limit: 200
+#   min_body_len: 10

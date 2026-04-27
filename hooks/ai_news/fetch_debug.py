@@ -22,7 +22,7 @@ from ai_news.data.filters import apply_hard_filter
 SOURCES_DIR = Path.home() / "Desktop" / "ai-project" / ".claude" / "skills" / "ai-news-filter" / "sources"
 OUT_TPL = "/tmp/ai-news-raw-{}.json"
 
-SOURCE_IDS = ["hackernews", "github_trending", "qbitai", "ithome_tw"]
+SOURCE_IDS = ["hackernews", "github_trending", "simonw"]
 
 
 def load_fetcher_yaml(source_id: str) -> dict:

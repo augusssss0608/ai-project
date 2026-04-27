@@ -42,6 +42,16 @@ def _iter_history():
                 continue
 
 
+def load_all_urls() -> set:
+    """返回 history.jsonl 里出现过的所有 URL 集合 (跨源). 用于全量去重."""
+    urls = set()
+    for row in _iter_history():
+        url = row.get("url", "")
+        if url:
+            urls.add(url)
+    return urls
+
+
 def aggregate_by_url(source_id: str) -> list:
     """读 jsonl, 按 url 聚合 (first_ts=min, last_ts=max, count). 返回列表."""
     agg = {}

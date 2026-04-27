@@ -19,6 +19,7 @@
     srcIdx: 0,
     pageIdx: 0,
     favFoldedSources: new Set(),        // 收藏模式下折叠的源 id 集合
+    githubSortBy: 'daily',              // github 源排序: daily | weekly | monthly | total
   };
   let pendingWrapSnap = null;
 
@@ -28,9 +29,56 @@
   const trackEl   = root.querySelector('#news-track');
   const pagEl     = root.querySelector('#news-pagination');
 
+  const GITHUB_SORT_CYCLE = ['daily', 'weekly', 'monthly', 'total'];
+
   function esc(s){return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
   function isFav(url){ return !!state.favorites[url]; }
   function getScore(url){ return (state.votes[url]||{}).score || ''; }
+
+  // github 源相关
+  function isGithubSource(srcId){ return srcId === 'github_trending'; }
+  function hasGithubStars(it){
+    return it && ('daily_stars' in it || 'weekly_stars' in it || 'monthly_stars' in it || 'total_stars_int' in it);
+  }
+  function fmtStarNum(n){
+    n = Number(n) || 0;
+    if (n >= 1000) return (n/1000).toFixed(n >= 10000 ? 0 : 1) + 'k';
+    return String(n);
+  }
+  function renderGithubStars(it, activeKey){
+    if (!hasGithubStars(it)) return '';
+    const d = it.daily_stars || 0;
+    const w = it.weekly_stars || 0;
+    const m = it.monthly_stars || 0;
+    const t = it.total_stars_int || 0;
+    const rows = [
+      ['daily',   '日', '+'+fmtStarNum(d)],
+      ['weekly',  '周', '+'+fmtStarNum(w)],
+      ['monthly', '月', '+'+fmtStarNum(m)],
+      ['total',   '总',   fmtStarNum(t)],
+    ];
+    return rows.map(([k, label, v]) => {
+      const active = k === activeKey ? 'active' : '';
+      return `<span class='github-star ${active}'><span class='lbl'>${label}</span><span class='val'>${v}⭐</span></span>`;
+    }).join('');
+  }
+  function githubSortKey(it, k){
+    if (k === 'total') return it.total_stars_int || 0;
+    return it[k + '_stars'] || 0;
+  }
+  const GITHUB_PER_DIM_DISPLAY = 15;
+  // 按维度过滤: 仅保留 item.dimension === 维度 的条目, 按对应 star 降序, 截 top 15
+  function filterGithubByDim(items, dim){
+    const subset = items.filter(it => it.dimension === dim);
+    return subset
+      .slice()
+      .sort((a, b) => githubSortKey(b, dim) - githubSortKey(a, dim))
+      .slice(0, GITHUB_PER_DIM_DISPLAY);
+  }
+  // 兼容老数据 (没有 dimension 字段): 回退到原"合并后排序"行为
+  function sortGithubItems(items, sortBy){
+    return items.slice().sort((a, b) => githubSortKey(b, sortBy) - githubSortKey(a, sortBy));
+  }
 
   // 收藏模式下: 构造虚拟 source, 按原 sources 顺序分组, 组内按收藏 ts desc
   function getFavoriteItems(){
@@ -77,7 +125,18 @@
     }
     return sources[state.srcIdx] || {items:[]};
   }
-  function curItems(){ return curSource().items || []; }
+  function curItems(){
+    const src = curSource();
+    const items = src.items || [];
+    if (isGithubSource(src.id)) {
+      // 新数据带 dimension 字段: 按维度过滤出各榜单独立 top N
+      const hasDim = items.some(it => it && it.dimension);
+      if (hasDim) return filterGithubByDim(items, state.githubSortBy);
+      // 老数据 fallback: 同一池子按字段排序
+      return sortGithubItems(items, state.githubSortBy);
+    }
+    return items;
+  }
 
   function fmtTime(iso){
     if(!iso) return '';
@@ -145,23 +204,51 @@
       return;
     }
     const headHtml = `<div class='head'>SOURCES</div>`;
+    const GITHUB_SORT_LABEL = {daily:'日', weekly:'周', monthly:'月', total:'总'};
     const items = sources.map((s, i) => {
       const active = i === state.srcIdx ? 'active' : '';
-      return `<button class='news-src-item src-${esc(s.id)} ${active}' data-idx='${i}'>
+      const isGh = isGithubSource(s.id);
+      const sortTag = (isGh && active) ? `<span class='gh-sort-tag'>${GITHUB_SORT_LABEL[state.githubSortBy]||''}</span>` : '';
+      // github 源 count: 当前维度的条数 (新数据) / 兼容老数据时回退到全部
+      // 与右侧显示对齐: 单维度最多展示 GITHUB_PER_DIM_DISPLAY 条, 超过时左侧 count 也截到上限
+      let cnt = (s.items || []).length;
+      if (isGh) {
+        const hasDim = (s.items || []).some(it => it && it.dimension);
+        if (hasDim) {
+          const dimCnt = (s.items || []).filter(it => it.dimension === state.githubSortBy).length;
+          cnt = Math.min(dimCnt, GITHUB_PER_DIM_DISPLAY);
+        } else {
+          cnt = Math.min(cnt, GITHUB_PER_DIM_DISPLAY);
+        }
+      }
+      return `<button class='news-src-item src-${esc(s.id)} ${active}' data-idx='${i}' title='${isGh?"再次点击循环切换 日→周→月→总":""}'>
         <div class='label'>
           <span class='name'>${esc(s.label || s.id)}</span>
-          <span class='stage'>${STAGE_EMOJI[s.stage]||''} ${STAGE_LABEL[s.stage]||''}</span>
+          <span class='stage'>${sortTag}${STAGE_EMOJI[s.stage]||''} ${STAGE_LABEL[s.stage]||''}</span>
         </div>
-        <span class='count'>${(s.items||[]).length}</span>
+        <span class='count'>${cnt}</span>
       </button>`;
     }).join('');
     srcListEl.innerHTML = headHtml + items;
     srcListEl.querySelectorAll('.news-src-item').forEach(b => {
       b.addEventListener('click', () => {
         const idx = parseInt(b.dataset.idx, 10);
-        if (idx === state.srcIdx) return;
+        const targetSrc = sources[idx];
+        const isGithub = targetSrc && isGithubSource(targetSrc.id);
+        if (idx === state.srcIdx){
+          // 再次点击当前选中源: 仅 github 源支持循环切换时间维度
+          if (!isGithub) return;
+          const curPos = GITHUB_SORT_CYCLE.indexOf(state.githubSortBy);
+          state.githubSortBy = GITHUB_SORT_CYCLE[(curPos + 1) % GITHUB_SORT_CYCLE.length];
+          state.pageIdx = 0;
+          renderSrcList();
+          renderSlides();
+          renderPagination();
+          return;
+        }
         state.srcIdx = idx;
         state.pageIdx = 0;
+        if (isGithub) state.githubSortBy = 'daily';  // 进 github 时重置时间维度
         renderSrcList();
         renderSlides();
         renderPagination();
@@ -239,18 +326,23 @@
     const badge = score==='star' ? '⭐ STAR' : score==='up' ? '👍 USEFUL' : score==='down' ? '👎 SKIP' : '';
     const srcLabelFull = (sources.find(s=>s.id===srcId)||{}).label || it._sourceLabel || srcId;
     const title = it.title || '(no title)';
-    const summary = it.summary || '(暂无摘要)';
+    // threads 源: 直接渲染原贴文 (it.desc), 不走 AI 摘要; 其他源用 news-summary 生成的 it.summary
+    const isThreads = srcId === 'threads';
+    const bodyRaw = isThreads ? (it.desc || it.summary || '') : (it.summary || '');
+    // viewport 高度按 MAX_LIMITS.summary=150 计算, threads desc 上限 300, 截到 150 防破容器
+    const body = (isThreads ? bodyRaw.slice(0, 150) + (bodyRaw.length > 150 ? '…' : '') : bodyRaw) || '(暂无摘要)';
+    const bodyLabel = isThreads ? '原文' : '摘要';
     const safeTitle = esc(title.slice(0, 160));  // vote 按钮 data-title 不截, 后端原样收
+    const starsHtml = isGithubSource(srcId) ? renderGithubStars(it, state.githubSortBy) : '';
     return `
     <div class='news-slide src-${esc(srcId)} ${score?'voted-'+score:''} ${fav?'is-fav':''}'>
       <article>
-        ${badge?`<span class='news-vote-badge'>${badge}</span>`:''}
         <div class='news-art-meta'>
           <span class='src'>${esc(srcLabelFull)}</span>
           <span>·</span>
           <span>${fmtTime(it.ts)}</span>
           ${it.ai_score!=null?`<span>·</span><span>💡 AI ${it.ai_score}</span>`:''}
-          <span class='ord'>${String(ordN).padStart(2,'0')} / ${String(total).padStart(2,'0')}</span>
+          ${badge?`<span class='news-vote-badge'>${badge}</span>`:`<span class='ord'>${String(ordN).padStart(2,'0')} / ${String(total).padStart(2,'0')}</span>`}
         </div>
         <div class='news-art-title-row'>
           <h3 class='news-art-title'><a href='${esc(it.url)}' target='_blank' rel='noopener'>${esc(title)}</a></h3>
@@ -263,10 +355,11 @@
             <button class='news-vote-btn ${score==='up'?'voted':''}' data-vote-url='${esc(it.url)}' data-vote-title='${safeTitle}' data-vote-source='${esc(srcId)}' data-vote-score='up' title='有用'>👍</button>
             <button class='news-vote-btn ${score==='star'?'voted':''}' data-vote-url='${esc(it.url)}' data-vote-title='${safeTitle}' data-vote-source='${esc(srcId)}' data-vote-score='star' title='超赞'>⭐</button>
           </span>
+          ${starsHtml?`<span class='news-art-stars news-art-stars--inline'>${starsHtml}</span>`:''}
           <a class='open-ext' href='${esc(it.url)}' target='_blank' rel='noopener'>原文 ↗</a>
         </div>
-        <div class='news-art-section-label'>摘要</div>
-        <p class='news-art-summary'>${esc(summary)}</p>
+        <div class='news-art-section-label'>${bodyLabel}</div>
+        <p class='news-art-summary'>${esc(body)}</p>
         <div class='news-art-section-label'>相关度分析</div>
         <div class='news-art-analysis'>
           <span class='k ${wsNA?'na':''}'>工作区</span><span class='v ${wsNA?'na':''}'>${esc(ws)}</span>
@@ -599,6 +692,24 @@
       renderPagination();
     });
   }
+
+  // 监听 tab 切换: 激活 'news' tab 时, 侧栏回到第一个源 + github 时间维度重置为日
+  function resetOnEnterNews(){
+    state.srcIdx = 0;
+    state.pageIdx = 0;
+    state.githubSortBy = 'daily';
+    state.viewMode = 'sources';
+    if (modeToggleEl){
+      modeToggleEl.dataset.modeCurrent = 'sources';
+      modeToggleEl.classList.remove('active');
+    }
+    renderSrcList();
+    renderSlides();
+    renderPagination();
+  }
+  document.addEventListener('app:tabchange', e => {
+    if (e && e.detail && e.detail.tabId === 'news') resetOnEnterNews();
+  });
 
   renderSrcList();
   renderSlides();
