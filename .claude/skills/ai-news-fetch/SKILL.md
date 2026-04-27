@@ -322,13 +322,27 @@ git diff --cached --quiet && echo "no evolve changes" || (
 
 如果本次 pipeline 没有源进入 evolve 触发条件, 这一段 git push 是空操作 (diff --cached --quiet 走通).
 
-#### 2.9 清理临时文件
+#### 2.9 清理 (临时文件 + cloud session 工作分支)
 
 ```bash
+# /tmp 中间产物
 rm -f /tmp/ai-news-scorer-*-{ts}.json /tmp/ai-news-scored-*-{ts}.json \
       /tmp/ai-news-summary-*-{ts}.json /tmp/ai-news-analysis-*-{ts}.json \
       /tmp/ai-news-evolve-*-{ts}.json /tmp/ai-news-raw.json
+
+# cloud session 工作分支自删 (避免 Anthropic stop hook auto-push 留下孤儿 main-XXX 分支)
+# 注意: 必须在所有 git push to main 之后, 这是最后一个 git 动作.
+# regex 兜底, 只删 main-<suffix> 形式的 session 分支, 不动 main 本身
+cd /home/user/ai-project
+session_branch=$(git branch --show-current)
+if [[ "$session_branch" =~ ^main-[A-Za-z0-9]+$ ]]; then
+  git push origin --delete "$session_branch" 2>&1 | tail -3 || echo "session-branch self-delete failed (non-fatal)"
+else
+  echo "skip session-branch cleanup: branch=$session_branch (not main-<suffix>)"
+fi
 ```
+
+**注意 stop hook 时序**: Anthropic stop hook 在 agent 结束后异步运行, 试图把 working tree 推到 outcomes 配置的分支. 如果它的 push 时机晚于此处的自删, 那个孤儿分支会被它复活. 先试看效果; 如果 main-XXX 仍然出现, 改用本地 mac cron 定期 `git push origin --delete` 清理.
 
 ## 错误降级
 
