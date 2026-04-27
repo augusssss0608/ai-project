@@ -5,76 +5,106 @@
 
 
 /* ============================================================
-   Hero (只在 overview tab 內)
+   Hero (只在 overview tab 內) — metric strip 风格, 无外框
    ============================================================ */
 .hero{
-  background:var(--card-bg);
-  border:1px solid var(--card-border);
-  border-radius:var(--radius-lg);
-  padding:var(--space-24) var(--space-32);
   margin-bottom:var(--space-24);
-  box-shadow:var(--shadow-card);
-  position:relative;
-  overflow:hidden;
-}
-
-.hero::before{
-  content:'';
-  position:absolute;
-  top:0;left:0;right:0;
-  height:1px;
-  background:linear-gradient(90deg,transparent,rgba(110,168,254,.4),transparent);
-  pointer-events:none;
 }
 
 .hero-top{
   display:flex;
+  align-items:center;
   justify-content:space-between;
-  align-items:flex-start;
-  margin-bottom:var(--space-24);
-  flex-wrap:wrap;
   gap:var(--space-16);
+  margin-bottom:var(--space-12);
 }
 
-.hero-copy{flex:1;min-width:0}
-
-.hero-sub{
-  color:var(--text-soft);
-  font-size:15px;
-  font-weight:var(--text-body-weight);
-  line-height:1.65;
-}
-
-.hero-sub b{
+.hero-vs{
   font-family:var(--font-mono);
+  font-size:11px;
+  color:var(--text-faint);
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+
+.hero-vs .delta{
+  margin-left:var(--space-8);
+  font-weight:600;
+  letter-spacing:.04em;
+  text-transform:none;
+  font-size:12px;
+}
+
+.hero-vs .delta.up{color:var(--success)}
+.hero-vs .delta.down{color:var(--danger)}
+.hero-vs .delta.flat{color:var(--text-soft)}
+.hero-vs .delta.accent{color:var(--accent-bright)}
+
+.hero-rule{
+  height:1px;
+  background:linear-gradient(90deg,
+    rgba(57,255,20,.42) 0,
+    rgba(57,255,20,.08) 60%,
+    transparent 100%);
+  margin-bottom:var(--space-24);
+}
+
+.hero-strip{
+  display:grid;
+  grid-template-columns:repeat(4, minmax(0,1fr));
+  gap:var(--space-32);
+  align-items:start;
+}
+
+.hero-cell{
+  display:flex;
+  flex-direction:column;
+  gap:var(--space-8);
+  min-width:0;
+}
+
+.hero-num{
+  font-family:var(--font-mono);
+  font-size:36px;
+  font-weight:600;
   color:var(--accent-bright);
-  font-weight:600;
-  letter-spacing:-.01em;
+  line-height:1;
+  letter-spacing:-.02em;
   font-variant-numeric:tabular-nums;
+  text-shadow:0 0 12px rgba(140,255,101,.18);
 }
 
-.hero-sub .danger{
+.hero-cell-label{
   font-family:var(--font-mono);
-  color:var(--danger);
-  font-weight:600;
-  font-variant-numeric:tabular-nums;
-}
-
-.hero-sub.hero-wow{
-  margin-top:var(--space-8);
-  font-size:var(--text-meta-size);
+  font-size:9px;
+  font-weight:500;
+  letter-spacing:.2em;
+  text-transform:uppercase;
   color:var(--text-faint);
 }
 
-.hero-wow .wow.success{color:var(--success)}
+.hero-cell-spark{gap:6px}
 
-.hero-wow .wow.warning{color:var(--warning)}
+.hero-cell-spark .sparkline-wrap{margin-top:0}
 
+.hero-cell-spark svg.sparkline{
+  display:block;
+  width:100%;
+  height:36px;
+}
 
-/* ============================================================
-   Summary 4 metric 卡
-   ============================================================ */
-.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-16)}
+.hero-spark-meta{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-family:var(--font-mono);
+  font-size:10px;
+  color:var(--text-faint);
+  letter-spacing:.04em;
+  gap:var(--space-8);
+}
+
+.hero-spark-meta .peak{color:var(--accent-secondary);font-weight:600}
 
 
 /* 父卡片自動移除 padding (因為前後面自帶 padding) */
@@ -82,8 +112,7 @@
 .risk:has(.flip-inner),
 .claude-md-card:has(.flip-inner),
 .metric:has(.flip-inner),
-.today-card:has(.flip-inner),
-.health-card:has(.flip-inner){padding:0}
+.today-card:has(.flip-inner){padding:0}
 
 
 /* ============================================================
@@ -92,7 +121,6 @@
 .metric,
 .active-card,
 .today-card,
-.health-card,
 .claude-md-card,
 .risk,
 .memory-list{
@@ -109,7 +137,6 @@
 .metric::before,
 .active-card::before,
 .today-card::before,
-.health-card::before,
 .claude-md-card::before,
 .risk::before{
   content:'';
@@ -123,7 +150,6 @@
 .metric:hover,
 .active-card:hover,
 .today-card:hover,
-.health-card:hover,
 .claude-md-card:hover,
 .risk:hover,
 .memory-list:hover{
@@ -241,45 +267,3 @@
 .today-time{color:var(--text-faint);flex-shrink:0;font-variant-numeric:tabular-nums;letter-spacing:.04em;margin-left:var(--space-8);font-size:9px}
 
 
-/* ============================================================
-   Health 面板
-   ============================================================ */
-.health-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-16)}
-
-.health-card{
-  padding:var(--space-12) var(--space-16);
-  border-left:3px solid var(--neutral);
-}
-
-.health-card.hot{border-left-color:var(--success)}
-
-.health-card.warm{border-left-color:#8bc34a}
-
-.health-card.cool{border-left-color:var(--warning)}
-
-.health-card.cold{border-left-color:var(--danger)}
-
-.health-card.dim{border-left-color:var(--text-faint);opacity:.65}
-
-.health-title{margin-bottom:var(--space-8)}
-
-.health-signals{display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-8);font-size:11px}
-
-.signal{display:flex;flex-direction:column;gap:3px}
-
-.signal-label{
-  font-family:var(--font-mono);
-  color:var(--text-faint);
-  font-size:9px;
-  text-transform:uppercase;
-  letter-spacing:.15em;
-  font-weight:500;
-}
-
-.signal-value{
-  font-family:var(--font-mono);
-  color:var(--text);
-  font-weight:600;
-  font-size:13px;
-  font-variant-numeric:tabular-nums;
-}

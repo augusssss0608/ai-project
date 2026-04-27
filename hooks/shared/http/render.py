@@ -14,11 +14,12 @@ def _get_summary_status():
     return summary_mod.get_status()
 
 
-def render_sparkline(daily: list, width: int = 220, height: int = 40) -> str:
-    """生成内联 SVG sparkline + 时间轴标签. daily = [(day, count)].
+def render_sparkline(daily: list, width: int = 220, height: int = 40, with_axis: bool = True) -> str:
+    """生成内联 SVG sparkline + (可选) 时间轴标签. daily = [(day, count)].
     - 全零时显示占位文字
     - 每個點有 <title> hover tooltip 顯示日期+次數
-    - 下方橫軸顯示起止日期 + 峰值提示"""
+    - with_axis=True 时下方橫軸顯示起止日期 + 峰值提示;
+      with_axis=False 时仅 svg, 由调用方自己渲染时间标签"""
     if not daily:
         return ""
     total = sum(c for _, c in daily)
@@ -45,6 +46,15 @@ def render_sparkline(daily: list, width: int = 220, height: int = 40) -> str:
         )
     points_str = " ".join(pts)
     area_pts = f"0,{height} {points_str} {width},{height}"
+    svg = (
+        f"<svg class='sparkline' viewBox='0 0 {width} {height}' preserveAspectRatio='none'>"
+        f"<polygon points='{area_pts}' class='sparkline-area'/>"
+        f"<polyline points='{points_str}' fill='none' class='sparkline-line'/>"
+        f"{''.join(circles)}"
+        f"</svg>"
+    )
+    if not with_axis:
+        return f"<div class='sparkline-wrap'>{svg}</div>"
 
     # 短日期格式 MM/DD
     def short(day_str):
@@ -55,12 +65,7 @@ def render_sparkline(daily: list, width: int = 220, height: int = 40) -> str:
     peak_val = daily[max_idx][1]
 
     return (
-        f"<div class='sparkline-wrap'>"
-        f"<svg class='sparkline' viewBox='0 0 {width} {height}' preserveAspectRatio='none'>"
-        f"<polygon points='{area_pts}' class='sparkline-area'/>"
-        f"<polyline points='{points_str}' fill='none' class='sparkline-line'/>"
-        f"{''.join(circles)}"
-        f"</svg>"
+        f"<div class='sparkline-wrap'>{svg}"
         f"<div class='sparkline-axis'>"
         f"<span>{start_label}</span>"
         f"<span class='sparkline-peak-label' data-tip='峰值日期: {peak_day} · {peak_val} 次'>↑ {peak_val} 次</span>"
@@ -224,9 +229,6 @@ def render(days: int, owner_filter: str = "") -> str:
         "SELECT COUNT(DISTINCT session) FROM events WHERE ts >= ? AND session != ''",
         (cutoff_ts(days),),
     ).fetchone()[0]
-    total_all = conn.execute("SELECT COUNT(*) FROM events").fetchone()[0]
-    cold_total = sum(len(d["cold"]) for d in cold_data_by_id.values())
-    this_week, last_week = query_week_over_week(conn)
 
     sessions_maps = {etype: query_sessions_count(conn, etype, days) for etype, _ in CATEGORIES}
     paired_maps = {etype: query_paired_count(conn, etype, days) for etype, _ in CATEGORIES}
@@ -234,9 +236,22 @@ def render(days: int, owner_filter: str = "") -> str:
 
     # ===== 加载面板数据 =====
     daily_counts = query_daily_counts(conn, days)
-    sparkline_svg = render_sparkline(daily_counts)
+    # hero metric strip 用无 axis 版本; axis 信息由 hero 自己渲染
+    sparkline_svg = render_sparkline(daily_counts, with_axis=False)
+    # 提取 sparkline 起止 + 峰值 (供 hero 文本块用)
+    if daily_counts and any(c for _, c in daily_counts):
+        max_idx = max(range(len(daily_counts)), key=lambda i: daily_counts[i][1])
+        peak_day_full = daily_counts[max_idx][0]
+        peak_val = daily_counts[max_idx][1]
+        spark_meta = {
+            "start": daily_counts[0][0][5:].replace("-", "/"),
+            "end": daily_counts[-1][0][5:].replace("-", "/"),
+            "peak_day": peak_day_full[5:].replace("-", "/"),
+            "peak_val": peak_val,
+        }
+    else:
+        spark_meta = None
     owner_activity = query_owner_activity(conn, days)
-    health = query_subproject_health(conn, days)
     # _collect_owners 已迁到 usage.render, 这里 late import 避免循环依赖
     from usage.render import _collect_owners
     ordered_owners = _collect_owners(active_data, cold_data_by_id)
@@ -277,10 +292,10 @@ def render(days: int, owner_filter: str = "") -> str:
     hero_agg = query_hero_aggregates(conn, days)
     parts.append("<div class='tab-content active' data-tab='overview'>")
     render_overview(parts, days=days, owner_filter=owner_filter,
-                    total=total, sessions=sessions, total_all=total_all, cold_total=cold_total,
-                    this_week=this_week, last_week=last_week,
-                    sparkline_svg=sparkline_svg, hero_agg=hero_agg,
-                    owner_activity=owner_activity, health=health, conn=conn)
+                    total=total, sessions=sessions,
+                    sparkline_svg=sparkline_svg, spark_meta=spark_meta,
+                    hero_agg=hero_agg,
+                    owner_activity=owner_activity, conn=conn)
     parts.append("</div>")
 
     # Tab 2: 工具使用

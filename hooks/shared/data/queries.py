@@ -55,55 +55,6 @@ def query_owner_activity(conn, days: int):
     return result
 
 
-def query_subproject_health(conn, days: int):
-    """子项目健康: 返回 {subproject: {last_activity, event_count, error_count, cold_count}}."""
-    owner_activity = query_owner_activity(conn, days)
-    error_count = 0
-    err_file = f"{USER_HOME}/Desktop/ai-project/data/tracker-errors.log"
-    recent_cutoff = datetime.now(timezone.utc) - timedelta(days=7)
-    if os.path.isfile(err_file):
-        try:
-            with open(err_file) as f:
-                for line in f:
-                    # 格式: [2026-04-13T15:00:35Z] ...
-                    if line.startswith("["):
-                        ts_str = line[1:21]
-                        try:
-                            dt = datetime.strptime(ts_str, "%Y-%m-%dT%H:%M:%S").replace(tzinfo=timezone.utc)
-                            if dt >= recent_cutoff:
-                                error_count += 1
-                        except Exception:
-                            pass
-        except Exception:
-            pass
-    # 冷藏资产数: 按 owner 统计 cold 项 (需要外部传入, 这里占位)
-    out = {}
-    for sub_path, owner in SUBPROJECT_MAP.items():
-        info = owner_activity.get(owner, {"last_ts": "", "event_count": 0, "recent_items": []})
-        out[owner] = {
-            "sub_path": sub_path,
-            "last_ts": info["last_ts"],
-            "event_count": info["event_count"],
-            "error_count": error_count,  # 全局错误数(简化)
-        }
-    return out
-
-
-def query_week_over_week(conn):
-    """近 7 天 vs 前 7 天事件数对比. 返回 (this_week, last_week)."""
-    now = datetime.now(timezone.utc)
-    this_week_start = (now - timedelta(days=7)).strftime("%Y-%m-%dT%H:%M:%SZ")
-    last_week_start = (now - timedelta(days=14)).strftime("%Y-%m-%dT%H:%M:%SZ")
-    this_week = conn.execute(
-        "SELECT COUNT(*) FROM events WHERE ts >= ?", (this_week_start,)
-    ).fetchone()[0]
-    last_week = conn.execute(
-        "SELECT COUNT(*) FROM events WHERE ts >= ? AND ts < ?",
-        (last_week_start, this_week_start),
-    ).fetchone()[0]
-    return this_week, last_week
-
-
 def query_daily_counts(conn, days: int):
     """返回最近 N 天每日事件数 [(date, count)] (缺失日补 0).
     覆盖從 cutoff 日到今日的完整日期序列, 避免時區邊界導致某日事件顯示不到."""
@@ -581,10 +532,18 @@ def query_cold_progress(section_def: dict, universe: list, cold_items: list) -> 
 
 
 def query_hero_aggregates(conn, days: int) -> dict:
-    """Hero 4 卡背面數據."""
+    """Hero metric strip 数据: avg/sess + 与前 N 天对比."""
     cutoff = cutoff_ts(days)
     out = {}
-    # 1. 周期對比 (本窗口 vs 前一個同長度窗口)
+    # 1. avg / session
+    cur = conn.execute(
+        "SELECT COUNT(DISTINCT session), COUNT(*) FROM events "
+        "WHERE ts >= ? AND session != ''",
+        (cutoff,),
+    )
+    sess_count, total_events = cur.fetchone()
+    out["avg_per_session"] = (total_events / sess_count) if sess_count else 0
+    # 2. 与前一个同长度窗口对比
     cur = conn.execute("SELECT COUNT(*) FROM events WHERE ts >= ?", (cutoff,))
     cur_count = cur.fetchone()[0] or 0
     prev_cutoff_start = (datetime.now(timezone.utc) - timedelta(days=days * 2)).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -593,60 +552,13 @@ def query_hero_aggregates(conn, days: int) -> dict:
         (prev_cutoff_start, cutoff),
     )
     prev_count = cur.fetchone()[0] or 0
-    pct_change = ((cur_count - prev_count) / max(prev_count, 1)) * 100 if prev_count > 0 else 0
+    if prev_count > 0:
+        pct_change = ((cur_count - prev_count) / prev_count) * 100
+    elif cur_count > 0:
+        pct_change = None  # 前期无数据
+    else:
+        pct_change = 0
     out["period"] = {"current": cur_count, "previous": prev_count, "pct_change": pct_change}
-    # 2. 事件按 type 拆分
-    cur = conn.execute(
-        "SELECT type, COUNT(*) FROM events WHERE ts >= ? GROUP BY type ORDER BY 2 DESC",
-        (cutoff,),
-    )
-    out["type_breakdown"] = list(cur.fetchall())
-    # 3. 最近 session 列表 + 平均每會話事件數
-    cur = conn.execute(
-        "SELECT session, COUNT(*) AS n, MAX(ts) AS last_ts FROM events "
-        "WHERE ts >= ? AND session != '' GROUP BY session ORDER BY last_ts DESC LIMIT 5",
-        (cutoff,),
-    )
-    sessions = [{"id": r[0], "events": r[1], "ts": r[2]} for r in cur.fetchall()]
-    cur = conn.execute(
-        "SELECT COUNT(DISTINCT session), COUNT(*) FROM events "
-        "WHERE ts >= ? AND session != ''",
-        (cutoff,),
-    )
-    sess_count, total_events = cur.fetchone()
-    avg_per_sess = (total_events / sess_count) if sess_count else 0
-    out["sessions"] = {
-        "recent": sessions,
-        "avg_per_session": avg_per_sess,
-    }
-    # 4. 累計: db 年齡 + 按月分布
-    cur = conn.execute("SELECT MIN(ts), COUNT(*) FROM events")
-    first_ts, all_count = cur.fetchone()
-    db_age_days = 0
-    if first_ts:
-        db_age_days = max(0, (datetime.now(timezone.utc) - datetime.strptime(first_ts.rstrip("Z"), "%Y-%m-%dT%H:%M:%S").replace(tzinfo=timezone.utc)).days)
-    cur = conn.execute(
-        "SELECT substr(ts,1,7) AS mon, COUNT(*) FROM events GROUP BY mon ORDER BY mon DESC LIMIT 12"
-    )
-    monthly_map = {r[0]: r[1] for r in cur.fetchall()}
-    # 補齊 12 個月 (缺的月份顯示為 0, 避免單根長條看起來怪異)
-    monthly = []
-    cur_dt = datetime.now(timezone.utc).replace(day=1)
-    for i in range(11, -1, -1):
-        # 倒推 i 個月
-        year = cur_dt.year
-        month = cur_dt.month - i
-        while month <= 0:
-            month += 12
-            year -= 1
-        key = f"{year:04d}-{month:02d}"
-        monthly.append((key, monthly_map.get(key, 0)))
-    out["all_time"] = {
-        "first_ts": first_ts or "",
-        "db_age_days": db_age_days,
-        "total": all_count or 0,
-        "monthly": monthly,
-    }
     return out
 
 
@@ -694,61 +606,6 @@ def query_owner_back(conn, owner: str, days: int) -> dict:
         "last_session": next((r[2] for r in rows if r[2]), ""),
         "last_ts": last_ts,
         "daily": daily,
-    }
-
-
-def query_health_back(conn, owner: str, days: int) -> dict:
-    """Health 卡片背面 (per subproject) 數據."""
-    cutoff = cutoff_ts(days)
-    # 24h 每小時觸發數
-    cutoff_24h = (datetime.now(timezone.utc) - timedelta(hours=24)).strftime("%Y-%m-%dT%H:%M:%SZ")
-    cur = conn.execute(
-        "SELECT substr(ts,1,13), path FROM events WHERE ts >= ?",
-        (cutoff_24h,),
-    )
-    hourly_map = {}
-    for hour, path in cur.fetchall():
-        own = compute_owner(path) if path else "global"
-        if own == owner:
-            hourly_map[hour] = hourly_map.get(hour, 0) + 1
-    now = datetime.now(timezone.utc)
-    hourly = []
-    for i in range(23, -1, -1):
-        hour_key = (now - timedelta(hours=i)).strftime("%Y-%m-%dT%H")
-        hourly.append((hour_key, hourly_map.get(hour_key, 0)))
-    # 錯誤日誌讀取
-    err_file = f"{USER_HOME}/Desktop/ai-project/data/tracker-errors.log"
-    errors = []
-    if os.path.isfile(err_file):
-        try:
-            with open(err_file, "r", encoding="utf-8", errors="replace") as f:
-                lines = f.readlines()[-50:]
-            errors = [l.strip() for l in lines if l.strip()][-5:]
-        except Exception:
-            pass
-    # 空窗時長
-    cur = conn.execute(
-        "SELECT MAX(ts) FROM events WHERE ts >= ?",
-        (cutoff,),
-    )
-    last_any = cur.fetchone()[0] or ""
-    gap_str = ""
-    if last_any:
-        try:
-            last_dt = datetime.strptime(last_any.rstrip("Z"), "%Y-%m-%dT%H:%M:%S").replace(tzinfo=timezone.utc)
-            delta = datetime.now(timezone.utc) - last_dt
-            if delta.days > 0:
-                gap_str = f"{delta.days} 天"
-            elif delta.seconds >= 3600:
-                gap_str = f"{delta.seconds // 3600} 小时"
-            else:
-                gap_str = f"{delta.seconds // 60} 分钟"
-        except Exception:
-            gap_str = "—"
-    return {
-        "hourly": hourly,
-        "errors": errors,
-        "gap": gap_str,
     }
 
 

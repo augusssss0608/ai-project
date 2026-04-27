@@ -52,10 +52,7 @@ LABELS = {
     "title":              "Claude Code 使用统计",
     "active_usage":       "已触发",
     "cold_candidates":    "装饰品候选（0 触发）",
-    "time_window":        "时间窗口",
     "events_in_window":   "窗口内事件数",
-    "sessions_in_window": "窗口内会话数",
-    "total_events":       "累计事件数",
     "scope":              "范围",
     "refresh_hint":       "刷新页面可更新数据",
     "all_hot":            "(全部已触发)",
@@ -69,7 +66,6 @@ LABELS = {
     "cold_agents_md":     "未触发 AGENTS.md",
     "cold_plugins":       "未触发 Plugin 命令",
     "today_panel":        "跨项目 Today",
-    "health_panel":       "子项目健康",
     "memory_panel":       "Memory 全部",
     "compact_panel":      "Compact 存档时间轴",
     "news_panel":         "每日 AI 大事",
@@ -235,15 +231,6 @@ def list_compact_notes():
     return out
 
 
-def fmt_pct_change(curr: int, prev: int) -> str:
-    """格式化变化百分比."""
-    if prev == 0:
-        if curr == 0:
-            return "—"
-        return f"+{curr} 新增"
-    delta = ((curr - prev) / prev) * 100
-    sign = "+" if delta >= 0 else ""
-    return f"{sign}{delta:.0f}%"
 
 
 # 空数据状态统一定义 (#3)
