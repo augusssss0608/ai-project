@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 """直接调 Telegram Bot API 发消息, 不依赖 MCP plugin.
 
-用途: /loop 任务给 Telegram 发通知时避免 MCP 长期挂起失败的问题.
-读 token 从 ~/.claude/channels/telegram/.env (同 MCP plugin 共用配置).
-读 chat_id 从 ~/.claude/channels/telegram/access.json 的 allowFrom[0].
+用途: ai-news pipeline 给 Telegram 发通知, 跨 mac 和 cloud routine 都能跑.
+
+token / chat_id 来源 (优先级):
+1. env var TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID (云端 routine 走这条)
+2. fallback 本地文件 (mac 走这条):
+   - token 从 ~/.claude/channels/telegram/.env
+   - chat_id 从 ~/.claude/channels/telegram/access.json 的 allowFrom[0]
 
 用法:
     python3 tg_notify.py "消息内容"
@@ -26,21 +30,29 @@ TOKEN_KEYS = ("TELEGRAM_BOT_TOKEN", "BOT_TOKEN", "TOKEN")
 
 
 def read_token() -> str:
+    # 优先 env var (云端 routine 没本地文件)
+    env_tok = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
+    if env_tok:
+        return env_tok
     with open(ENV_PATH, "r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             for key in TOKEN_KEYS:
                 if line.startswith(key + "="):
                     return line.split("=", 1)[1].strip().strip('"').strip("'")
-    raise RuntimeError("token key not found in telegram .env")
+    raise RuntimeError("token key not found in env var TELEGRAM_BOT_TOKEN or telegram .env")
 
 
 def read_chat_id() -> str:
+    # 优先 env var (云端 routine 没本地文件)
+    env_id = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
+    if env_id:
+        return env_id
     with open(ACCESS_PATH, "r", encoding="utf-8") as f:
         data = json.load(f)
     ids = data.get("allowFrom", [])
     if not ids:
-        raise RuntimeError("no allowFrom chat_id in access.json")
+        raise RuntimeError("no chat_id in env var TELEGRAM_CHAT_ID or access.json allowFrom")
     return str(ids[0])
 
 
