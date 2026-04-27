@@ -492,6 +492,10 @@ THREADS_IG_APP_ID = "238260118697367"
 
 
 def _load_threads_session(session_path: str) -> dict:
+    # 优先 env var (云端 routine 不能放本地文件); fallback 本地文件 (mac fetch_debug)
+    env_raw = os.environ.get("THREADS_SESSION_JSON", "").strip()
+    if env_raw:
+        return json.loads(env_raw)
     path = os.path.expanduser(session_path)
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
