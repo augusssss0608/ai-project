@@ -3,7 +3,9 @@ import json
 import os
 from typing import Optional
 
-AI_NEWS_PATH = os.path.expanduser("~/Desktop/ai-project/data/ai-news.json")
+# repo-relative: 兼容 mac (~/Desktop/ai-project) 和云端 routine (/home/user/ai-project)
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+AI_NEWS_PATH = os.path.join(_REPO_ROOT, "cloud-sync", "ai-news.json")
 
 
 def read_ai_news() -> Optional[dict]:

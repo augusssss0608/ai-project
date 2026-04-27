@@ -255,7 +255,8 @@ append_items([
 **写完后必须自检**:
 ```python
 import json
-data = json.load(open("/Users/augus/Desktop/ai-project/data/ai-news.json"))
+from ai_news.data.io import AI_NEWS_PATH  # repo-relative, mac/cloud 都自动对
+data = json.load(open(AI_NEWS_PATH))
 assert "updated_at" in data and "sources" in data, "schema 错误: 顶层缺字段"
 assert isinstance(data["sources"], list), f"sources 必须是 list, got {type(data['sources'])}"
 for src in data["sources"]:

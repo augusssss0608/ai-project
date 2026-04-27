@@ -1,0 +1,423 @@
+{
+  "updated_at": "2026-04-25T15:38:27+09:00",
+  "votes": {
+    "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
+      "ts": "2026-04-22T23:57:06+09:00",
+      "title": "NSA is using Anthropic",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://bsky.app/profile/edzitron.com/post/3mjzxwfx3qs2a": {
+      "ts": "2026-04-22T23:57:15+09:00",
+      "title": "Claude Code to be removed from Anthropic",
+      "source": "hackernews",
+      "score": "star"
+    },
+    "https://www.adweek.com/media/exclusive-leaked-deck-reveals-stackadapts-playbook-for-chatgpt-ads/": {
+      "ts": "2026-04-22T23:57:23+09:00",
+      "title": "OpenAI ad partner now selling ChatGPT ad placements based on “prompt relevance”",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://techcrunch.com/2026/04/20/anthropic-takes-5b-from-amazon-and-pledges-100b-in-cloud-spending-in-return/": {
+      "ts": "2026-04-22T23:57:27+09:00",
+      "title": "Anthropic takes $5B from Amazon and pledges $100B in cloud spending in return",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://www.brex.com/crabtrap": {
+      "ts": "2026-04-22T23:57:59+09:00",
+      "title": "CrabTrap: An LLM-as-a-judge HTTP proxy to secure agents in production",
+      "source": "hackernews",
+      "score": "up"
+    },
+    "https://snapstate.dev": {
+      "ts": "2026-04-22T23:58:19+09:00",
+      "title": "SnapState - Persistent state for AI agent workflows",
+      "source": "hackernews",
+      "score": "star"
+    },
+    "https://www.ycombinator.com/companies/trellis-ai/jobs/SvzJaTH-member-of-technical-staff-product-engineering-full-time": {
+      "ts": "2026-04-22T23:58:24+09:00",
+      "title": "Trellis AI (YC W24) Is hiring engineers to build self-improving agents",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://github.com/microsoft/ai-agents-for-beginners": {
+      "ts": "2026-04-22T23:58:46+09:00",
+      "title": "microsoft/ai-agents-for-beginners",
+      "source": "github_trending",
+      "score": "up"
+    },
+    "https://github.com/zilliztech/claude-context": {
+      "ts": "2026-04-22T23:58:48+09:00",
+      "title": "zilliztech/claude-context",
+      "source": "github_trending",
+      "score": "star"
+    },
+    "https://github.com/VoltAgent/awesome-agent-skills": {
+      "ts": "2026-04-22T23:58:57+09:00",
+      "title": "VoltAgent/awesome-agent-skills",
+      "source": "github_trending",
+      "score": "star"
+    },
+    "https://www.qbitai.com/2026/04/404130.html": {
+      "ts": "2026-04-22T23:59:07+09:00",
+      "title": "单Agent时代结束，AI们开始组团上班",
+      "source": "qbitai",
+      "score": "up"
+    },
+    "https://www.ithome.com.tw/news/175224": {
+      "ts": "2026-04-22T23:59:11+09:00",
+      "title": "OpenAI公布ChatGPT Images 2.0，能思考、生成多語文字還支援排版",
+      "source": "ithome_tw",
+      "score": "up"
+    },
+    "https://docs.openclaw.ai/providers/anthropic": {
+      "ts": "2026-04-23T00:18:04+09:00",
+      "title": "Anthropic says OpenClaw-style Claude CLI usage is allowed again",
+      "source": "hackernews",
+      "score": "up"
+    },
+    "https://www.qbitai.com/2026/04/404604.html": {
+      "ts": "2026-04-23T14:28:41+09:00",
+      "title": "国产多模态Agent拿下医学分割SOTA！不用改模型、不加token",
+      "source": "qbitai",
+      "score": "down"
+    },
+    "https://www.ithome.com.tw/news/175239": {
+      "ts": "2026-04-23T14:28:45+09:00",
+      "title": "國內金融大語言模型專案啟動，16家金融業者聯手打造熟悉在地金融法規、產業知識的大語言模型",
+      "source": "ithome_tw",
+      "score": "down"
+    },
+    "https://www.ithome.com.tw/news/175235": {
+      "ts": "2026-04-23T14:28:50+09:00",
+      "title": "GitHub暫停Copilot個人方案新申請，並收緊各方案用量上限",
+      "source": "ithome_tw",
+      "score": "star"
+    },
+    "https://nial.se/blog/less-human-ai-agents-please/": {
+      "ts": "2026-04-23T22:32:34+09:00",
+      "title": "Less human AI agents, please",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://openai.com/index/introducing-gpt-5-5/": {
+      "ts": "2026-04-24T14:14:55+09:00",
+      "title": "GPT-5.5",
+      "source": "hackernews",
+      "score": "star"
+    },
+    "https://qwen.ai/blog?id=qwen3.6-27b": {
+      "ts": "2026-04-24T14:23:07+09:00",
+      "title": "Qwen3.6-27B: Flagship-Level Coding in a 27B Dense Model",
+      "source": "hackernews",
+      "score": "star"
+    },
+    "https://www.anthropic.com/engineering/april-23-postmortem": {
+      "ts": "2026-04-24T14:23:40+09:00",
+      "title": "An update on recent Claude Code quality reports",
+      "source": "hackernews",
+      "score": "star"
+    },
+    "https://blog.google/innovation-and-ai/infrastructure-and-cloud/google-cloud/eighth-generation-tpu-agentic-era/": {
+      "ts": "2026-04-24T14:23:46+09:00",
+      "title": "Our eighth generation TPUs: two chips for the agentic era",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://news.ycombinator.com/item?id=47857461": {
+      "ts": "2026-04-24T14:23:52+09:00",
+      "title": "Tell HN: I",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://github.com/Alishahryar1/free-claude-code": {
+      "ts": "2026-04-24T14:24:14+09:00",
+      "title": "Alishahryar1/free-claude-code",
+      "source": "github_trending",
+      "score": "up"
+    },
+    "https://github.com/coreyhaines31/marketingskills": {
+      "ts": "2026-04-24T14:24:38+09:00",
+      "title": "coreyhaines31/marketingskills",
+      "source": "github_trending",
+      "score": "up"
+    },
+    "https://github.com/forrestchang/andrej-karpathy-skills": {
+      "ts": "2026-04-24T14:25:43+09:00",
+      "title": "forrestchang/andrej-karpathy-skills",
+      "source": "github_trending",
+      "score": "star"
+    },
+    "https://github.com/thedotmack/claude-mem": {
+      "ts": "2026-04-24T14:25:52+09:00",
+      "title": "thedotmack/claude-mem",
+      "source": "github_trending",
+      "score": "star"
+    },
+    "https://github.com/SimoneAvogadro/android-reverse-engineering-skill": {
+      "ts": "2026-04-24T14:26:05+09:00",
+      "title": "SimoneAvogadro/android-reverse-engineering-skill",
+      "source": "github_trending",
+      "score": "up"
+    },
+    "https://github.com/mvanhorn/last30days-skill": {
+      "ts": "2026-04-24T14:26:28+09:00",
+      "title": "mvanhorn/last30days-skill",
+      "source": "github_trending",
+      "score": "down"
+    },
+    "https://github.com/Donchitos/Claude-Code-Game-Studios": {
+      "ts": "2026-04-24T14:26:47+09:00",
+      "title": "Donchitos/Claude-Code-Game-Studios",
+      "source": "github_trending",
+      "score": "up"
+    },
+    "https://github.com/affaan-m/everything-claude-code": {
+      "ts": "2026-04-24T14:27:26+09:00",
+      "title": "affaan-m/everything-claude-code",
+      "source": "github_trending",
+      "score": "star"
+    },
+    "https://github.com/x1xhlol/system-prompts-and-models-of-ai-tools": {
+      "ts": "2026-04-24T14:27:55+09:00",
+      "title": "x1xhlol/system-prompts-and-models-of-ai-tools",
+      "source": "github_trending",
+      "score": "star"
+    },
+    "https://github.com/anthropics/skills": {
+      "ts": "2026-04-24T14:28:03+09:00",
+      "title": "anthropics/skills",
+      "source": "github_trending",
+      "score": "up"
+    },
+    "https://github.com/anthropics/claude-code": {
+      "ts": "2026-04-24T14:28:09+09:00",
+      "title": "anthropics/claude-code",
+      "source": "github_trending",
+      "score": "up"
+    },
+    "https://github.com/punkpeye/awesome-mcp-servers": {
+      "ts": "2026-04-24T14:28:14+09:00",
+      "title": "punkpeye/awesome-mcp-servers",
+      "source": "github_trending",
+      "score": "up"
+    },
+    "https://github.com/garrytan/gstack": {
+      "ts": "2026-04-24T14:28:17+09:00",
+      "title": "garrytan/gstack",
+      "source": "github_trending",
+      "score": "star"
+    },
+    "https://github.com/ComposioHQ/awesome-claude-skills": {
+      "ts": "2026-04-24T14:28:25+09:00",
+      "title": "ComposioHQ/awesome-claude-skills",
+      "source": "github_trending",
+      "score": "up"
+    },
+    "https://github.com/sansan0/TrendRadar": {
+      "ts": "2026-04-24T14:28:44+09:00",
+      "title": "sansan0/TrendRadar",
+      "source": "github_trending",
+      "score": "down"
+    },
+    "https://github.com/farion1231/cc-switch": {
+      "ts": "2026-04-24T14:29:11+09:00",
+      "title": "farion1231/cc-switch",
+      "source": "github_trending",
+      "score": "up"
+    },
+    "https://github.com/jeecgboot/JeecgBoot": {
+      "ts": "2026-04-24T14:29:19+09:00",
+      "title": "jeecgboot/JeecgBoot",
+      "source": "github_trending",
+      "score": "down"
+    },
+    "https://github.com/zhayujie/CowAgent": {
+      "ts": "2026-04-24T14:29:32+09:00",
+      "title": "zhayujie/CowAgent",
+      "source": "github_trending",
+      "score": "down"
+    },
+    "https://github.com/ChromeDevTools/chrome-devtools-mcp": {
+      "ts": "2026-04-24T14:29:42+09:00",
+      "title": "ChromeDevTools/chrome-devtools-mcp",
+      "source": "github_trending",
+      "score": "up"
+    },
+    "https://github.com/danny-avila/LibreChat": {
+      "ts": "2026-04-24T14:29:49+09:00",
+      "title": "danny-avila/LibreChat",
+      "source": "github_trending",
+      "score": "down"
+    },
+    "https://github.com/sickn33/antigravity-awesome-skills": {
+      "ts": "2026-04-24T14:30:01+09:00",
+      "title": "sickn33/antigravity-awesome-skills",
+      "source": "github_trending",
+      "score": "star"
+    },
+    "https://simonwillison.net/2026/Apr/23/liteparse-for-the-web/#atom-everything": {
+      "ts": "2026-04-24T14:30:30+09:00",
+      "title": "Extract PDF text in your browser with LiteParse for the web",
+      "source": "simonw",
+      "score": "up"
+    },
+    "https://simonwillison.net/2026/Apr/23/gpt-5-5/#atom-everything": {
+      "ts": "2026-04-24T14:30:37+09:00",
+      "title": "A pelican for GPT-5.5 via the semi-official Codex backdoor API",
+      "source": "simonw",
+      "score": "star"
+    },
+    "https://simonwillison.net/2026/Apr/22/qwen36-27b/#atom-everything": {
+      "ts": "2026-04-24T14:31:19+09:00",
+      "title": "Qwen3.6-27B: Flagship-Level Coding in a 27B Dense Model",
+      "source": "simonw",
+      "score": "up"
+    },
+    "https://simonwillison.net/2026/Apr/22/bobby-holley/#atom-everything": {
+      "ts": "2026-04-24T14:31:25+09:00",
+      "title": "Quoting Bobby Holley",
+      "source": "simonw",
+      "score": "down"
+    },
+    "https://simonwillison.net/2026/Apr/22/changes-to-github-copilot/#atom-everything": {
+      "ts": "2026-04-24T14:31:32+09:00",
+      "title": "Changes to GitHub Copilot Individual plans",
+      "source": "simonw",
+      "score": "up"
+    },
+    "https://simonwillison.net/2026/Apr/22/claude-code-confusion/#atom-everything": {
+      "ts": "2026-04-24T14:31:35+09:00",
+      "title": "Is Claude Code going to cost $100/month? Probably not - it",
+      "source": "simonw",
+      "score": "up"
+    },
+    "https://api-docs.deepseek.com/news/news260424": {
+      "ts": "2026-04-25T15:36:34+09:00",
+      "title": "DeepSeek v4",
+      "source": "hackernews",
+      "score": "up"
+    },
+    "https://nickyreinert.de/en/2026/2026-04-24-claude-critics/": {
+      "ts": "2026-04-25T15:36:48+09:00",
+      "title": "I cancelled Claude: Token issues, declining quality, and poor support",
+      "source": "hackernews",
+      "score": "up"
+    },
+    "https://www.bloomberg.com/news/articles/2026-04-24/google-plans-to-invest-up-to-40-billion-in-anthropic": {
+      "ts": "2026-04-25T15:36:51+09:00",
+      "title": "Google plans to invest up to $40B in Anthropic",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://simonwillison.net/2026/Apr/25/gpt-5-5-prompting-guide/#atom-everything": {
+      "ts": "2026-04-25T15:37:17+09:00",
+      "title": "GPT-5.5 prompting guide",
+      "source": "simonw",
+      "score": "up"
+    },
+    "https://simonwillison.net/2026/Apr/24/the-people-do-not-yearn-for-automation/#atom-everything": {
+      "ts": "2026-04-25T15:37:32+09:00",
+      "title": "The people do not yearn for automation",
+      "source": "simonw",
+      "score": "down"
+    },
+    "https://simonwillison.net/2026/Apr/24/deepseek-v4/#atom-everything": {
+      "ts": "2026-04-25T15:37:35+09:00",
+      "title": "DeepSeek V4 - almost on the frontier, a fraction of the price",
+      "source": "simonw",
+      "score": "up"
+    },
+    "https://simonwillison.net/2026/Apr/24/recent-claude-code-quality-reports/#atom-everything": {
+      "ts": "2026-04-25T15:37:50+09:00",
+      "title": "An update on recent Claude Code quality reports",
+      "source": "simonw",
+      "score": "up"
+    },
+    "https://simonwillison.net/2026/Apr/23/llm-openai-via-codex/#atom-everything": {
+      "ts": "2026-04-25T15:37:57+09:00",
+      "title": "llm-openai-via-codex 0.1a0",
+      "source": "simonw",
+      "score": "up"
+    },
+    "https://www.threads.com/@deepbrandinglab/post/DXfqV7eD0MX": {
+      "ts": "2026-04-25T15:38:10+09:00",
+      "title": "這幾天收到不少脆友詢價：",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@0x0funky/post/DXfrPvRgVa0": {
+      "ts": "2026-04-25T15:38:14+09:00",
+      "title": "Codex 內建 Image2 是真的太好用了。",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@awoo_gw/post/DXhIYqyE0gr": {
+      "ts": "2026-04-25T15:38:24+09:00",
+      "title": "為了選對 AI 工具",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@moth.ai/post/DXiKR2xDy3H": {
+      "ts": "2026-04-25T15:38:27+09:00",
+      "title": "Google 豪擲 400 億美元押注 Anthropic！AI 算力正式成為新貨幣",
+      "source": "threads",
+      "score": "down"
+    }
+  },
+  "favorites": {
+    "https://github.com/zilliztech/claude-context": {
+      "ts": "2026-04-23T00:00:11+09:00",
+      "title": "zilliztech/claude-context",
+      "source": "github_trending"
+    },
+    "https://github.com/VoltAgent/awesome-agent-skills": {
+      "ts": "2026-04-23T00:00:13+09:00",
+      "title": "VoltAgent/awesome-agent-skills",
+      "source": "github_trending"
+    },
+    "https://github.com/forrestchang/andrej-karpathy-skills": {
+      "ts": "2026-04-24T14:25:42+09:00",
+      "title": "forrestchang/andrej-karpathy-skills",
+      "source": "github_trending"
+    },
+    "https://github.com/thedotmack/claude-mem": {
+      "ts": "2026-04-24T14:25:53+09:00",
+      "title": "thedotmack/claude-mem",
+      "source": "github_trending"
+    },
+    "https://github.com/affaan-m/everything-claude-code": {
+      "ts": "2026-04-24T14:27:26+09:00",
+      "title": "affaan-m/everything-claude-code",
+      "source": "github_trending"
+    },
+    "https://github.com/x1xhlol/system-prompts-and-models-of-ai-tools": {
+      "ts": "2026-04-24T14:27:56+09:00",
+      "title": "x1xhlol/system-prompts-and-models-of-ai-tools",
+      "source": "github_trending"
+    },
+    "https://github.com/garrytan/gstack": {
+      "ts": "2026-04-24T14:28:19+09:00",
+      "title": "garrytan/gstack",
+      "source": "github_trending"
+    },
+    "https://github.com/sickn33/antigravity-awesome-skills": {
+      "ts": "2026-04-24T14:30:05+09:00",
+      "title": "sickn33/antigravity-awesome-skills",
+      "source": "github_trending"
+    },
+    "https://simonwillison.net/2026/Apr/25/gpt-5-5-prompting-guide/#atom-everything": {
+      "ts": "2026-04-25T15:37:16+09:00",
+      "title": "GPT-5.5 prompting guide",
+      "source": "simonw"
+    },
+    "https://simonwillison.net/2026/Apr/24/recent-claude-code-quality-reports/#atom-everything": {
+      "ts": "2026-04-25T15:37:53+09:00",
+      "title": "An update on recent Claude Code quality reports",
+      "source": "simonw"
+    }
+  }
+}

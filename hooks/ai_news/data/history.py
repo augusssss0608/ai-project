@@ -3,7 +3,9 @@ import json
 import os
 from datetime import datetime, timedelta, timezone
 
-HISTORY_PATH = os.path.expanduser("~/Desktop/ai-project/data/ai-news-history.jsonl")
+# repo-relative: 兼容 mac (~/Desktop/ai-project) 和云端 routine (/home/user/ai-project)
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+HISTORY_PATH = os.path.join(_REPO_ROOT, "cloud-sync", "ai-news-history.jsonl")
 
 
 def _now_iso() -> str:

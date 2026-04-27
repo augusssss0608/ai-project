@@ -2,7 +2,9 @@
 import json
 import os
 
-FEEDBACK_PATH = os.path.expanduser("~/Desktop/ai-project/data/ai-news-feedback.json")
+# repo-relative: 兼容 mac (~/Desktop/ai-project) 和云端 routine (/home/user/ai-project)
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+FEEDBACK_PATH = os.path.join(_REPO_ROOT, "cloud-sync", "ai-news-feedback.json")
 
 
 def load_feedback() -> dict:
