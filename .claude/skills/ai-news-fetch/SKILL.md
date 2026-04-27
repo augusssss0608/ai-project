@@ -1,56 +1,42 @@
 ---
 name: ai-news-fetch
-description: AI 大事每日自动抓取 + 评分 + 摘要 + 分析 + 写入 + TG 通知. /loop 每次唤醒调用.
+description: AI 大事每日抓取 + 评分 + 摘要 + 分析 + 写入 + git push + TG 通知. Claude Code Routines 每日 cron 触发.
 ---
 
 # AI 大事 v2 主编排
 
 ## 适用场景
 
-**Only** 通过 `/loop` 动态模式调用. 每次唤醒都执行 `on_wakeup` 流程.
+**Only** 通过 Claude Code Routines 调用 (claude.ai/code 上的 scheduled remote agent, 每日 cron 触发). 触发即执行 `run_full_pipeline` 流程, 跑完后通过 PAT 直推 main.
 
-## on_wakeup 流程
+调度由 Routines cron 接管 (推荐 `0 1 * * *` UTC = 10:00 JST). 不再走 /loop / ScheduleWakeup, sentinel 文件机制也已废弃.
 
-### 步骤 1: 判断是否到 10:00 窗口 (含 sentinel 强制触发)
+环境前置 (Routine environment 必须设好, 缺一不可):
+- env vars: `GITHUB_PAT` (fine-grained, 仅 ai-project + Contents:RW), `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `THREADS_SESSION_JSON` (压成单行的 .threads-session.json 内容)
+- network allowlist: 至少 `github.com`, `api.telegram.org`, `www.threads.com`, 各源 RSS / API endpoint
+- sources: `git_repository` 绑 `https://github.com/augusssss0608/ai-project`, `allow_unrestricted_git_push: true`
+- outcomes: `branches: ["main"]` (避免 stop hook 想 auto-PR 失败)
+- allowed_tools: 必须含 `Agent` (派 news-scorer/summary/analysis), 加 `Bash`/`Read`/`Write`/`Edit`/`Glob`/`Grep`
 
-```python
-import os
-SENTINEL = "/tmp/ai-news-force-run"
-now = datetime.now(LOCAL_TZ)
+## run_full_pipeline 编排
 
-if os.path.exists(SENTINEL):
-    os.unlink(SENTINEL)        # 自动失效, 不留后遗症
-    run_full_pipeline()
-    # 下次按正常 10:00 调度
-    if now.hour < 10:
-        target = datetime.combine(now.date(), time(10, 0), tzinfo=LOCAL_TZ)
-    else:
-        target = datetime.combine(now.date() + timedelta(days=1), time(10, 0), tzinfo=LOCAL_TZ)
-elif now.hour == 10 and now.minute < 30:
-    # 命中窗口, 跑完整 pipeline
-    run_full_pipeline()
-    # 下次目标: 明天 10:00
-    target = datetime.combine(now.date() + timedelta(days=1), time(10, 0), tzinfo=LOCAL_TZ)
-else:
-    # 未命中, 算距下一个 10:00
-    if now.hour < 10:
-        target = datetime.combine(now.date(), time(10, 0), tzinfo=LOCAL_TZ)
-    else:
-        target = datetime.combine(now.date() + timedelta(days=1), time(10, 0), tzinfo=LOCAL_TZ)
+### §1 Pre-pipeline: git setup + pull
 
-    # 发 TG 通知: 告知当前时间与下次触发时间
-    hours_left = (target - now).total_seconds() / 3600
-    tg_msg = f"[ai-news] 时间检查 {now.strftime('%m/%d %H:%M')} JST\n未到窗口, 距下次 10:00 约 {hours_left:.1f}h"
-    subprocess.run(["python3", "/Users/augus/Desktop/ai-project/hooks/tg_notify.py", "--stdin"],
-                   input=tg_msg, text=True, capture_output=True)
+cloud routine 启动时 cwd 是 `/home/user/ai-project` (Anthropic auto-mount), 但 origin remote 默认指向 Anthropic 内置的本地 proxy, **proxy 不允许 push**. 必须先把 origin URL 改成走 PAT 直接连 github.com:
 
-delta = (target - now).total_seconds()
-ScheduleWakeup(delaySeconds=min(3600, max(60, int(delta))))
+```bash
+cd /home/user/ai-project
+git config user.email 'ai-news-routine@cloud.local'
+git config user.name 'ai-news-routine'
+git remote set-url origin "https://x-access-token:${GITHUB_PAT}@github.com/augusssss0608/ai-project.git"
+git pull --rebase origin main 2>&1 | tail -5
 ```
 
-本地时区: Asia/Tokyo (JST, UTC+9).
+**为什么必须先 pull**: 用户在 mac dashboard 上点的 vote 写到 `cloud-sync/ai-news-feedback.json`, 通过 mac 的 git push 推到 main. 云端 routine 启动时拉一下能拿到最新反馈, 否则 stage 判定会基于过时数据.
 
-### 步骤 2: run_full_pipeline 编排
+如果 pull 失败 (网络 / 冲突): **直接 abort pipeline**, 发 TG 错误通知, 不继续 (避免 push 时把云端旧状态盖掉用户最新反馈).
+
+### §2 run_full_pipeline 编排
 
 #### 2.1 抓取层 + hard_filter + 源特定过滤 + URL 去重 (subprocess Python, 不用 AI)
 
@@ -63,9 +49,9 @@ dedup_filter 在所有 stage 之前就生效 (cold/mid/hot 都会去重), 用户
 2. **不走 dedup_filter**. 仓库是存续实体, 每次上榜可能带着新的 star 增量 (日/周/月维度), 允许反复展示. history.jsonl 仍会 append github 条目以供 scorer 的隐式负例分析使用, 但不用于去重.
 
 ```bash
-python3 -c "
+cd /home/user/ai-project && python3 -c "
 import sys, json
-sys.path.insert(0, '/Users/augus/Desktop/ai-project/hooks')
+sys.path.insert(0, 'hooks')
 from ai_news.data.fetchers import fetch_one
 from ai_news.data.filters import apply_hard_filter, apply_dedup_filter, apply_claude_only_filter, apply_threads_loose_filter
 from ai_news.data.history import load_all_urls
@@ -73,7 +59,7 @@ from pathlib import Path
 import yaml
 
 SOURCES = ['hackernews', 'github_trending', 'simonw', 'threads']
-BASE = Path('/Users/augus/Desktop/ai-project/.claude/skills/ai-news-filter/sources')
+BASE = Path('.claude/skills/ai-news-filter/sources')
 known = load_all_urls()  # 本次 pipeline 写 history 之前加载, 天然不会把本次内容当重复
 DEDUP_EXEMPT = {'github_trending'}  # 不走 URL 去重的源
 out = []
@@ -162,6 +148,8 @@ from ai_news.data.feedback import load_feedback, get_stage
 你是 news-analysis. title: "..." url: "..." workspace_context_path: "/Users/augus/Desktop/开发项目/live_app/CLAUDE.md"
 把分析写到 /tmp/ai-news-analysis-{sid}-{idx}-{ts}.json
 ```
+
+**云端兼容性提示**: 上面那个 `workspace_context_path` 是 mac 上 live_app 仓库路径, 在 cloud routine 内**不存在**. 当前规则: 子代理读不到该文件时把 `workspace_help` 和 `claude_usage` 字段填 "无相关" 优雅降级, 不要 abort. 如果以后想恢复云端的 workspace 分析能力, 需要把 live_app 的 CLAUDE.md 复制一份到 ai-project repo (例如 `docs/live-app-context.md`) 并改这里的路径.
 
 主 agent 每批后读 output, 合并回主列表.
 
@@ -272,14 +260,33 @@ for src in data["sources"]:
                 f"github item dimension 非法值: {it.get('dimension')}"
 print("schema 自检通过")
 ```
-自检失败就不要发 TG, 写 log 后停止 pipeline (不覆盖旧 ai-news.json 已由 write_atomic 保证).
+自检失败就不要发 TG, 写 log 后停止 pipeline (不覆盖旧 ai-news.json 已由 write_atomic 保证, 也不要 git push, 让云端工作树自动随 session 销毁).
+
+#### 2.6.1 git commit + push (cloud-sync 数据回写)
+
+self-check 通过后, 把这次 pipeline 写入的 `cloud-sync/` 推回 github main:
+
+```bash
+cd /home/user/ai-project
+git add cloud-sync/
+git diff --cached --quiet && echo "no changes to commit" || (
+  git commit -m "data(ai-news): pipeline run $(date -u +%Y-%m-%dT%H:%MZ)" && \
+  git push origin HEAD:main
+)
+```
+
+**关键约束**:
+- §1 已经把 origin URL 改成 PAT 形式, 这里不需要再改
+- `git diff --cached --quiet` 检查避免空 commit (理论上 ai-news.json updated_at 每次都变所以一定有 diff, 但保险起见)
+- push 失败时 (403 / network / conflict) **不阻塞后续 TG**, 记 stderr, 让用户从 TG 注意到失败信号; 数据本身已写入云端工作树, 但工作树会随 session 销毁, 所以 push 失败这一天等于 pipeline 白跑
+- evolve 修改 source.md / examples.md 由 §2.8 末尾再单独 commit + push (见下面)
 
 #### 2.7 发 TG 通知
 
-**不能用 MCP plugin** (`mcp__plugin_telegram_telegram__reply`): plugin 内置 orphan watchdog, session 挂久了会自杀断连, 导致 /loop 挂机等 10:00 时 TG 工具不可用. 改用独立脚本 `hooks/tg_notify.py`, 它直接调 Telegram Bot API, 不依赖 MCP session 生命周期.
+**不能用 MCP plugin** (`mcp__plugin_telegram_telegram__reply`): plugin 内置 orphan watchdog, 在云端 routine 里也不一定可用. 改用独立脚本 `hooks/tg_notify.py`, 它直接调 Telegram Bot API + 从 env var 读 token, 跨 mac 和云端都能跑.
 
 ```bash
-python3 /Users/augus/Desktop/ai-project/hooks/tg_notify.py --stdin <<EOF
+cd /home/user/ai-project && python3 hooks/tg_notify.py --stdin <<EOF
 [ai-news] 已刷新 {total} 则
 HN {n1} · GitHub {n2} · Simon {n3} · Threads {n4}
 阶段: HN {s1} · GitHub {s2} · Simon {s3} · Threads {s4}
@@ -287,7 +294,7 @@ dashboard: http://localhost:38080/#news
 EOF
 ```
 
-脚本失败时退出码非 0, 打印错误到 stderr (不含 token). 失败 graceful skip (写 log 不阻塞).
+`tg_notify.py` 优先读 `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` env vars, 没有则回退本地 `.env` 文件 (mac 路径). 脚本失败时退出码非 0, 打印错误到 stderr (不含 token). 失败 graceful skip (写 log 不阻塞主流程).
 
 #### 2.8 Evolve 检查 (每源)
 
@@ -301,6 +308,19 @@ EOF
    - 派 evolve-source-preferences subagent (model: claude-opus-4-7)
    - 读 output, 记 `ai_news.data.evolve.write_evolve_log(entry)`
    - 发 TG 通知 (同 2.7, 用 `hooks/tg_notify.py`, 不用 MCP plugin)
+
+**evolve 修改了 source.md / examples.md 后必须 git push** (这些是仓内代码, 不是 cloud-sync 数据, 但 cloud 工作树修改不 push 走的话, 下次 routine 启动会从 main fresh clone 再次拿到旧 source.md, evolve 等于白做):
+
+```bash
+cd /home/user/ai-project
+git add .claude/skills/ai-news-filter/sources/
+git diff --cached --quiet && echo "no evolve changes" || (
+  git commit -m "evolve(ai-news): source.md update from $(date -u +%Y-%m-%d) pipeline" && \
+  git push origin HEAD:main
+)
+```
+
+如果本次 pipeline 没有源进入 evolve 触发条件, 这一段 git push 是空操作 (diff --cached --quiet 走通).
 
 #### 2.9 清理临时文件
 
