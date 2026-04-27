@@ -83,6 +83,24 @@
 
 *{box-sizing:border-box;margin:0;padding:0}
 
+/* ============================================================
+   全局滚动条统一 cyberpunk 绿主题 (Firefox + WebKit)
+   单一定义点, 各 tab/卡片不再重复声明
+   ============================================================ */
+*{scrollbar-width:thin;scrollbar-color:rgba(57,255,20,.22) transparent}
+*::-webkit-scrollbar{width:8px;height:8px}
+*::-webkit-scrollbar-track{background:transparent}
+*::-webkit-scrollbar-thumb{
+  background:rgba(57,255,20,.22);
+  border-radius:4px;
+  transition:background .18s var(--ease-soft),box-shadow .18s var(--ease-soft);
+}
+*::-webkit-scrollbar-thumb:hover{
+  background:rgba(57,255,20,.5);
+  box-shadow:0 0 8px rgba(57,255,20,.4);
+}
+*::-webkit-scrollbar-corner{background:transparent}
+
 html,body{
   background:var(--bg);
   color:var(--text);
@@ -587,38 +605,9 @@ body::after{
 
 
 /* Session list / type name / 月柱 / error log */
-.session-list,.error-log{display:flex;flex-direction:column;gap:4px}
 
-.session-row{display:flex;gap:var(--space-8);font-family:var(--font-mono);font-size:10px;padding:3px 0;border-bottom:1px dashed var(--border)}
-
-.session-row:last-child{border-bottom:none}
-
-.session-id{flex-shrink:0;color:var(--accent);width:80px;font-weight:600}
-
-.session-events{flex-shrink:0;color:var(--text-soft);width:50px}
-
-.session-ts{color:var(--text-faint);flex:1;text-align:right}
-
-.session-id-full{font-family:var(--font-mono);font-size:11px;color:var(--accent);word-break:break-all}
-
-.error-line{font-family:var(--font-mono);font-size:9px;color:var(--text-soft);padding:2px 0;border-bottom:1px dashed var(--border)}
-
-.error-line:last-child{border-bottom:none}
 
 .type-name{flex-shrink:0;color:var(--text-soft);width:96px;font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-.month-bars{display:flex;align-items:flex-end;gap:3px;height:64px;padding-top:8px}
-
-.month-bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:3px;height:100%;cursor:help}
-
-.month-bar-inner{width:100%;flex:1;display:flex;align-items:flex-end;justify-content:center}
-
-.month-bar-fill{width:100%;background:linear-gradient(180deg,var(--accent-bright),var(--accent));border-radius:2px 2px 0 0;min-height:2px;box-shadow:0 0 6px rgba(57,255,20,.2)}
-
-.month-bar-fill.empty{background:rgba(255,255,255,.06);box-shadow:none}
-
-.month-label{font-family:var(--font-mono);font-size:8px;color:var(--text-faint);letter-spacing:.04em}
-
 
 /* Sheet 抽屜 (Memory/Compact 統計) */
 .sheet-btn{
@@ -750,21 +739,6 @@ body::after{
 }
 
 .sheet-overlay.show{opacity:1;pointer-events:auto}
-
-.bar{
-  height:3px;
-  background:rgba(255,255,255,.05);
-  border-radius:99px;
-  overflow:hidden;
-}
-
-.bar-fill{
-  height:100%;
-  border-radius:99px;
-  background:linear-gradient(90deg,var(--accent),#8bb8ff);
-  transform-origin:left center;
-}
-
 
 /* ============================================================
    Section
@@ -988,7 +962,22 @@ li.disabled-item .last-seen::before{content:'⊘ ';color:var(--text-faint)}
 /* ============================================================
    雜項
    ============================================================ */
-.section-count{color:var(--text-faint);font-size:var(--text-meta-size);font-weight:normal;margin-left:var(--space-8)}
+.section-count{
+  color:var(--text-faint);
+  font-size:var(--text-meta-size);
+  font-weight:normal;
+  margin-left:var(--space-8);
+  font-family:var(--font-mono);
+  font-variant-numeric:tabular-nums;
+  letter-spacing:.04em;
+}
+.section-count b{
+  color:var(--accent-bright);
+  font-weight:700;
+  font-size:14px;
+  margin-right:3px;
+  text-shadow:0 0 6px rgba(57,255,20,.18);
+}
 
 .empty-note{color:var(--text-faint);font-size:var(--text-meta-size);padding:var(--space-12);text-align:center}
 
@@ -1032,11 +1021,12 @@ footer{
   .tab{padding:var(--space-8) var(--space-12);font-size:var(--text-meta-size);min-width:0;flex-shrink:1;overflow:hidden;text-overflow:ellipsis}
   .tab-controls{min-width:0;max-width:100%}
   .owner-filter{min-width:0;max-width:100%;overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch}
-  .hero{padding:var(--space-16);border-radius:var(--radius-md)}
-  .hero-top{flex-direction:column;gap:var(--space-12)}
+  .hero-top{flex-direction:column;align-items:flex-start;gap:var(--space-8)}
   .pills{width:100%;justify-content:flex-start;overflow-x:auto;padding-bottom:var(--space-4);flex-wrap:nowrap}
   .pill{flex-shrink:0}
-  .summary{grid-template-columns:1fr 1fr;gap:var(--space-12)}
+  .hero-strip{grid-template-columns:1fr 1fr;gap:var(--space-16)}
+  .hero-num{font-size:24px}
+  .hero-cell-spark{grid-column:1 / -1}
   .metric{padding:var(--space-12)}
   .metric-value{font-size:22px}
   .tab-controls{flex-direction:column;align-items:stretch;gap:var(--space-8)}
@@ -1045,8 +1035,6 @@ footer{
   .cold-grid{grid-template-columns:1fr;gap:var(--space-12)}
   .active-grid{gap:var(--space-12)}
   .today-grid{grid-template-columns:1fr;gap:var(--space-12)}
-  .health-grid{grid-template-columns:1fr;gap:var(--space-12)}
-  .health-signals{grid-template-columns:repeat(3,1fr);font-size:10px}
   .row{gap:var(--space-8);flex-wrap:wrap}
   .row .num{font-size:15px;width:28px}
   .row .name{flex:1 1 60%;min-width:0}

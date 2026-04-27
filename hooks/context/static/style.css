@@ -70,23 +70,9 @@
   color:var(--text-soft);
   max-height:400px;
   overflow-y:auto;
-  /* 預留 scrollbar 位置避免滑動時 reflow 文字內縮 */
+  /* 預留 scrollbar 位置避免滑動時 reflow 文字內縮; 颜色由 base.css 全局统一 */
   scrollbar-gutter:stable;
-  scrollbar-width:thin;
-  scrollbar-color:transparent transparent;
-  transition:scrollbar-color var(--dur-med) var(--ease-soft);
 }
-
-.claude-md-sections::-webkit-scrollbar{width:6px}
-
-.claude-md-sections::-webkit-scrollbar-track{background:transparent}
-
-.claude-md-sections::-webkit-scrollbar-thumb{background:transparent;border-radius:99px;transition:background var(--dur-med) var(--ease-soft)}
-
-/* hover 卡片或正在滑動時才顯示 thumb */
-.claude-md-card:hover .claude-md-sections{scrollbar-color:rgba(57,255,20,.2) transparent}
-
-.claude-md-card:hover .claude-md-sections::-webkit-scrollbar-thumb{background:rgba(57,255,20,.2)}
 
 .claude-md-sections li{
   padding:var(--space-4) 0;

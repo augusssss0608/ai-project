@@ -139,7 +139,8 @@ def _render_active_section(parts: list, active_data: dict, sessions_maps: dict, 
         paired_map = paired_maps.get(etype, {})
         _open_flip_card(parts, "active-card")
         parts.append(f"<div class='active-head'><span class='active-title'>{html.escape(title)}</span>"
-                     f"<span class='active-count'>{len(rows)} 个</span></div>")
+                     f"<span class='active-count'><b>{len(rows)}</b>项</span></div>")
+        parts.append("<div class='active-rows'>")
         if not rows:
             parts.append(f"<div class='empty-note'>{LABELS['none']}</div>")
         for name, scope, count, path, owner in rows:
@@ -167,6 +168,7 @@ def _render_active_section(parts: list, active_data: dict, sessions_maps: dict, 
                 f"{owner_html}"
                 f"</div>"
             )
+        parts.append("</div>")  # /.active-rows
         _between_flip_faces(parts)
         # 計算背面數據 + 渲染 (跟隨 owner_filter)
         agg = query_etype_aggregate(conn, etype, days, owner_filter)

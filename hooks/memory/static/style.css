@@ -10,22 +10,12 @@
    ============================================================ */
 .memory-list{padding:var(--space-12)}
 
-/* Memory panel: 高度固定 (相当于 ~10 行), 全部条目内部滚动 */
-#sheet-memory{}
+/* Memory panel: 高度固定 (相当于 ~10 行), 全部条目内部滚动
+   滚动条样式由 base.css 全局统一 (cyberpunk 绿) */
 .section:has(> .section-head > .sheet-btn[data-sheet-target='sheet-memory']) .memory-list{
   max-height:480px;
   overflow-y:auto;
   scrollbar-gutter:stable;
-  scrollbar-width:thin;
-  scrollbar-color:transparent transparent;
-  transition:scrollbar-color var(--dur-med) var(--ease-soft);
-}
-.section:has(> .section-head > .sheet-btn[data-sheet-target='sheet-memory']) .memory-list:hover{
-  scrollbar-color:rgba(255,255,255,.18) transparent;
-}
-.section:has(> .section-head > .sheet-btn[data-sheet-target='sheet-memory']) .memory-list::-webkit-scrollbar{width:6px}
-.section:has(> .section-head > .sheet-btn[data-sheet-target='sheet-memory']) .memory-list::-webkit-scrollbar-thumb{
-  background:rgba(255,255,255,.12);border-radius:3px;
 }
 
 .mem-row{

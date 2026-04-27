@@ -52,7 +52,13 @@ def _render_file_list_panel(parts: list, label_key: str, meta: str, items: list,
     parts.append("<div class='section'>")
     pid = panel_id or label_key
     stats = _compute_memory_stats(items, with_size) if show_stats else None
-    head_html = f"<div class='section-head'><h2>{LABELS[label_key]}</h2><span class='meta'>{meta}</span>"
+    total = len(items)
+    head_html = (
+        f"<div class='section-head'>"
+        f"<h2>{LABELS[label_key]}</h2>"
+        f"<span class='section-count'><b>{total}</b> 项</span>"
+        f"<span class='meta'>{meta}</span>"
+    )
     if show_stats:
         head_html += f"<button class='sheet-btn' data-sheet-target='sheet-{pid}'>统计</button>"
     head_html += "</div>"

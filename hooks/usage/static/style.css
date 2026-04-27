@@ -147,34 +147,43 @@
 
 /* 固定卡片高度 (按背面聚合内容自然高度), 前面 row 列表溢出滑动 */
 .active-card{padding:0;height:480px}
-.active-card .flip-inner{height:100%}
+.active-card .flip-inner{height:100%;grid-template-rows:100%}
+.active-card .flip-front,
+.active-card .flip-back{height:100%;min-height:0}
 
 .active-card .flip-front{
-  padding:var(--space-12) var(--space-16);
+  padding:0;
   height:100%;
-  overflow-y:auto;
-  scrollbar-gutter:stable;
-  scrollbar-width:thin;
-  scrollbar-color:transparent transparent;
-  transition:scrollbar-color var(--dur-med) var(--ease-soft);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  border-radius:var(--radius-md);
 }
-.active-card .flip-front:hover{scrollbar-color:rgba(255,255,255,.18) transparent}
-.active-card .flip-front::-webkit-scrollbar{width:6px}
-.active-card .flip-front::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:3px}
+
+.active-card .active-rows{
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  padding:var(--space-8) var(--space-16) var(--space-12);
+  scrollbar-gutter:stable;
+}
 
 .active-card .flip-back{padding:var(--space-12) var(--space-16);height:100%;overflow-y:auto}
 
 .active-head{
-  position:sticky;
-  top:0;
-  z-index:2;
-  background:var(--card-bg);
+  flex-shrink:0;
+  /* 顶部不透明背景, 与卡片顶圆角对齐, 滚动条位于其下方的 .active-rows */
+  background:
+    linear-gradient(180deg,rgba(57,255,20,.08),rgba(57,255,20,.02)),
+    var(--bg);
+  border-radius:var(--radius-md) var(--radius-md) 0 0;
   display:flex;
   justify-content:space-between;
-  align-items:baseline;
-  margin-bottom:var(--space-12);
-  padding-bottom:var(--space-8);
-  border-bottom:1px solid var(--border);
+  align-items:center;
+  gap:var(--space-12);
+  padding:var(--space-16) var(--space-24);
+  border-bottom:1px solid var(--card-border);
+  min-height:56px;
 }
 
 /* 行 hover 跑马灯: name 溢出时由 JS 加 .marquee 并写入 --marquee-shift */
@@ -192,9 +201,9 @@
 
 .active-title{
   font-family:var(--font-mono);
-  font-size:var(--text-card-size);
-  font-weight:var(--text-card-weight);
-  letter-spacing:var(--text-card-track);
+  font-size:15px;
+  font-weight:600;
+  letter-spacing:.06em;
   color:var(--text);
   text-transform:uppercase;
 }
@@ -202,9 +211,18 @@
 .active-count{
   font-family:var(--font-mono);
   color:var(--text-faint);
-  font-size:10px;
-  letter-spacing:.12em;
+  font-size:12px;
+  letter-spacing:.08em;
   text-transform:uppercase;
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+
+.active-count b{
+  color:var(--accent-bright);
+  font-weight:700;
+  font-size:15px;
+  margin-right:3px;
 }
 
 .prune-dot.active-filter{
@@ -264,21 +282,8 @@
   max-height:320px;
   overflow-y:auto;
   scrollbar-gutter:stable;
-  scrollbar-width:thin;
-  scrollbar-color:transparent transparent;
-  transition:scrollbar-color var(--dur-med) var(--ease-soft);
   padding-right:var(--space-4);
 }
-
-.risk-list::-webkit-scrollbar{width:5px}
-
-.risk-list::-webkit-scrollbar-track{background:transparent}
-
-.risk-list::-webkit-scrollbar-thumb{background:transparent;border-radius:99px;transition:background var(--dur-med) var(--ease-soft)}
-
-.risk:hover .risk-list{scrollbar-color:rgba(57,255,20,.18) transparent}
-
-.risk:hover .risk-list::-webkit-scrollbar-thumb{background:rgba(57,255,20,.18)}
 
 .risk-list li{padding:var(--space-8) 0;border-bottom:1px dashed var(--border);display:flex;justify-content:space-between;align-items:center;gap:var(--space-8);font-family:var(--font-mono);font-size:11px}
 
