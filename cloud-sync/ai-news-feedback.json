@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-04-28T14:13:53+09:00",
+  "updated_at": "2026-04-29T14:01:12+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -450,6 +450,84 @@
       "title": "【OpenAI 將重新定義手機，聯發科、Qualcomm 與立訊為該 AI agent 手機關鍵供應商】",
       "source": "threads",
       "score": "down"
+    },
+    "https://github.com/dirac-run/dirac": {
+      "ts": "2026-04-29T13:56:42+09:00",
+      "title": "Show HN: OSS Agent I built topped the TerminalBench on Gemini-3-flash-preview",
+      "source": "hackernews",
+      "score": "up"
+    },
+    "https://github.blog/news-insights/company-news/github-copilot-is-moving-to-usage-based-billing/": {
+      "ts": "2026-04-29T13:56:53+09:00",
+      "title": "GitHub Copilot is moving to usage-based billing",
+      "source": "hackernews",
+      "score": "up"
+    },
+    "https://simonwillison.net/2026/Apr/28/talkie/#atom-everything": {
+      "ts": "2026-04-29T13:57:38+09:00",
+      "title": "Introducing talkie: a 13B vintage language model from 1930",
+      "source": "simonw",
+      "score": "down"
+    },
+    "https://simonwillison.net/2026/Apr/28/openai-codex/#atom-everything": {
+      "ts": "2026-04-29T13:58:06+09:00",
+      "title": "Quoting OpenAI Codex base_instructions",
+      "source": "simonw",
+      "score": "up"
+    },
+    "https://simonwillison.net/2026/Apr/28/matthew-yglesias/#atom-everything": {
+      "ts": "2026-04-29T13:58:10+09:00",
+      "title": "Quoting Matthew Yglesias",
+      "source": "simonw",
+      "score": "down"
+    },
+    "https://www.threads.com/@cab_late/post/DXrBT6IlEjz": {
+      "ts": "2026-04-29T13:58:45+09:00",
+      "title": "天塌了兄弟們，我沾上 Codex 了，他的 Plan 比現在的 Opus 4.6 好很多",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@topmediai_tw/post/DXqg9OIlTnL": {
+      "ts": "2026-04-29T13:58:48+09:00",
+      "title": "https://tw.topmediai.com/app/image-to-video/?utm_source=threads&utm_medium=social&utm_campaign=lyh&utm_term=ai_video_202",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@yibims/post/DXsWPXak2pR": {
+      "ts": "2026-04-29T13:58:51+09:00",
+      "title": "太好了😍",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@hanlinhans/post/DXrdPGHkzVV": {
+      "ts": "2026-04-29T13:58:55+09:00",
+      "title": "GPT-5.5 智商測到 145，整個圈子昨晚炸開。",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@yrzheee/post/DXrl_rzkczE": {
+      "ts": "2026-04-29T14:00:04+09:00",
+      "title": "OpenAI 开源 Symphony，让 Codex 自己接单干活",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@maxstudio.biz/post/DXrvBJaDxoY": {
+      "ts": "2026-04-29T14:00:36+09:00",
+      "title": "很多人在吵 Claude 變爛",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@moth.ai/post/DXrFYggGTk-": {
+      "ts": "2026-04-29T14:00:40+09:00",
+      "title": "Claude 行動版側邊欄大改版！Dispatch、Code 任務整合，神秘新功能 Conway 浮現",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@codemeteor/post/DXrbgyhieH5": {
+      "ts": "2026-04-29T14:01:12+09:00",
+      "title": "[Agent Canvas]",
+      "source": "threads",
+      "score": "up"
     }
   },
   "favorites": {
@@ -502,6 +580,11 @@
       "ts": "2026-04-25T15:37:53+09:00",
       "title": "An update on recent Claude Code quality reports",
       "source": "simonw"
+    },
+    "https://www.threads.com/@yrzheee/post/DXrl_rzkczE": {
+      "ts": "2026-04-29T14:00:02+09:00",
+      "title": "OpenAI 开源 Symphony，让 Codex 自己接单干活",
+      "source": "threads"
     }
   }
 }
