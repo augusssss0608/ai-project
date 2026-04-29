@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-04-25T15:38:27+09:00",
+  "updated_at": "2026-04-28T14:13:53+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -364,6 +364,90 @@
     "https://www.threads.com/@moth.ai/post/DXiKR2xDy3H": {
       "ts": "2026-04-25T15:38:27+09:00",
       "title": "Google 豪擲 400 億美元押注 Anthropic！AI 算力正式成為新貨幣",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://github.com/mattpocock/skills": {
+      "ts": "2026-04-27T17:50:56+09:00",
+      "title": "mattpocock/skills",
+      "source": "github_trending",
+      "score": "up"
+    },
+    "https://www.threads.com/@altsol.tw/post/DXnmYyYj6F9": {
+      "ts": "2026-04-27T17:51:36+09:00",
+      "title": "DeepTutor 是香港大學數據智能實驗室的開源專案，上線 111 天內在 GitHub 突破 20,000 顆 Stars，零到 10,000 僅花 39 天，成為史上成長最快的 AI 教育工具。",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@harveylmao/post/DXnr64fG6hT": {
+      "ts": "2026-04-27T17:51:50+09:00",
+      "title": "Claude简直太棒，刚入职好多专业知识不懂，靠着Claude干活儿，质量和效率甚至高于熟手，特别是一键生成Excel表最屌！虽然我还有Perplexity会员，但Claude目前对我工作内容的理解深度远高于它。唯一不太爽的就是毕竟是免费版",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@jamesjantw/post/DXnv-gklOoJ": {
+      "ts": "2026-04-27T17:52:07+09:00",
+      "title": "聽說 Claude Cowork 可以使用第三方 LLM/API 把它設定抓 kilocode-auto/free",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://simonwillison.net/2026/Apr/27/now-deceased-agi-clause/#atom-everything": {
+      "ts": "2026-04-28T14:10:20+09:00",
+      "title": "Tracking the history of the now-deceased OpenAI Microsoft AGI clause",
+      "source": "simonw",
+      "score": "down"
+    },
+    "https://www.threads.com/@castlen3/post/DXoGXDECXlk": {
+      "ts": "2026-04-28T14:11:11+09:00",
+      "title": "之前很多人敲碗的 LINE 家庭群組機器人（AKA長輩的好朋友），",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@answer00125/post/DXogGy4Ejce": {
+      "ts": "2026-04-28T14:11:13+09:00",
+      "title": "你以為 ChatGPT Images 2.0 只是用來生圖的？",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@jaschiang/post/DXpAL0zE8RT": {
+      "ts": "2026-04-28T14:11:15+09:00",
+      "title": "嘗試讓 GPT Image 2 提供多種畫風、說明，以及畫風混搭示意。",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@mini_littlechanges/post/DXpXK3bkT4C": {
+      "ts": "2026-04-28T14:11:17+09:00",
+      "title": "🎥 ChatGPT Images 2.0 而家識得幫你整一張「Animation Sheet」，將佢放入 Seedance 2.0 度，唔使自己慢慢執 frame，就可以根據劇本自動生成一段專業級超絲滑嘅 Logo animation。",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@simon.yhh/post/DXoz4uaAfiv": {
+      "ts": "2026-04-28T14:12:48+09:00",
+      "title": "最近在替團隊導入 SDD (Specification-Driven Development)開發流程，自己算是用 SDD 跑完一輪開發了，大概兩天就可以寫出以前要寫兩週以上的 code 量，使用的工具是 OpenSpace + Super",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@ci.fullstack/post/DXo-ciLFD1z": {
+      "ts": "2026-04-28T14:13:28+09:00",
+      "title": "聊一下最近在使用的不錯的 repo",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@chaskawu/post/DXpD0mtEmLu": {
+      "ts": "2026-04-28T14:13:46+09:00",
+      "title": "Day15 我付錢 你學習 🤖",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@solitude6060/post/DXpTYoYEyS5": {
+      "ts": "2026-04-28T14:13:49+09:00",
+      "title": "【悲報但不意外】微軟終於撐不住了，GitHub Copilot 6/1 起全面改採「以量計費」💸",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@kuo.mingchi/post/DXnjs28D-OA": {
+      "ts": "2026-04-28T14:13:53+09:00",
+      "title": "【OpenAI 將重新定義手機，聯發科、Qualcomm 與立訊為該 AI agent 手機關鍵供應商】",
       "source": "threads",
       "score": "down"
     }
