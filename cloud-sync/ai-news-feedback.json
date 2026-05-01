@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-04-29T14:01:12+09:00",
+  "updated_at": "2026-05-01T14:18:55+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -526,6 +526,114 @@
     "https://www.threads.com/@codemeteor/post/DXrbgyhieH5": {
       "ts": "2026-04-29T14:01:12+09:00",
       "title": "[Agent Canvas]",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://simonwillison.net/2026/Apr/30/zig-anti-ai/": {
+      "ts": "2026-05-01T14:11:52+09:00",
+      "title": "The Zig project",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://mistral.ai/news/vibe-remote-agents-mistral-medium-3-5": {
+      "ts": "2026-05-01T14:11:57+09:00",
+      "title": "Mistral Medium 3.5",
+      "source": "hackernews",
+      "score": "up"
+    },
+    "https://github.com/browserbase/skills": {
+      "ts": "2026-05-01T14:12:49+09:00",
+      "title": "browserbase/skills",
+      "source": "github_trending",
+      "score": "up"
+    },
+    "https://github.com/PDFMathTranslate/PDFMathTranslate": {
+      "ts": "2026-05-01T14:13:08+09:00",
+      "title": "PDFMathTranslate/PDFMathTranslate",
+      "source": "github_trending",
+      "score": "down"
+    },
+    "https://simonwillison.net/2026/Apr/30/gpt-55-cyber-capabilities/#atom-everything": {
+      "ts": "2026-05-01T14:13:17+09:00",
+      "title": "Our evaluation of OpenAI",
+      "source": "simonw",
+      "score": "up"
+    },
+    "https://simonwillison.net/2026/Apr/29/llm/#atom-everything": {
+      "ts": "2026-05-01T14:13:22+09:00",
+      "title": "LLM 0.32a0  is a major backwards-compatible refactor",
+      "source": "simonw",
+      "score": "up"
+    },
+    "https://simonwillison.net/2026/Apr/30/codex-goals/#atom-everything": {
+      "ts": "2026-05-01T14:13:27+09:00",
+      "title": "Codex CLI 0.128.0 adds /goal",
+      "source": "simonw",
+      "score": "star"
+    },
+    "https://simonwillison.net/2026/Apr/30/zig-anti-ai/#atom-everything": {
+      "ts": "2026-05-01T14:14:31+09:00",
+      "title": "The Zig project",
+      "source": "simonw",
+      "score": "up"
+    },
+    "https://www.threads.com/@77mediabook/post/DXwnlVOkeJh": {
+      "ts": "2026-05-01T14:14:47+09:00",
+      "title": "AI 終於不只是「聊天」了。",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@wowscly/post/DXwczlQj7cQ": {
+      "ts": "2026-05-01T14:15:09+09:00",
+      "title": "如果你還只用ChatGPT，",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@choeng_919/post/DXwxzJQj-3f": {
+      "ts": "2026-05-01T14:16:08+09:00",
+      "title": "Token = 錢。",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@fredhongyi/post/DXvnEKnj04y": {
+      "ts": "2026-05-01T14:16:20+09:00",
+      "title": "24小時內的一些新聞統整。",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@kai_ch_chen/post/DXvuxJfGAv0": {
+      "ts": "2026-05-01T14:16:32+09:00",
+      "title": "GA4 接上 MCP",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@chc_web_dev/post/DXv3VAGmYFQ": {
+      "ts": "2026-05-01T14:16:55+09:00",
+      "title": "Anthropic 產品主管 Cat 說：95% 的自動化不算自動化，因為你還是得回頭檢查那 5%。要做就做到 100%，做到完全不用管。與其做一堆半成品，不如挑幾個重要的打磨到完全可靠。",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@bing_sunzhi/post/DXvWw8XjP7b": {
+      "ts": "2026-05-01T14:17:01+09:00",
+      "title": "Google 宣布 Gemini 推出了一個超省時的強大新功能：現在你可以直接在對話中生成各種實用檔案了！",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@ci.fullstack/post/DXw1TEGFKNm": {
+      "ts": "2026-05-01T14:17:27+09:00",
+      "title": "今天去 Claude MAX 線上聚會講閃電講",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@vincent.chanw/post/DXwG895miFk": {
+      "ts": "2026-05-01T14:17:54+09:00",
+      "title": "Hermes Agent 開始把 self-improvement loop 裡長出來的 skills，交給一個背景維護層處理了。",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@hongde.chi/post/DXv2Q6ZkQDV": {
+      "ts": "2026-05-01T14:18:55+09:00",
+      "title": "二、人在外面，如何持續運作？",
       "source": "threads",
       "score": "up"
     }
