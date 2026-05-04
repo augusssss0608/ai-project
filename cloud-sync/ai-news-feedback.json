@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-05-01T21:52:03+09:00",
+  "updated_at": "2026-05-04T14:22:49+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -634,6 +634,72 @@
     "https://www.threads.com/@hongde.chi/post/DXv2Q6ZkQDV": {
       "ts": "2026-05-01T14:18:55+09:00",
       "title": "二、人在外面，如何持續運作？",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://acai.sh/blog/specsmaxxing": {
+      "ts": "2026-05-04T14:16:58+09:00",
+      "title": "Specsmaxxing – On overcoming AI psychosis, and why I write specs in YAML",
+      "source": "hackernews",
+      "score": "star"
+    },
+    "https://thinkpol.ca/2026/04/30/an-open-weights-chinese-model-just-beat-claude-gpt-5-5-and-gemini-in-a-programming-challenge/": {
+      "ts": "2026-05-04T14:17:06+09:00",
+      "title": "Kimi K2.6 just beat Claude, GPT-5.5, and Gemini in a coding challenge",
+      "source": "hackernews",
+      "score": "up"
+    },
+    "https://www.theguardian.com/technology/2026/apr/30/ai-outperforms-doctors-in-harvard-trial-of-emergency-triage-diagnoses": {
+      "ts": "2026-05-04T14:17:17+09:00",
+      "title": "OpenAI",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://simonwillison.net/2026/May/3/anthropic/#atom-everything": {
+      "ts": "2026-05-04T14:19:14+09:00",
+      "title": "Quoting Anthropic",
+      "source": "simonw",
+      "score": "down"
+    },
+    "https://www.threads.com/@ar.shek/post/DX4MKk1DbAE": {
+      "ts": "2026-05-04T14:19:24+09:00",
+      "title": "OpenAI 為旗下 AI 編碼工具 Codex 推出重大更新，其中最受注目的是全新 `/goal` 指令，讓 Codex 由「程式助手」進化為「自主開發者」。",
+      "source": "threads",
+      "score": "star"
+    },
+    "https://www.threads.com/@yuyuchang.life/post/DX3Ty73FL89": {
+      "ts": "2026-05-04T14:20:23+09:00",
+      "title": "👩🏻‍💻 台積電 PM 第31週週報｜Agent 時代",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@aiworklog/post/DX392IijGNk": {
+      "ts": "2026-05-04T14:20:27+09:00",
+      "title": "我做了一件很奇怪的事。",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@jiang_yude_coach/post/DX3FO3qE8wX": {
+      "ts": "2026-05-04T14:20:45+09:00",
+      "title": "能不能出一張橫式的",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@ci.fullstack/post/DX4YfIRHUNM": {
+      "ts": "2026-05-04T14:21:47+09:00",
+      "title": "昨天分享的那場 Matt Pocock 演講",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@aiondaily/post/DX3tBq0kiWC": {
+      "ts": "2026-05-04T14:21:50+09:00",
+      "title": "【 MinerU：把任何 PDF 變成 AI 可讀格式的開源格式 】",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@hsu_wenyen/post/DX3CttWFA1E": {
+      "ts": "2026-05-04T14:22:49+09:00",
+      "title": "Browser-use",
       "source": "threads",
       "score": "up"
     }
