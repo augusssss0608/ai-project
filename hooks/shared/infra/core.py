@@ -29,7 +29,7 @@ USER_HOME = os.path.expanduser("~")
 # A4: memory 路径去硬编码
 MEMORY_DIR = os.environ.get(
     "LIVE_APP_MEMORY_PATH",
-    f"{USER_HOME}/.claude/projects/-Users-augus-Desktop------live-app/memory",
+    f"{USER_HOME}/.claude/auto-memory",
 )
 
 # ============================================================
@@ -107,7 +107,7 @@ def compute_owner(path: str) -> str:
     project_real = os.path.realpath(PROJECT_ROOT)
     memory_real = os.path.realpath(MEMORY_DIR)
     plugins_root = os.path.realpath(f"{USER_HOME}/.claude/plugins")
-    # memory 虽然物理在 ~/.claude/projects/... 但语义属于项目
+    # memory 物理在 ~/.claude/auto-memory/ 但语义归项目
     if real == memory_real or real.startswith(memory_real + os.sep):
         return "live_app"
     # plugin skill 单独归类
