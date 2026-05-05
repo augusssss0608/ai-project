@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-05-04T14:22:49+09:00",
+  "updated_at": "2026-05-05T14:28:47+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -702,6 +702,72 @@
       "title": "Browser-use",
       "source": "threads",
       "score": "up"
+    },
+    "https://github.com/aattaran/deepclaude": {
+      "ts": "2026-05-05T14:26:14+09:00",
+      "title": "DeepClaude – Claude Code agent loop with DeepSeek V4 Pro",
+      "source": "hackernews",
+      "score": "up"
+    },
+    "https://simonwillison.net/2026/May/4/granite-41-3b-svg-pelican-gallery/#atom-everything": {
+      "ts": "2026-05-05T14:27:00+09:00",
+      "title": "Granite 4.1 3B SVG Pelican Gallery",
+      "source": "simonw",
+      "score": "up"
+    },
+    "https://simonwillison.net/2026/May/5/john-gruber/#atom-everything": {
+      "ts": "2026-05-05T14:27:06+09:00",
+      "title": "Quoting John Gruber",
+      "source": "simonw",
+      "score": "down"
+    },
+    "https://www.threads.com/@awoo_gw/post/DX6xWwyk_R0": {
+      "ts": "2026-05-05T14:27:28+09:00",
+      "title": "我同時餵 4 個 AI:",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@kai_ch_chen/post/DX6pvLwk6c4": {
+      "ts": "2026-05-05T14:27:35+09:00",
+      "title": "終於不用自己寫app scripts了",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@kakashiliu/post/DX6y730GZrR": {
+      "ts": "2026-05-05T14:27:49+09:00",
+      "title": "用 claude code 從零做了一個 native macOS 螢幕錄影 app, 錄完後可以用本地的 whipser 轉逐字稿, 再用你自己的 OpenAI/Gemini key 產出摘要! 這個 app 不用登入也不上傳東西, 全都",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@scps_jia/post/DX6SeT3gVxu": {
+      "ts": "2026-05-05T14:28:07+09:00",
+      "title": "1分鐘帶你看完｜本週 AI 大事(5/4)",
+      "source": "threads",
+      "score": "star"
+    },
+    "https://www.threads.com/@jiang_yude_coach/post/DX8BAqyj3uX": {
+      "ts": "2026-05-05T14:28:10+09:00",
+      "title": "最近覺得 Claude 跟 ChatGPT 變笨了嗎？",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@maxstudio.biz/post/DX6LIuCj2sU": {
+      "ts": "2026-05-05T14:28:14+09:00",
+      "title": "若是有意見相左的",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@skinnerlee1225/post/DX5sfvBkZJm": {
+      "ts": "2026-05-05T14:28:32+09:00",
+      "title": "每次有人在群組或社群 丟一個 GitHub 連結說「這個超好用」",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@baby_30102/post/DX7BEc1E-sa": {
+      "ts": "2026-05-05T14:28:47+09:00",
+      "title": "GPT生成的圖片可以直接改了！！！！",
+      "source": "threads",
+      "score": "down"
     }
   },
   "favorites": {
