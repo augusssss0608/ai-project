@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-05-05T14:28:47+09:00",
+  "updated_at": "2026-05-06T13:59:15+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -768,6 +768,18 @@
       "title": "GPT生成的圖片可以直接改了！！！！",
       "source": "threads",
       "score": "down"
+    },
+    "https://addyosmani.com/blog/agent-skills/": {
+      "ts": "2026-05-06T13:59:08+09:00",
+      "title": "Agent Skills",
+      "source": "hackernews",
+      "score": "up"
+    },
+    "https://idiallo.com/blog/ai-didnt-delete-your-database-you-did": {
+      "ts": "2026-05-06T13:59:15+09:00",
+      "title": "AI didn",
+      "source": "hackernews",
+      "score": "up"
     }
   },
   "favorites": {
