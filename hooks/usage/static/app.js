@@ -239,4 +239,24 @@
     }
   });
 
+  // ===== Phase 3.2: Skill 触发漏斗状态筛选 =====
+  // 用独立 class .row-funnel-hidden（CSS !important）跟 owner 筛选解耦——两层筛选叠加
+  const funnelFilter = document.getElementById('funnel-status-filter');
+  if (funnelFilter) {
+    funnelFilter.addEventListener('click', (e) => {
+      const chip = e.target.closest('.funnel-chip');
+      if (!chip) return;
+      e.preventDefault();
+      const target = chip.dataset.funnelStatus || '';
+      funnelFilter.querySelectorAll('.funnel-chip').forEach(c => {
+        c.classList.toggle('active', c === chip);
+      });
+      document.querySelectorAll('.funnel-row').forEach(row => {
+        const rowStatus = row.dataset.funnelStatus || '';
+        const matchStatus = !target || target === rowStatus;
+        row.classList.toggle('row-funnel-hidden', !matchStatus);
+      });
+    });
+  }
+
 })();

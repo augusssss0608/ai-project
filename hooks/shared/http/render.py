@@ -126,12 +126,23 @@ def _render_head(parts: list, owner_filter: str):
     parts.append("<div class='page'>")
 
 
-def _render_page_header(parts: list):
+_HEALTH_STATUS_LABEL = {
+    "ok": ("✓", "正常"),
+    "warn": ("⚠", "注意"),
+    "error": ("✗", "异常"),
+    "stale": ("·", "未生成"),
+}
+
+
+def _render_page_header(parts: list, conn=None):
     """穩定骨架的頁面標題層 (永不隨 tab 變動)."""
     status = _get_summary_status()
     parts.append("<header class='page-header'>")
     parts.append("<div class='page-header-inner'>")
     parts.append("<h1 class='page-title'>Claude Code <em>使用统计</em></h1>")
+    parts.append("<div class='page-actions'>")
+    if conn is not None:
+        _render_health_strip(parts, conn)
     parts.append(
         "<div class='summary-meter'>"
         "<span class='summary-meter-label'>AI 摘要</span>"
@@ -142,7 +153,210 @@ def _render_page_header(parts: list):
         "</div>"
     )
     parts.append("</div>")
+    parts.append("</div>")
     parts.append("</header>")
+
+
+def _render_health_strip(parts: list, conn):
+    """工作区健康状态条：[采集 chip] [配置 chip] + 2 个 sheet drawer"""
+    health = query_collection_health(conn)
+    lint = query_lint_status()
+    lint_status = derive_lint_status(lint)
+    counts = count_lint_issues(lint)
+
+    # 采集 chip 副标
+    coll_status = health["status"]
+    coll_count_text = (
+        f"{health['events_24h']}/24h"
+        if coll_status in ("ok", "warn") and health["events_24h"] > 0
+        else f"7d:{health['events_7d']}"
+        if health["events_7d"] > 0
+        else "—"
+    )
+
+    # 配置 chip 副标
+    if lint is None:
+        lint_count_text = "未生成"
+    elif counts["fail"] > 0:
+        lint_count_text = f"{counts['fail']} fail"
+    elif counts["warn"] > 0:
+        lint_count_text = f"{counts['warn']} warn"
+    elif counts["pass"] > 0:
+        lint_count_text = f"{counts['pass']} pass"
+    else:
+        lint_count_text = "—"
+
+    parts.append("<div class='health-strip' aria-label='工作区健康状态'>")
+    parts.append(_render_health_chip("collection-health-sheet", "采集", coll_status, coll_count_text))
+    parts.append(_render_health_chip("lint-health-sheet", "配置", lint_status, lint_count_text))
+    parts.append("</div>")
+
+    _render_collection_health_sheet(parts, health)
+    _render_lint_health_sheet(parts, lint, counts)
+
+
+def _render_health_chip(sheet_id: str, label: str, status: str, count_text: str) -> str:
+    icon, _ = _HEALTH_STATUS_LABEL.get(status, ("?", ""))
+    return (
+        f"<button class='health-chip health-chip-{html.escape(status)} sheet-btn' "
+        f"data-sheet-target='{html.escape(sheet_id)}'>"
+        f"<span class='health-chip-label'>{html.escape(label)}</span>"
+        f"<span class='health-chip-icon'>{html.escape(icon)}</span>"
+        f"<span class='health-chip-count'>{html.escape(count_text)}</span>"
+        f"</button>"
+    )
+
+
+def _render_collection_health_sheet(parts: list, health: dict):
+    parts.append("<div class='sheet' id='collection-health-sheet'>")
+    parts.append("<div class='sheet-head'><h3>采集健康</h3>")
+    parts.append("<button class='sheet-close'>×</button>")
+    parts.append("</div>")
+    parts.append("<div class='sheet-body'>")
+
+    # 总览
+    icon, label = _HEALTH_STATUS_LABEL.get(health["status"], ("?", ""))
+    parts.append("<div class='health-summary'>")
+    parts.append(f"<span class='health-summary-status status-{html.escape(health['status'])}'>{html.escape(icon)} {html.escape(label)}</span>")
+    parts.append(f"<span class='health-summary-meta'>历史 {health['total_events']} 事件 · 24h {health['events_24h']} · 7d {health['events_7d']}</span>")
+    if health["last_event_at"]:
+        parts.append(f"<span class='health-summary-meta'>最近事件: {html.escape(fmt_relative_time(health['last_event_at']))}</span>")
+    if health["empty_session_count_24h"] > 0:
+        parts.append(f"<span class='health-summary-meta status-warn'>24h 空 session {health['empty_session_count_24h']} 条 ({health['empty_session_pct_24h']:.1f}%)</span>")
+    parts.append("</div>")
+
+    # 各 type
+    parts.append("<h4 class='sheet-subtitle'>各事件类型最近时间</h4>")
+    parts.append("<table class='health-type-table'>")
+    parts.append("<thead><tr><th>type</th><th>label</th><th>最近</th></tr></thead><tbody>")
+    for t in health["per_type_last_seen"]:
+        last = fmt_relative_time(t["last_seen"]) if t["last_seen"] else "(从未)"
+        cls = "" if t["last_seen"] else " class='last-never'"
+        parts.append(
+            f"<tr{cls}><td><code>{html.escape(t['type'])}</code></td>"
+            f"<td>{html.escape(t['label'])}</td>"
+            f"<td>{html.escape(last)}</td></tr>"
+        )
+    parts.append("</tbody></table>")
+
+    # 错误日志
+    err = health["errors"]
+    parts.append("<h4 class='sheet-subtitle'>tracker-errors.log</h4>")
+    if not err["exists"]:
+        parts.append("<p class='health-empty'>未发现错误日志文件（采集层无错误记录）</p>")
+    else:
+        parts.append(
+            f"<p class='health-meta'>总行数: {err['total_lines']} · 24h: {err['recent_24h']} · 7d: {err['recent_7d']}</p>"
+        )
+        if err["last_20_lines"]:
+            parts.append("<pre class='health-log-preview'>")
+            for line in err["last_20_lines"]:
+                parts.append(html.escape(line) + "\n")
+            parts.append("</pre>")
+        else:
+            parts.append("<p class='health-empty'>日志为空</p>")
+
+    parts.append("</div></div>")  # /sheet-body /sheet
+
+
+def _render_lint_health_sheet(parts: list, lint: dict | None, counts: dict):
+    parts.append("<div class='sheet' id='lint-health-sheet'>")
+    parts.append("<div class='sheet-head'><h3>配置健康（workspace-lint）</h3>")
+    parts.append("<button class='sheet-close'>×</button>")
+    parts.append("</div>")
+    parts.append("<div class='sheet-body'>")
+
+    if lint is None:
+        parts.append(
+            "<p class='health-empty'>"
+            "<code>~/Desktop/ai-project/data/lint-status.json</code> 尚未生成<br>"
+            "请确保 lint hook 已注册，或手动运行 "
+            "<code>python3 ~/Desktop/ai-project/hooks/workspace-lint/lint_runner.py</code>"
+            "</p>"
+        )
+        parts.append("</div></div>")  # /sheet-body /sheet
+        return
+
+    # 元数据
+    last_run = lint.get("last_run") or "?"
+    trigger = lint.get("trigger") or "?"
+    duration = lint.get("duration_ms")
+    fp = lint.get("fingerprint") or ""
+    fp_short = fp[:12] if fp else "—"
+    parts.append("<div class='health-summary'>")
+    parts.append(f"<span class='health-summary-meta'>上次跑: {html.escape(fmt_relative_time(last_run) or last_run)}</span>")
+    parts.append(f"<span class='health-summary-meta'>触发: <code>{html.escape(trigger)}</code></span>")
+    if duration is not None:
+        parts.append(f"<span class='health-summary-meta'>耗时: {html.escape(str(duration))} ms</span>")
+    parts.append(f"<span class='health-summary-meta'>fingerprint: <code>{html.escape(fp_short)}…</code></span>")
+    parts.append("</div>")
+
+    # 计数行
+    parts.append("<div class='health-summary'>")
+    parts.append(f"<span class='health-summary-meta status-ok'>{counts['pass']} pass</span>")
+    if counts["warn"]:
+        parts.append(f"<span class='health-summary-meta status-warn'>{counts['warn']} warn</span>")
+    if counts["fail"]:
+        parts.append(f"<span class='health-summary-meta status-error'>{counts['fail']} fail</span>")
+    if counts["pending"]:
+        parts.append(f"<span class='health-summary-meta'>{counts['pending']} pending</span>")
+    parts.append("</div>")
+
+    # 错误总览
+    err = lint.get("error")
+    if err:
+        parts.append(
+            f"<p class='status-error'>Runner 错误: {html.escape(str(err.get('message','')))} "
+            f"(exit_code={html.escape(str(err.get('exit_code','?')))})</p>"
+        )
+
+    # 8 条 lint 列表
+    parts.append("<h4 class='sheet-subtitle'>检查项</h4>")
+    parts.append("<ul class='lint-check-list'>")
+    for c in lint.get("checks") or []:
+        cid = c.get("id", "")
+        name = c.get("name", cid)
+        st = c.get("status", "?")
+        issues = c.get("issues") or []
+        icon, _ = _HEALTH_STATUS_LABEL.get(st, ("?", ""))
+        parts.append(f"<li class='lint-check status-{html.escape(st)}'>")
+        parts.append(
+            f"<span class='lint-check-head'>"
+            f"<span class='lint-check-icon'>{html.escape(icon)}</span>"
+            f"<span class='lint-check-name'>{html.escape(name)}</span>"
+            f"<span class='lint-check-id'>{html.escape(cid)}</span>"
+            f"<span class='lint-check-status'>{html.escape(st)} · {len(issues)} issue{'s' if len(issues) != 1 else ''}</span>"
+            f"</span>"
+        )
+        if issues and st in ("fail", "warn", "error"):
+            parts.append("<ul class='lint-issue-list'>")
+            for issue in issues[:20]:  # 最多 20 条避免炸
+                msg = issue.get("message", "") or ""
+                file_ = issue.get("file") or ""
+                line = issue.get("line")
+                ref = issue.get("ref") or issue.get("target") or issue.get("skill_ref") or ""
+                pos = ""
+                if file_:
+                    pos = file_
+                    if line is not None:
+                        pos += f":{line}"
+                parts.append("<li class='lint-issue'>")
+                if pos:
+                    parts.append(f"<code>{html.escape(pos)}</code> ")
+                parts.append(html.escape(msg))
+                if ref:
+                    parts.append(f" <code class='lint-issue-ref'>{html.escape(str(ref))}</code>")
+                parts.append("</li>")
+            if len(issues) > 20:
+                parts.append(f"<li class='lint-issue-more'>… 还有 {len(issues) - 20} 条</li>")
+            parts.append("</ul>")
+        elif st == "pending":
+            # pending 单独提示一下不当作问题
+            parts.append("<p class='lint-check-pending-note'>未实现（Phase 2.5）</p>")
+        parts.append("</li>")
+    parts.append("</ul>")
+
+    parts.append("</div></div>")
 
 
 def _render_time_pills(parts: list, days: int, owner_filter: str):
@@ -169,7 +383,7 @@ OWNER_PREFERRED = [
 TABS = [
     ("overview",  "总览"),
     ("usage",     "工具使用"),
-    ("context",   "上下文"),
+    ("context",   "路由"),  # Phase 3.3：原"上下文"改为"路由"，tab id 保留
     ("memory",    "记忆"),
     ("news",      "每日AI大事"),
 ]
@@ -256,16 +470,8 @@ def render(days: int, owner_filter: str = "") -> str:
     from usage.render import _collect_owners
     ordered_owners = _collect_owners(active_data, cold_data_by_id)
 
-    # CLAUDE.md 分析
-    weighted_hits = build_weighted_event_counts(conn)
-    known_names = _collect_known_resources(conn)
-    claude_analyses = []
-    for md in list_claude_mds():
-        analysis = analyze_claude_md(md["path"], known_names, weighted_hits)
-        if analysis:
-            analysis["display_name"] = md["name"]
-            analysis["scope"] = md["scope"]
-            claude_analyses.append(analysis)
+    # Phase 3.3：Owner 路由足迹（context tab 重做）
+    session_routes = query_session_routing(conn, days, limit=50)
 
     mem_files = list_memory_browser()
     compact_files = list_compact_notes()
@@ -275,7 +481,7 @@ def render(days: int, owner_filter: str = "") -> str:
     _render_head(parts, owner_filter)
 
     # 穩定骨架: 永不變動的 header + sticky tab bar
-    _render_page_header(parts)
+    _render_page_header(parts, conn=conn)
     _render_tab_bar(parts, "overview")
 
     # Tab viewport: 固定 min-height, 內部各 tab 自帶所需控件
@@ -310,7 +516,7 @@ def render(days: int, owner_filter: str = "") -> str:
 
     # Tab 3: 上下文
     parts.append("<div class='tab-content' data-tab='context'>")
-    render_context(parts, claude_analyses=claude_analyses)
+    render_context(parts, session_routes=session_routes, days=days)
     parts.append("</div>")
 
     # Tab 4: 记忆

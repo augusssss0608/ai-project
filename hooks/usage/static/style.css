@@ -333,3 +333,128 @@
   background:rgba(63,185,80,.18);
   border-color:rgba(63,185,80,.4);
 }
+
+/* ============================================================
+ * Phase 3.2：Skill 触发漏斗
+ * ============================================================ */
+.funnel-filter{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  padding:10px 0 14px;
+}
+.funnel-chip{
+  font-family:var(--font-mono);
+  font-size:10px;
+  padding:5px 12px;
+  border-radius:2px;
+  border:1px solid var(--border-soft,rgba(120,150,184,.2));
+  background:transparent;
+  color:var(--text-soft,#8da4c4);
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:all var(--dur-fast,.16s) var(--ease-soft,ease);
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+.funnel-chip b{font-size:11px;font-weight:700;color:var(--text,#dbe6f4)}
+.funnel-chip:hover{border-color:var(--accent,#39ff14);color:var(--accent,#39ff14)}
+.funnel-chip.active{
+  background:rgba(57,255,20,.08);
+  border-color:rgba(57,255,20,.4);
+  color:var(--accent,#39ff14);
+}
+.funnel-chip-explicit-only{border-color:rgba(255,204,0,.32)}
+.funnel-chip-read-only{border-color:rgba(255,204,0,.32)}
+.funnel-chip-cold{border-color:rgba(120,150,184,.25)}
+.funnel-chip-paired{border-color:rgba(57,255,20,.32)}
+.funnel-chip-icon{font-size:11px}
+
+.funnel-table-wrap{
+  overflow-x:auto;
+  margin-bottom:18px;
+  border:1px solid var(--border-soft,rgba(120,150,184,.1));
+  border-radius:2px;
+}
+
+.funnel-table{
+  width:100%;
+  min-width:680px;
+  border-collapse:collapse;
+  font-size:11px;
+}
+
+/* 跟 owner 筛选解耦：两个独立 class 叠加生效 */
+.funnel-row.row-funnel-hidden{display:none !important}
+.funnel-table th{
+  text-align:left;
+  padding:6px 8px;
+  font-size:9px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--text-soft,#8da4c4);
+  border-bottom:1px solid var(--border-soft,rgba(120,150,184,.2));
+  font-weight:600;
+}
+.funnel-table th.num-col,
+.funnel-table td.num-col{
+  text-align:right;
+  width:64px;
+  font-family:var(--font-mono);
+}
+.funnel-table tbody td{
+  padding:7px 8px;
+  border-bottom:1px solid var(--border-soft,rgba(120,150,184,.08));
+  vertical-align:middle;
+}
+.funnel-row:hover{background:rgba(57,255,20,.03)}
+.funnel-row-explicit-only{background:rgba(255,204,0,.04)}
+.funnel-row-read-only{background:rgba(255,204,0,.025)}
+.funnel-row-cold{opacity:.6}
+.funnel-row.disabled-item{opacity:.4;text-decoration:line-through}
+.funnel-name{font-family:var(--font-mono);font-size:11px}
+.funnel-scope{
+  font-size:9px;
+  color:var(--text-soft);
+  margin-left:6px;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+.funnel-status{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  font-family:var(--font-mono);
+  font-size:9px;
+  padding:3px 8px;
+  border-radius:2px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  font-weight:600;
+  white-space:nowrap;
+}
+.funnel-status-ok{
+  background:rgba(57,255,20,.1);
+  color:var(--accent,#39ff14);
+  border:1px solid rgba(57,255,20,.32);
+}
+.funnel-status-warn{
+  background:rgba(255,204,0,.12);
+  color:var(--warning,#ffcc00);
+  border:1px solid rgba(255,204,0,.4);
+}
+.funnel-status-cold{
+  background:rgba(120,150,184,.08);
+  color:var(--text-soft,#8da4c4);
+  border:1px solid rgba(120,150,184,.25);
+}
+
+@media (max-width:680px){
+  .funnel-table{font-size:10px}
+  .funnel-table th{font-size:8px}
+  .funnel-table th.num-col,
+  .funnel-table td.num-col{width:48px}
+}

@@ -6,7 +6,10 @@ from shared.infra.core import (
     fmt_relative_time, fmt_last_seen,
     severity_cls,
 )
-from shared.data.queries import query_etype_aggregate, query_cold_progress
+from shared.data.queries import (
+    query_etype_aggregate, query_cold_progress,
+    build_skill_funnel_rows, funnel_status_counts,
+)
 from shared.http.render import (
     OWNER_PREFERRED,
     render_sparkline, _render_time_pills,
@@ -34,8 +37,105 @@ def render_usage(parts: list, *,
     _render_owner_filter(parts, ordered_owners, owner_filter)
     parts.append("</div>")
     parts.append("</div>")
+    _render_funnel_section(parts, active_data, sessions_maps, paired_maps,
+                            cold_data_by_id, last_seen_maps, owner_filter)
     _render_active_section(parts, active_data, sessions_maps, paired_maps, days, conn, owner_filter)
     _render_cold_section(parts, cold_data_by_id, last_seen_maps, overridden_user)
+
+
+_FUNNEL_STATUS_LABEL = {
+    "paired": ("✓", "已配对", "ok"),
+    "read-only": ("⚠", "读多无动作", "warn"),
+    "explicit-only": ("⚠", "调用未读", "warn"),
+    "cold": ("·", "长期冷藏", "cold"),
+}
+
+
+def _render_funnel_section(parts, active_data, sessions_maps, paired_maps,
+                            cold_data_by_id, last_seen_maps, owner_filter):
+    """Skill 触发漏斗：单表 + 状态筛选 chip + 异常优先排序."""
+    rows = build_skill_funnel_rows(active_data, sessions_maps, paired_maps,
+                                    cold_data_by_id, last_seen_maps)
+    counts = funnel_status_counts(rows)
+    total = len(rows)
+
+    parts.append("<details class='section collapsible' data-default-open open>")
+    parts.append("<summary class='section-head'>"
+                 "<span class='collapse-chevron'></span>"
+                 "<h2>Skill 触发漏斗</h2>"
+                 "<span class='meta'>read · explicit · session · 配对率 · 状态</span>"
+                 "</summary>")
+
+    # 状态筛选 chip
+    parts.append("<div class='funnel-filter' id='funnel-status-filter'>")
+    parts.append(f"<a class='funnel-chip active' href='#' data-funnel-status=''>全部 <b>{total}</b></a>")
+    for st in ("explicit-only", "read-only", "cold", "paired"):
+        icon, label, _ = _FUNNEL_STATUS_LABEL.get(st, ("?", st, ""))
+        n = counts.get(st, 0)
+        parts.append(
+            f"<a class='funnel-chip funnel-chip-{html.escape(st)}' href='#' "
+            f"data-funnel-status='{html.escape(st)}'>"
+            f"<span class='funnel-chip-icon'>{html.escape(icon)}</span>"
+            f"<span>{html.escape(label)}</span> <b>{n}</b>"
+            f"</a>"
+        )
+    parts.append("</div>")
+
+    if not rows:
+        parts.append("<div class='empty-note'>(无 skill 数据)</div>")
+        parts.append("</details>")
+        return
+
+    parts.append("<div class='funnel-table-wrap'>")
+    parts.append("<table class='funnel-table'>")
+    parts.append(
+        "<thead><tr>"
+        "<th>skill</th>"
+        "<th>owner</th>"
+        "<th class='num-col'>read</th>"
+        "<th class='num-col'>explicit</th>"
+        "<th class='num-col'>sessions</th>"
+        "<th class='num-col'>配对率</th>"
+        "<th>最近</th>"
+        "<th>状态</th>"
+        "</tr></thead>"
+    )
+    parts.append("<tbody>")
+    for r in rows:
+        st = r["status"]
+        icon, label, badge_cls = _FUNNEL_STATUS_LABEL.get(st, ("?", st, ""))
+        owner = r.get("owner") or "unknown"
+        owner_filter_attr = ""
+        if owner_filter and owner_filter != owner:
+            owner_filter_attr = " style='display:none'"
+        name_html = _file_link(r["name"], r["path"])
+        scope_tag = f"<span class='funnel-scope'>{html.escape(r['scope'] or '')}</span>" if r.get("scope") else ""
+        owner_html = f"<span class='owner-tag {html.escape(owner)}'>{html.escape(owner)}</span>"
+        last_seen = r.get("last_seen")
+        last_seen_str = fmt_relative_time(last_seen) if last_seen else "(从未)"
+        # 配对率
+        if r.get("pairable_total"):
+            paired_rate_str = f"{r['paired']}/{r['pairable_total']}"
+        else:
+            paired_rate_str = "—"
+        disabled_cls = " disabled-item" if r.get("disabled") else ""
+        parts.append(
+            f"<tr class='funnel-row funnel-row-{html.escape(st)}{disabled_cls}' "
+            f"data-funnel-status='{html.escape(st)}' data-owner='{html.escape(owner)}'{owner_filter_attr}>"
+            f"<td class='funnel-name'>{name_html}{scope_tag}</td>"
+            f"<td>{owner_html}</td>"
+            f"<td class='num-col'>{r['read']}</td>"
+            f"<td class='num-col'>{r['explicit']}</td>"
+            f"<td class='num-col'>{r['sessions']}</td>"
+            f"<td class='num-col'>{html.escape(paired_rate_str)}</td>"
+            f"<td>{html.escape(last_seen_str)}</td>"
+            f"<td><span class='funnel-status funnel-status-{html.escape(badge_cls)}'>"
+            f"{html.escape(icon)} {html.escape(label)}</span></td>"
+            f"</tr>"
+        )
+    parts.append("</tbody></table>")
+    parts.append("</div>")  # /funnel-table-wrap
+    parts.append("</details>")
 
 
 def cold_row_with_owner(

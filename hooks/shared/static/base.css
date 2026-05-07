@@ -1115,3 +1115,250 @@ footer{
   text-shadow:var(--glow-accent);
 }
 .summary-meter-btn:disabled{opacity:.5;cursor:wait}
+
+/* ============================================================
+ * Phase 3.1：工作区健康状态条
+ * ============================================================ */
+.page-actions{
+  display:flex;
+  align-items:center;
+  gap:var(--space-12, 12px);
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  margin-left:auto;
+}
+
+.health-strip{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.health-chip.sheet-btn{
+  margin-left:0;
+  min-height:32px;
+  padding:5px 10px;
+  border-radius:var(--radius-sm,2px);
+  font-size:10px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  white-space:nowrap;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-family:var(--font-mono);
+}
+
+.health-chip.sheet-btn::before{display:none}
+
+.health-chip-icon{
+  font-size:12px;
+  line-height:1;
+}
+
+.health-chip-count{
+  font-size:9px;
+  opacity:.75;
+}
+
+/* ok */
+.health-chip-ok.sheet-btn{
+  background:linear-gradient(180deg,rgba(57,255,20,.12),rgba(57,255,20,.04));
+  border:1px solid rgba(57,255,20,.32);
+  color:var(--accent);
+}
+/* warn */
+.health-chip-warn.sheet-btn{
+  background:linear-gradient(180deg,rgba(255,204,0,.12),rgba(255,204,0,.04));
+  border:1px solid rgba(255,204,0,.42);
+  color:var(--warning,#ffcc00);
+  text-shadow:none;
+  box-shadow:0 0 0 1px rgba(255,204,0,.08), 0 0 12px rgba(255,204,0,.1);
+}
+/* error */
+.health-chip-error.sheet-btn{
+  background:linear-gradient(180deg,rgba(255,51,102,.14),rgba(255,51,102,.04));
+  border:1px solid rgba(255,51,102,.45);
+  color:var(--danger,#ff3366);
+  text-shadow:none;
+  box-shadow:0 0 0 1px rgba(255,51,102,.1), 0 0 14px rgba(255,51,102,.1);
+}
+/* stale - 灰 */
+.health-chip-stale.sheet-btn{
+  background:linear-gradient(180deg,rgba(120,150,184,.08),rgba(120,150,184,.02));
+  border:1px solid rgba(120,150,184,.25);
+  color:var(--text-soft,#7896b8);
+  text-shadow:none;
+  box-shadow:none;
+}
+
+/* sheet 内部布局 */
+.health-summary{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px 16px;
+  margin:8px 0 16px;
+  font-size:11px;
+  color:var(--text-soft);
+}
+
+.health-summary-status{
+  font-weight:600;
+  font-size:12px;
+}
+
+.health-summary-status.status-ok{color:var(--accent)}
+.health-summary-status.status-warn,
+.health-summary-meta.status-warn{color:var(--warning,#ffcc00)}
+.health-summary-status.status-error,
+.health-summary-meta.status-error{color:var(--danger,#ff3366)}
+.health-summary-meta.status-ok{color:var(--accent)}
+
+.sheet-subtitle{
+  font-size:11px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--text-soft);
+  margin:18px 0 8px;
+  border-bottom:1px solid var(--border-soft,rgba(120,150,184,.15));
+  padding-bottom:6px;
+}
+
+.health-type-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:11px;
+  font-family:var(--font-mono);
+}
+.health-type-table th{
+  text-align:left;
+  padding:4px 8px;
+  font-size:9px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--text-soft);
+  border-bottom:1px solid var(--border-soft,rgba(120,150,184,.15));
+}
+.health-type-table td{
+  padding:6px 8px;
+  border-bottom:1px solid var(--border-soft,rgba(120,150,184,.08));
+}
+.health-type-table tr.last-never td{opacity:.5}
+
+.health-meta{
+  font-size:11px;
+  color:var(--text-soft);
+  margin:4px 0 8px;
+}
+
+.health-empty{
+  font-size:11px;
+  color:var(--text-soft);
+  font-style:italic;
+  padding:8px;
+}
+
+.health-log-preview{
+  background:rgba(0,0,0,.25);
+  border:1px solid var(--border-soft,rgba(120,150,184,.15));
+  border-radius:2px;
+  padding:8px 10px;
+  font-size:10px;
+  font-family:var(--font-mono);
+  max-height:280px;
+  overflow:auto;
+  color:var(--text-soft);
+  line-height:1.5;
+}
+
+/* lint check list */
+.lint-check-list{
+  list-style:none;
+  padding:0;
+  margin:0;
+}
+.lint-check{
+  border:1px solid var(--border-soft,rgba(120,150,184,.15));
+  border-radius:2px;
+  padding:8px 10px;
+  margin-bottom:6px;
+  font-size:11px;
+}
+.lint-check.status-fail,
+.lint-check.status-error{
+  border-color:rgba(255,51,102,.35);
+  background:rgba(255,51,102,.04);
+}
+.lint-check.status-warn{
+  border-color:rgba(255,204,0,.32);
+  background:rgba(255,204,0,.03);
+}
+.lint-check.status-pass{
+  opacity:.7;
+}
+.lint-check.status-pending,
+.lint-check.status-skip{
+  opacity:.5;
+}
+.lint-check-head{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.lint-check-icon{font-size:12px}
+.lint-check-name{font-weight:600}
+.lint-check-id{
+  font-family:var(--font-mono);
+  font-size:9px;
+  color:var(--text-soft);
+  letter-spacing:.05em;
+}
+.lint-check-status{
+  font-size:9px;
+  font-family:var(--font-mono);
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  margin-left:auto;
+  color:var(--text-soft);
+}
+
+.lint-issue-list{
+  list-style:none;
+  padding:6px 0 0 22px;
+  margin:6px 0 0;
+  border-top:1px dashed var(--border-soft,rgba(120,150,184,.18));
+}
+.lint-issue{
+  font-size:10px;
+  line-height:1.6;
+  margin-bottom:3px;
+  color:var(--text-soft);
+}
+.lint-issue code{
+  font-family:var(--font-mono);
+  font-size:9px;
+  color:var(--accent);
+  background:rgba(57,255,20,.04);
+  padding:1px 4px;
+  border-radius:2px;
+}
+.lint-issue-ref{color:var(--warning,#ffcc00) !important}
+.lint-issue-more{
+  font-size:10px;
+  color:var(--text-soft);
+  font-style:italic;
+  padding-left:22px;
+  margin-top:4px;
+}
+.lint-check-pending-note{
+  font-size:10px;
+  color:var(--text-soft);
+  font-style:italic;
+  margin:6px 0 0 22px;
+}
+
+@media (max-width:680px){
+  .page-actions{justify-content:flex-start;width:100%}
+  .health-chip.sheet-btn{padding:4px 8px;font-size:9px}
+}

@@ -628,3 +628,470 @@ def query_claude_md_aggregate(analysis: dict) -> dict:
         "discipline": discipline,
         "saveable_pct": int(100 * high_tok / max(total_tok, 1)),
     }
+
+
+# ============================================================
+# 区块: 工作区健康（Phase 3.1）
+# ============================================================
+import json as _json
+from collections import deque as _deque
+
+_TRACKER_ERRORS_LOG = os.path.expanduser("~/Desktop/ai-project/data/tracker-errors.log")
+_LINT_STATUS_FILE = os.path.expanduser("~/Desktop/ai-project/data/lint-status.json")
+
+
+def _read_tracker_errors_summary():
+    """读 tracker-errors.log，返回 {total_lines, recent_24h, recent_7d, last_20_lines, mtime}"""
+    out = {
+        "total_lines": 0,
+        "recent_24h": 0,
+        "recent_7d": 0,
+        "last_20_lines": [],
+        "mtime": None,
+        "exists": False,
+    }
+    if not os.path.isfile(_TRACKER_ERRORS_LOG):
+        return out
+    out["exists"] = True
+    try:
+        out["mtime"] = os.path.getmtime(_TRACKER_ERRORS_LOG)
+    except OSError:
+        pass
+    cutoff_24h = cutoff_ts(1)
+    cutoff_7d = cutoff_ts(7)
+    last_lines = _deque(maxlen=20)
+    total = 0
+    r24 = 0
+    r7d = 0
+    try:
+        with open(_TRACKER_ERRORS_LOG, "r", encoding="utf-8", errors="replace") as f:
+            for line in f:
+                line = line.rstrip("\n")
+                if not line.strip():
+                    continue
+                total += 1
+                last_lines.append(line)
+                # 行格式：[YYYY-MM-DDTHH:MM:SSZ] reason ...
+                if line.startswith("[") and len(line) >= 22:
+                    ts = line[1:21]  # YYYY-MM-DDTHH:MM:SSZ
+                    if ts >= cutoff_24h:
+                        r24 += 1
+                    if ts >= cutoff_7d:
+                        r7d += 1
+    except OSError:
+        pass
+    out["total_lines"] = total
+    out["recent_24h"] = r24
+    out["recent_7d"] = r7d
+    out["last_20_lines"] = list(last_lines)
+    return out
+
+
+def query_collection_health(conn) -> dict:
+    """工作区数据采集健康摘要（Phase 3.1 健康灯使用）
+
+    返回字段：
+      status: ok | warn | error | stale
+      events_24h, events_7d, total_events, last_event_at
+      empty_session_pct_24h
+      per_type_last_seen: [{type, label, last_seen}]
+      errors: tracker-errors.log 摘要
+    """
+    cutoff_24h = cutoff_ts(1)
+    cutoff_7d = cutoff_ts(7)
+
+    db_readable = True
+    events_24h = 0
+    events_7d = 0
+    total_events = 0
+    last_event_at = None
+    empty_24h = 0
+    last_seen_map = {}
+
+    try:
+        row = conn.execute(
+            "SELECT COUNT(*), SUM(CASE WHEN COALESCE(session,'')='' THEN 1 ELSE 0 END), MAX(ts) "
+            "FROM events WHERE ts >= ?",
+            (cutoff_24h,),
+        ).fetchone()
+        events_24h = row[0] or 0
+        empty_24h = row[1] or 0
+        # last_event_at: 用 24h 内 max；不行再扩
+        last_event_at = row[2]
+
+        row7 = conn.execute(
+            "SELECT COUNT(*) FROM events WHERE ts >= ?", (cutoff_7d,),
+        ).fetchone()
+        events_7d = row7[0] or 0
+
+        rowall = conn.execute(
+            "SELECT COUNT(*), MAX(ts) FROM events"
+        ).fetchone()
+        total_events = rowall[0] or 0
+        if not last_event_at:
+            last_event_at = rowall[1]
+
+        for etype, lts in conn.execute(
+            "SELECT type, MAX(ts) FROM events GROUP BY type"
+        ).fetchall():
+            last_seen_map[etype] = lts
+    except Exception:
+        db_readable = False
+
+    per_type = [
+        {"type": etype, "label": label, "last_seen": last_seen_map.get(etype)}
+        for etype, label, _pairable in EVENT_TYPES
+    ]
+
+    empty_pct_24h = (100.0 * empty_24h / events_24h) if events_24h > 0 else 0.0
+
+    errors = _read_tracker_errors_summary()
+
+    # 状态判定
+    status = _derive_collection_status(
+        db_readable=db_readable,
+        total_events=total_events,
+        events_24h=events_24h,
+        events_7d=events_7d,
+        last_event_at=last_event_at,
+        empty_pct_24h=empty_pct_24h,
+        recent_errors_24h=errors["recent_24h"],
+        recent_errors_7d=errors["recent_7d"],
+    )
+
+    return {
+        "status": status,
+        "events_24h": events_24h,
+        "events_7d": events_7d,
+        "total_events": total_events,
+        "last_event_at": last_event_at,
+        "empty_session_count_24h": empty_24h,
+        "empty_session_pct_24h": empty_pct_24h,
+        "per_type_last_seen": per_type,
+        "errors": errors,
+    }
+
+
+def _derive_collection_status(*, db_readable, total_events, events_24h, events_7d,
+                               last_event_at, empty_pct_24h,
+                               recent_errors_24h, recent_errors_7d) -> str:
+    if not db_readable:
+        return "error"
+    if total_events == 0 or not last_event_at:
+        return "stale"
+    if events_7d == 0:
+        return "error"
+    if recent_errors_24h >= 10 or recent_errors_7d >= 50:
+        return "error"
+    if events_24h == 0:
+        return "warn"
+    if recent_errors_7d > 0:
+        return "warn"
+    if empty_pct_24h > 0:
+        return "warn"
+    return "ok"
+
+
+def query_lint_status() -> dict | None:
+    """读 lint-status.json，文件不存在返回 None"""
+    if not os.path.isfile(_LINT_STATUS_FILE):
+        return None
+    try:
+        with open(_LINT_STATUS_FILE, "r", encoding="utf-8") as f:
+            return _json.load(f)
+    except (OSError, _json.JSONDecodeError):
+        return None
+
+
+def derive_lint_status(lint_json) -> str:
+    """从 lint-status.json 派生 ok/warn/error/stale 状态。
+    pending 不影响总状态（pending 是 Phase 2.5 占位，不是问题）"""
+    if lint_json is None:
+        return "stale"
+    if lint_json.get("error"):
+        return "error"
+    checks = lint_json.get("checks") or []
+    statuses = [c.get("status") for c in checks]
+
+    if "fail" in statuses:
+        return "error"
+
+    # last_run 缺失或解析失败视为 stale（防御性，避免老/坏 schema 误判 ok）
+    last_run_iso = lint_json.get("last_run")
+    if not last_run_iso:
+        return "stale"
+    try:
+        last_run = datetime.strptime(last_run_iso.rstrip("Z"), "%Y-%m-%dT%H:%M:%S").replace(tzinfo=timezone.utc)
+    except (ValueError, AttributeError):
+        return "stale"
+    if datetime.now(timezone.utc) - last_run > timedelta(days=7):
+        return "stale"
+
+    if lint_json.get("stale") is True:
+        return "stale"
+
+    if any(s == "warn" for s in statuses):
+        return "warn"
+
+    return "ok"
+
+
+def count_lint_issues(lint_json) -> dict:
+    """统计 lint 各类问题数量，用于 chip 显示"""
+    out = {"fail": 0, "warn": 0, "pending": 0, "pass": 0, "skip": 0, "error": 0}
+    if not lint_json:
+        return out
+    for c in lint_json.get("checks") or []:
+        st = c.get("status")
+        if st in out:
+            out[st] += 1
+    return out
+
+
+# ============================================================
+# 区块: Skill 触发漏斗（Phase 3.2）
+# ============================================================
+SKILL_FUNNEL_READ_ONLY_MIN = 5  # read 次数 >= 这个值才判 read-only 异常
+
+
+def build_skill_funnel_rows(active_data, sessions_maps, paired_maps,
+                             cold_data_by_id, last_seen_maps):
+    """聚合所有 skill 的 read + explicit + sessions + paired + last_seen + status
+
+    复用现有数据，不需要新 SQL。
+    返回 [{name, scope, owner, path, read, explicit, sessions, paired_rate, last_seen, status, disabled}]
+    """
+    # active 数据：[(name, scope, count, path, owner)]
+    read_rows = {
+        ((r[0] or ""), (r[1] or "")): (r[2], r[3] or "", r[4] or "unknown")
+        for r in active_data.get("skill_read", [])
+    }
+    explicit_rows = {
+        ((r[0] or ""), (r[1] or "")): (r[2], r[3] or "", r[4] or "unknown")
+        for r in active_data.get("skill_explicit", [])
+        if ":" not in (r[0] or "")  # 排除 plugin:cmd
+    }
+
+    universe = {}
+    for key, (_count, path, owner) in read_rows.items():
+        universe.setdefault(key, {})
+        universe[key]["path"] = path or universe[key].get("path", "")
+        universe[key]["owner"] = owner or universe[key].get("owner", "unknown")
+    for key, (_count, path, owner) in explicit_rows.items():
+        universe.setdefault(key, {})
+        universe[key]["path"] = path or universe[key].get("path", "")
+        universe[key]["owner"] = owner or universe[key].get("owner", "unknown")
+
+    # cold 数据并入 universe（用 cold_skills + cold_skills_explicit）
+    for section_id in ("cold_skills", "cold_skills_explicit"):
+        data = cold_data_by_id.get(section_id, {})
+        for item in data.get("cold", []) or []:
+            name = item.get("name", "")
+            scope = item.get("scope", "") or ""
+            if ":" in name:  # plugin cmd 排除
+                continue
+            key = (name, scope)
+            universe.setdefault(key, {})
+            universe[key].setdefault("path", item.get("path", ""))
+            universe[key].setdefault("owner", item.get("owner", "unknown"))
+            if item.get("disabled"):
+                universe[key]["disabled"] = True
+
+    read_sessions = sessions_maps.get("skill_read", {})
+    explicit_sessions = sessions_maps.get("skill_explicit", {})
+    paired_map = paired_maps.get("skill_read", {})
+    last_read = last_seen_maps.get("skill_read", {})
+    last_explicit = last_seen_maps.get("skill_explicit", {})
+
+    rows = []
+    for key, meta in universe.items():
+        read_count = read_rows.get(key, (0, "", ""))[0]
+        explicit_count = explicit_rows.get(key, (0, "", ""))[0]
+        sessions = max(read_sessions.get(key, 0), explicit_sessions.get(key, 0))
+        paired, pairable_total = paired_map.get(key, (0, 0))
+        paired_rate = (paired / pairable_total) if pairable_total else None
+        last_seen = max(
+            last_read.get(key, "") or "",
+            last_explicit.get(key, "") or "",
+        ) or None
+
+        # 状态判定（4 种）
+        if read_count == 0 and explicit_count == 0:
+            status = "cold"
+        elif explicit_count >= 1 and read_count == 0:
+            status = "explicit-only"
+        elif read_count >= 1 and explicit_count == 0:
+            # 任何 "读了但没显式调用" 都归 read-only（不再用 N1 阈值）
+            # 让 paired 严格表示 "read>=1 且 explicit>=1"
+            status = "read-only"
+        else:
+            status = "paired"
+
+        rows.append({
+            "name": key[0],
+            "scope": key[1],
+            "owner": meta.get("owner", "unknown"),
+            "path": meta.get("path", ""),
+            "read": read_count,
+            "explicit": explicit_count,
+            "sessions": sessions,
+            "paired_rate": paired_rate,
+            "paired": paired,
+            "pairable_total": pairable_total,
+            "last_seen": last_seen,
+            "status": status,
+            "disabled": bool(meta.get("disabled", False)),
+        })
+
+    # 排序：异常优先 + 同状态按最近触发倒序（用 stable sort 两步）
+    severity = {
+        "explicit-only": 0,
+        "read-only": 1,
+        "cold": 2,
+        "paired": 3,
+    }
+    # 第一步：按 last_seen 字符串倒序（ISO 格式可直接字典序比，最近的在前；空串排最后）
+    # cold 状态希望最久未触发优先，所以正序；其它倒序——分两组处理
+    def _last_seen_key(r):
+        ls = r.get("last_seen") or ""
+        if r["status"] == "cold":
+            # cold 内：从未触发（空串）和最久优先 → 空串映射到 "0"，正序
+            return ls or "0"
+        else:
+            # 其它：最近触发优先 → 字符串本身，配合 reverse 倒序
+            return ls
+    # 先按时间排（活跃组倒序，cold 组正序），再按 severity 稳定排序
+    rows.sort(key=lambda r: _last_seen_key(r), reverse=True)
+    # 把 cold 行重排为正序：先 sort 整体倒序后，cold 子集自然变成"近的在前"，需要单独翻转
+    cold_rows = [r for r in rows if r["status"] == "cold"]
+    other_rows = [r for r in rows if r["status"] != "cold"]
+    cold_rows.reverse()  # 倒序 → cold 内"最久未触发优先"
+    rows = other_rows + cold_rows
+    rows.sort(key=lambda r: severity.get(r["status"], 9))  # 稳定排序按 severity
+    return rows
+
+
+def funnel_status_counts(rows: list) -> dict:
+    out = {"paired": 0, "read-only": 0, "explicit-only": 0, "cold": 0}
+    for r in rows:
+        st = r["status"]
+        if st in out:
+            out[st] += 1
+    return out
+
+
+# ============================================================
+# 区块: Owner 路由足迹（Phase 3.3）
+# ============================================================
+ROUTING_OWNER_ORDER = ["live_app", "live3_app", "live4_go_talk",
+                       "live3_svr_api", "live3_svr_admin"]
+ROUTING_SESSION_EVENT_CAP = 100  # 单 session 展示事件数上限（>100 时前 50 后 50）
+
+
+def query_session_routing(conn, days: int, limit: int = 50) -> list:
+    """按 session 聚合最近 limit 个 session 的路由摘要，含事件时间线。
+
+    返回 [{
+      session_id, first_ts, last_ts, event_count, duration_seconds,
+      owners_involved, owner_distribution, events
+    }]，按 last_ts DESC 排序。
+
+    实现：两段式查询——先取 session summary，再 IN 一次性取事件。
+    """
+    cutoff = cutoff_ts(days)
+
+    # Step 1: session summary（按 last_ts 倒序取最近 limit 个）
+    summary_rows = conn.execute(
+        "SELECT session, MIN(ts), MAX(ts), COUNT(*) "
+        "FROM events WHERE ts >= ? AND COALESCE(session,'') != '' "
+        "GROUP BY session ORDER BY MAX(ts) DESC LIMIT ?",
+        (cutoff, limit),
+    ).fetchall()
+
+    if not summary_rows:
+        return []
+
+    session_ids = [row[0] for row in summary_rows]
+    placeholders = ",".join(["?"] * len(session_ids))
+
+    # Step 2: 批量取事件
+    event_rows = conn.execute(
+        f"SELECT session, ts, type, name, scope, path "
+        f"FROM events WHERE session IN ({placeholders}) AND ts >= ? "
+        f"ORDER BY session, ts",
+        (*session_ids, cutoff),
+    ).fetchall()
+
+    # 按 session 分组事件
+    events_by_session = {}
+    for sess, ts, etype, name, scope, path in event_rows:
+        events_by_session.setdefault(sess, []).append({
+            "ts": ts,
+            "type": etype,
+            "name": name or "",
+            "scope": scope or "",
+            "path": path or "",
+        })
+
+    # 计算 owner 归属（事件级）
+    out = []
+    for sess_id, first_ts, last_ts, event_count in summary_rows:
+        events = events_by_session.get(sess_id, [])
+        owner_dist = {}
+        for ev in events:
+            ow = compute_owner(ev["path"]) if ev["path"] else (
+                "live_app" if ev["type"] == "memory_read"
+                else "builtin" if ev["type"] == "subagent"
+                else "global"
+            )
+            ev["owner"] = ow
+            owner_dist[ow] = owner_dist.get(ow, 0) + 1
+
+        # 事件截断：>100 时前 50 + 后 50
+        truncated_count = 0
+        kept_events = events
+        if len(events) > ROUTING_SESSION_EVENT_CAP:
+            truncated_count = len(events) - ROUTING_SESSION_EVENT_CAP
+            kept_events = events[:50] + events[-50:]
+
+        # 计算跨度
+        try:
+            t0 = datetime.strptime(first_ts.rstrip("Z"), "%Y-%m-%dT%H:%M:%S")
+            t1 = datetime.strptime(last_ts.rstrip("Z"), "%Y-%m-%dT%H:%M:%S")
+            duration_s = int((t1 - t0).total_seconds())
+        except Exception:
+            duration_s = 0
+
+        owners_involved = [o for o in ROUTING_OWNER_ORDER if o in owner_dist]
+        # 把不在 ORDER 里的（builtin/global/unknown 等）追加在尾
+        for o in owner_dist:
+            if o not in ROUTING_OWNER_ORDER and o not in owners_involved:
+                owners_involved.append(o)
+
+        out.append({
+            "session_id": sess_id,
+            "first_ts": first_ts,
+            "last_ts": last_ts,
+            "event_count": event_count,
+            "duration_seconds": duration_s,
+            "owners_involved": owners_involved,
+            "owner_distribution": owner_dist,
+            "events": kept_events,
+            "truncated_count": truncated_count,
+        })
+    return out
+
+
+def fmt_duration(seconds: int) -> str:
+    """秒数 → 友好字符串：xd Xh / Xh Ym / Xm / Xs"""
+    if seconds < 60:
+        return f"{seconds}s"
+    if seconds < 3600:
+        return f"{seconds // 60}m"
+    if seconds < 86400:
+        h = seconds // 3600
+        m = (seconds % 3600) // 60
+        return f"{h}h {m}m" if m else f"{h}h"
+    d = seconds // 86400
+    h = (seconds % 86400) // 3600
+    return f"{d}d {h}h" if h else f"{d}d"

@@ -84,8 +84,8 @@ case "$TOOL_NAME" in
           --arg path "$FP" --arg sid "$SESSION" \
           '{ts:$ts,type:"skill_read",name:$name,scope:$scope,path:$path,session:$sid}')"
         ;;
-      */\.clinerules/*)
-        REL=$(printf '%s' "$FP" | sed -E 's|.*\.clinerules/||')
+      */\.claude/docs/*)
+        REL=$(printf '%s' "$FP" | sed -E 's|.*\.claude/docs/||')
         emit "$(jq -nc \
           --arg ts "$TS" --arg rel "$REL" --arg path "$FP" --arg sid "$SESSION" \
           '{ts:$ts,type:"clinerule_read",name:$rel,scope:"project",path:$path,session:$sid}')"

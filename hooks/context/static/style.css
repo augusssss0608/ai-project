@@ -193,3 +193,133 @@
 .prune-dot.prune-mid{background:rgba(210,153,34,.16);color:var(--warning);border-color:var(--warning)}
 
 .prune-dot.prune-low{background:rgba(63,185,80,.14);color:var(--success);border-color:var(--success)}
+
+/* ============================================================
+ * Phase 3.3：Owner 路由足迹（取代旧 prune_score 段级面板）
+ * ============================================================ */
+.routing-list{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+
+.routing-session{
+  border:1px solid var(--border-soft,rgba(120,150,184,.15));
+  border-radius:2px;
+  background:var(--bg-card,rgba(11,18,32,.5));
+}
+.routing-session[open]{
+  background:rgba(57,255,20,.02);
+  border-color:rgba(57,255,20,.18);
+}
+
+.routing-summary{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:10px 14px;
+  cursor:pointer;
+  font-size:11px;
+  list-style:none;
+  flex-wrap:wrap;
+}
+.routing-summary::-webkit-details-marker{display:none}
+.routing-summary::marker{content:''}
+.routing-summary::before{
+  content:'▸';
+  color:var(--text-soft);
+  font-size:10px;
+  transition:transform var(--dur-fast,.16s);
+  display:inline-block;
+}
+.routing-session[open] .routing-summary::before{
+  transform:rotate(90deg);
+  color:var(--accent);
+}
+
+.routing-time{font-family:var(--font-mono);font-size:11px;color:var(--text);min-width:80px}
+.routing-duration{font-family:var(--font-mono);font-size:10px;color:var(--text-soft);min-width:48px}
+.routing-events{font-family:var(--font-mono);font-size:10px;color:var(--text-soft);min-width:60px}
+
+.routing-owners{display:flex;gap:5px;flex-wrap:wrap;flex:1}
+
+.routing-owner-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  font-family:var(--font-mono);
+  font-size:9px;
+  padding:3px 7px;
+  border-radius:2px;
+  letter-spacing:.04em;
+  text-decoration:none;
+  white-space:nowrap;
+  border:1px solid transparent;
+  transition:all var(--dur-fast,.16s);
+}
+.routing-owner-chip b{font-size:10px;font-weight:700}
+.routing-owner-chip.hit{
+  border-color:rgba(57,255,20,.32);
+  background:rgba(57,255,20,.08);
+  color:var(--accent,#39ff14);
+}
+.routing-owner-chip.hit:hover{
+  background:rgba(57,255,20,.16);
+  border-color:rgba(57,255,20,.5);
+}
+.routing-owner-chip.miss{
+  border-color:rgba(120,150,184,.12);
+  background:transparent;
+  color:rgba(120,150,184,.4);
+  cursor:default;
+}
+.routing-owner-chip.secondary.hit{
+  border-color:rgba(140,160,200,.3);
+  background:rgba(140,160,200,.06);
+  color:var(--text-soft,#8da4c4);
+}
+
+.routing-cross-count{font-size:9px;color:var(--text-soft);font-family:var(--font-mono);white-space:nowrap}
+.routing-session-id{
+  font-family:var(--font-mono);font-size:9px;
+  color:var(--text-faint,#5a6f8a);letter-spacing:.05em;cursor:help;
+}
+
+.routing-timeline{
+  border-top:1px solid var(--border-soft,rgba(120,150,184,.1));
+  padding:8px 14px 14px;
+  background:rgba(0,0,0,.15);
+}
+
+.routing-truncated-note{
+  font-size:10px;
+  color:var(--warning,#ffcc00);
+  padding:6px 0;
+  font-style:italic;
+}
+
+.routing-timeline-table{width:100%;border-collapse:collapse;font-size:10px;font-family:var(--font-mono)}
+.routing-timeline-table th{
+  text-align:left;padding:4px 6px;
+  font-size:8px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--text-soft);
+  border-bottom:1px solid var(--border-soft,rgba(120,150,184,.15));
+}
+.routing-timeline-table td{
+  padding:3px 6px;
+  border-bottom:1px solid var(--border-soft,rgba(120,150,184,.05));
+  vertical-align:top;
+}
+.routing-event:hover{background:rgba(57,255,20,.04)}
+.routing-offset{color:var(--text-soft);width:60px;white-space:nowrap}
+.routing-type{width:120px}
+.routing-type code{
+  font-size:9px;
+  color:var(--accent);
+  background:rgba(57,255,20,.06);
+  padding:1px 4px;border-radius:2px;
+}
+.routing-name{word-break:break-word}
+.routing-name-faint{color:var(--text-soft);font-style:italic}
+
+@media (max-width:680px){
+  .routing-summary{gap:10px;font-size:10px}
+  .routing-time,.routing-duration,.routing-events{min-width:auto}
+  .routing-timeline-table{font-size:9px}
+}

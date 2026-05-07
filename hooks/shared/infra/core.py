@@ -122,7 +122,13 @@ def compute_owner(path: str) -> str:
         for sub_path, sub_name in SUBPROJECT_MAP.items():
             if rel == sub_path or rel.startswith(sub_path + os.sep):
                 return sub_name
-        # .clinerules/live3_app.md -> live3_app
+        # .claude/docs/live3_app.md -> live3_app（新结构）
+        if parts[0] == ".claude" and len(parts) >= 2 and parts[1] == "docs":
+            if len(parts) == 3 and parts[2].endswith(".md"):
+                stem = parts[2][:-3]
+                if stem in SUBPROJECT_NAMES_FLAT:
+                    return stem
+        # .clinerules/live3_app.md -> live3_app（历史兼容，处理 2026-05-04 前 DB 事件）
         if parts[0] == ".clinerules":
             if len(parts) == 2 and parts[1].endswith(".md"):
                 stem = parts[1][:-3]
