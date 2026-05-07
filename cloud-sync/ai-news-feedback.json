@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-05-06T13:59:15+09:00",
+  "updated_at": "2026-05-07T14:51:54+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -779,6 +779,96 @@
       "ts": "2026-05-06T13:59:15+09:00",
       "title": "AI didn",
       "source": "hackernews",
+      "score": "up"
+    },
+    "https://simonwillison.net/2026/May/6/vibe-coding-and-agentic-engineering/": {
+      "ts": "2026-05-07T14:46:01+09:00",
+      "title": "Vibe coding and agentic engineering are getting closer than I",
+      "source": "hackernews",
+      "score": "up"
+    },
+    "https://blog.cloudflare.com/agents-stripe-projects/": {
+      "ts": "2026-05-07T14:47:28+09:00",
+      "title": "Agents can now create Cloudflare accounts, buy domains, and deploy",
+      "source": "hackernews",
+      "score": "up"
+    },
+    "https://susam.net/inverse-laws-of-robotics.html": {
+      "ts": "2026-05-07T14:47:35+09:00",
+      "title": "Three Inverse Laws of AI",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://www.thatprivacyguy.com/blog/chrome-silent-nano-install/": {
+      "ts": "2026-05-07T14:47:40+09:00",
+      "title": "Google Chrome silently installs a 4 GB AI model on your device without consent",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://simonwillison.net/2026/May/6/code-w-claude-2026/#atom-everything": {
+      "ts": "2026-05-07T14:48:26+09:00",
+      "title": "Live blog: Code w/ Claude 2026",
+      "source": "simonw",
+      "score": "star"
+    },
+    "https://simonwillison.net/2026/May/6/vibe-coding-and-agentic-engineering/#atom-everything": {
+      "ts": "2026-05-07T14:48:32+09:00",
+      "title": "Vibe coding and agentic engineering are getting closer than I",
+      "source": "simonw",
+      "score": "down"
+    },
+    "https://simonwillison.net/2026/May/5/our-ai-started-a-cafe-in-stockholm/#atom-everything": {
+      "ts": "2026-05-07T14:48:39+09:00",
+      "title": "Our AI started a cafe in Stockholm",
+      "source": "simonw",
+      "score": "down"
+    },
+    "https://www.threads.com/@dimensiongiga/post/DX__6Xnj6AA": {
+      "ts": "2026-05-07T14:49:12+09:00",
+      "title": "Anthropic 剛剛把「初級分析師」整份工作流程打包，變成免費插件了",
+      "source": "threads",
+      "score": "star"
+    },
+    "https://www.threads.com/@charles_tychen/post/DYAUzJlE6_o": {
+      "ts": "2026-05-07T14:49:17+09:00",
+      "title": "Anthropic 拿下 SpaceX Colossus 1 資料中心的全部運算容量，一個月內上線 300+ MW（超過 22 萬顆 NVIDIA GPUs），直接回饋 Claude Pro 與 Max 訂閱者。",
+      "source": "threads",
+      "score": "star"
+    },
+    "https://www.threads.com/@thetechcosmo/post/DYA_jEGEr4f": {
+      "ts": "2026-05-07T14:49:21+09:00",
+      "title": "重大消息：SpaceX 與 Claude 宣布合作！",
+      "source": "threads",
+      "score": "star"
+    },
+    "https://www.threads.com/@moth.ai/post/DX_FszeCorQ": {
+      "ts": "2026-05-07T14:49:25+09:00",
+      "title": "🚨 Anthropic 重磅出招｜Claude 推出 5 大金融專用 AI Agent 模板，華爾街工作流程全面智能化",
+      "source": "threads",
+      "score": "star"
+    },
+    "https://www.threads.com/@movechannelai/post/DYAtRHYjit0": {
+      "ts": "2026-05-07T14:49:37+09:00",
+      "title": "2026 年用 AI，已經不是比誰的 Prompt 寫得漂亮。",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@kai_ch_chen/post/DX_xWBgEiRP": {
+      "ts": "2026-05-07T14:50:04+09:00",
+      "title": "GA4 MCP 能幫你做的事",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@austin1973/post/DX_gQMelPJv": {
+      "ts": "2026-05-07T14:50:20+09:00",
+      "title": "​Google 已經確認將於 2026 年 5 月 19 日（台灣時間 5 月 20 日凌晨 1 點）舉行年度開發者大會。這將是今年最重要的發表時刻。",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@lin__photograph/post/DYBJDgkgHqI": {
+      "ts": "2026-05-07T14:51:54+09:00",
+      "title": "【你以為你會用 AI,其實你還在「單線程」】",
+      "source": "threads",
       "score": "up"
     }
   },
