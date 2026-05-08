@@ -1,5 +1,60 @@
 # 正例 (用户标记有帮助)
-- (暂无)
+- [2026-05-07] (star) Anthropic 剛剛把「初級分析師」整份工作流程打包，變成免費插件了 — https://www.threads.com/@dimensiongiga/post/DX__6Xnj6AA
+- [2026-05-07] (star) Anthropic 拿下 SpaceX Colossus 1 資料中心的全部運算容量，一個月內上線 300+ MW（超過 22 萬顆 NVIDIA GPUs） — https://www.threads.com/@charles_tychen/post/DYAUzJlE6_o
+- [2026-05-07] (star) 重大消息：SpaceX 與 Claude 宣布合作！ — https://www.threads.com/@thetechcosmo/post/DYA_jEGEr4f
+- [2026-05-07] (star) Anthropic 重磅出招｜Claude 推出 5 大金融專用 AI Agent 模板 — https://www.threads.com/@moth.ai/post/DX_FszeCorQ
+- [2026-05-05] (star) 1分鐘帶你看完｜本週 AI 大事(5/4) — https://www.threads.com/@scps_jia/post/DX6SeT3gVxu
+- [2026-05-04] (star) OpenAI 為旗下 Codex 推出 `/goal` 指令，由「程式助手」進化為「自主開發者」 — https://www.threads.com/@ar.shek/post/DX4MKk1DbAE
+- [2026-05-07] 2026 年用 AI，已經不是比誰的 Prompt 寫得漂亮 — https://www.threads.com/@movechannelai/post/DYAtRHYjit0
+- [2026-05-07] GA4 MCP 能幫你做的事 — https://www.threads.com/@kai_ch_chen/post/DX_xWBgEiRP
+- [2026-05-07] Google 2026/5/19 開發者大會 — https://www.threads.com/@austin1973/post/DX_gQMelPJv
+- [2026-05-07] 你以為你會用 AI，其實你還在「單線程」 — https://www.threads.com/@lin__photograph/post/DYBJDgkgHqI
+- [2026-05-05] 我同時餵 4 個 AI — https://www.threads.com/@awoo_gw/post/DX6xWwyk_R0
+- [2026-05-05] 終於不用自己寫 app scripts 了 — https://www.threads.com/@kai_ch_chen/post/DX6pvLwk6c4
+- [2026-05-05] 用 Claude Code 從零做 native macOS 螢幕錄影 app + 本地 Whisper 逐字稿 — https://www.threads.com/@kakashiliu/post/DX6y730GZrR
+- [2026-05-05] 最近覺得 Claude 跟 ChatGPT 變笨了嗎？ — https://www.threads.com/@jiang_yude_coach/post/DX8BAqyj3uX
+- [2026-05-05] 若是有意見相左的 — https://www.threads.com/@maxstudio.biz/post/DX6LIuCj2sU
+- [2026-05-05] 每次有人在群組丟 GitHub 連結說「這個超好用」 — https://www.threads.com/@skinnerlee1225/post/DX5sfvBkZJm
+- [2026-05-04] 能不能出一張橫式的 — https://www.threads.com/@jiang_yude_coach/post/DX3FO3qE8wX
+- [2026-05-04] 昨天分享的那場 Matt Pocock 演講 — https://www.threads.com/@ci.fullstack/post/DX4YfIRHUNM
+- [2026-05-04] Browser-use — https://www.threads.com/@hsu_wenyen/post/DX3CttWFA1E
+- [2026-05-01] AI 終於不只是「聊天」了 — https://www.threads.com/@77mediabook/post/DXwnlVOkeJh
+- [2026-05-01] 如果你還只用 ChatGPT — https://www.threads.com/@wowscly/post/DXwczlQj7cQ
+- [2026-05-01] Token = 錢 — https://www.threads.com/@choeng_919/post/DXwxzJQj-3f
+- [2026-05-01] Anthropic 產品主管 Cat：95% 的自動化不算自動化 — https://www.threads.com/@chc_web_dev/post/DXv3VAGmYFQ
+- [2026-05-01] Gemini 對話中直接生成各種實用檔案 — https://www.threads.com/@bing_sunzhi/post/DXvWw8XjP7b
+- [2026-05-01] 今天去 Claude MAX 線上聚會講閃電講 — https://www.threads.com/@ci.fullstack/post/DXw1TEGFKNm
+- [2026-05-01] Hermes Agent self-improvement loop 把 skills 交給背景維護層 — https://www.threads.com/@vincent.chanw/post/DXwG895miFk
+- [2026-05-01] 二、人在外面，如何持續運作？ — https://www.threads.com/@hongde.chi/post/DXv2Q6ZkQDV
+- [2026-04-29] 沾上 Codex 了，Plan 比現在 Opus 4.6 好很多 — https://www.threads.com/@cab_late/post/DXrBT6IlEjz
+- [2026-04-29] GPT-5.5 智商測到 145 — https://www.threads.com/@hanlinhans/post/DXrdPGHkzVV
+- [2026-04-29] OpenAI 開源 Symphony，讓 Codex 自己接單干活 — https://www.threads.com/@yrzheee/post/DXrl_rzkczE
+- [2026-04-29] 很多人在吵 Claude 變爛 — https://www.threads.com/@maxstudio.biz/post/DXrvBJaDxoY
+- [2026-04-29] Claude 行動版側邊欄大改版！Dispatch、Code 整合，神秘 Conway — https://www.threads.com/@moth.ai/post/DXrFYggGTk-
+- [2026-04-29] [Agent Canvas] — https://www.threads.com/@codemeteor/post/DXrbgyhieH5
+- [2026-04-28] 之前很多人敲碗的 LINE 家庭群組機器人 — https://www.threads.com/@castlen3/post/DXoGXDECXlk
+- [2026-04-28] 替團隊導入 SDD (Specification-Driven Development) + OpenSpace + Super — https://www.threads.com/@simon.yhh/post/DXoz4uaAfiv
+- [2026-04-28] 聊一下最近在使用的不錯的 repo — https://www.threads.com/@ci.fullstack/post/DXo-ciLFD1z
+- [2026-04-28] Day15 我付錢 你學習 — https://www.threads.com/@chaskawu/post/DXpD0mtEmLu
+- [2026-04-28] GitHub Copilot 6/1 起改採「以量計費」 — https://www.threads.com/@solitude6060/post/DXpTYoYEyS5
+- [2026-04-27] Claude Cowork 設定第三方 LLM/API 抓 kilocode-auto/free — https://www.threads.com/@jamesjantw/post/DXnv-gklOoJ
 
 # 负例 (展示过但未点赞, >= 7 天)
-- (暂无)
+- [2026-04-25] 這幾天收到不少脆友詢價 — https://www.threads.com/@deepbrandinglab/post/DXfqV7eD0MX
+- [2026-04-25] Codex 內建 Image2 是真的太好用了 — https://www.threads.com/@0x0funky/post/DXfrPvRgVa0
+- [2026-04-25] 為了選對 AI 工具 — https://www.threads.com/@awoo_gw/post/DXhIYqyE0gr
+- [2026-04-25] Google 豪擲 400 億美元押注 Anthropic — https://www.threads.com/@moth.ai/post/DXiKR2xDy3H
+- [2026-04-27] DeepTutor 上線 111 天突破 20,000 Stars — https://www.threads.com/@altsol.tw/post/DXnmYyYj6F9
+- [2026-04-27] Claude 簡直太棒，剛入職靠 Claude 干活 — https://www.threads.com/@harveylmao/post/DXnr64fG6hT
+- [2026-04-28] 你以為 ChatGPT Images 2.0 只是用來生圖的 — https://www.threads.com/@answer00125/post/DXogGy4Ejce
+- [2026-04-28] 嘗試讓 GPT Image 2 提供多種畫風 — https://www.threads.com/@jaschiang/post/DXpAL0zE8RT
+- [2026-04-28] ChatGPT Images 2.0 整 Animation Sheet 配 Seedance 2.0 — https://www.threads.com/@mini_littlechanges/post/DXpXK3bkT4C
+- [2026-04-28] OpenAI 將重新定義手機，聯發科、Qualcomm 與立訊為關鍵供應商 — https://www.threads.com/@kuo.mingchi/post/DXnjs28D-OA
+- [2026-04-29] topmediai image-to-video 廣告 — https://www.threads.com/@topmediai_tw/post/DXqg9OIlTnL
+- [2026-04-29] 太好了😍 — https://www.threads.com/@yibims/post/DXsWPXak2pR
+- [2026-05-01] 24 小時內的一些新聞統整 — https://www.threads.com/@fredhongyi/post/DXvnEKnj04y
+- [2026-05-01] GA4 接上 MCP — https://www.threads.com/@kai_ch_chen/post/DXvuxJfGAv0
+- [2026-05-04] 台積電 PM 第31週週報｜Agent 時代 — https://www.threads.com/@yuyuchang.life/post/DX3Ty73FL89
+- [2026-05-04] 我做了一件很奇怪的事 — https://www.threads.com/@aiworklog/post/DX392IijGNk
+- [2026-05-04] MinerU：把任何 PDF 變成 AI 可讀格式的開源格式 — https://www.threads.com/@aiondaily/post/DX3tBq0kiWC
+- [2026-05-05] GPT 生成的圖片可以直接改了！！！！ — https://www.threads.com/@baby_30102/post/DX7BEc1E-sa
