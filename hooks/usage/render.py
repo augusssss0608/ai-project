@@ -44,10 +44,10 @@ def render_usage(parts: list, *,
 
 
 _FUNNEL_STATUS_LABEL = {
-    "paired": ("✓", "已配对", "ok"),
-    "read-only": ("⚠", "读多无动作", "warn"),
-    "explicit-only": ("⚠", "调用未读", "warn"),
-    "cold": ("·", "长期冷藏", "cold"),
+    "paired": ("✓", "已配对", "good"),
+    "read-only": ("⚠", "读多无动作", "mid"),
+    "explicit-only": ("⚠", "调用未读", "mid"),
+    "cold": ("·", "长期冷藏", "bad"),
 }
 
 
@@ -63,20 +63,24 @@ def _render_funnel_section(parts, active_data, sessions_maps, paired_maps,
     parts.append("<summary class='section-head'>"
                  "<span class='collapse-chevron'></span>"
                  "<h2>Skill 触发漏斗</h2>"
-                 "<span class='meta'>read · explicit · session · 配对率 · 状态</span>"
+                 "<span class='meta'>每个 skill 实际用得怎样</span>"
                  "</summary>")
+    parts.append(
+        "<p class='section-intro'>"
+        "一行一个 skill，看它是 “读了没用”、“点名没配对”，还是长期没人用。"
+        "异常项可以考虑改 SKILL.md 或下架。"
+        "</p>"
+    )
 
-    # 状态筛选 chip
-    parts.append("<div class='funnel-filter' id='funnel-status-filter'>")
-    parts.append(f"<a class='funnel-chip active' href='#' data-funnel-status=''>全部 <b>{total}</b></a>")
+    # 状态筛选 — 复用 .pill 现有筛选体系
+    parts.append("<div class='pills funnel-filter' id='funnel-status-filter'>")
+    parts.append(f"<a class='pill active' href='#' data-funnel-status=''>全部 <b>{total}</b></a>")
     for st in ("explicit-only", "read-only", "cold", "paired"):
         icon, label, _ = _FUNNEL_STATUS_LABEL.get(st, ("?", st, ""))
         n = counts.get(st, 0)
         parts.append(
-            f"<a class='funnel-chip funnel-chip-{html.escape(st)}' href='#' "
-            f"data-funnel-status='{html.escape(st)}'>"
-            f"<span class='funnel-chip-icon'>{html.escape(icon)}</span>"
-            f"<span>{html.escape(label)}</span> <b>{n}</b>"
+            f"<a class='pill' href='#' data-funnel-status='{html.escape(st)}'>"
+            f"{html.escape(icon)} {html.escape(label)} <b>{n}</b>"
             f"</a>"
         )
     parts.append("</div>")
@@ -86,21 +90,8 @@ def _render_funnel_section(parts, active_data, sessions_maps, paired_maps,
         parts.append("</details>")
         return
 
-    parts.append("<div class='funnel-table-wrap'>")
-    parts.append("<table class='funnel-table'>")
-    parts.append(
-        "<thead><tr>"
-        "<th>skill</th>"
-        "<th>owner</th>"
-        "<th class='num-col'>read</th>"
-        "<th class='num-col'>explicit</th>"
-        "<th class='num-col'>sessions</th>"
-        "<th class='num-col'>配对率</th>"
-        "<th>最近</th>"
-        "<th>状态</th>"
-        "</tr></thead>"
-    )
-    parts.append("<tbody>")
+    # 紧凑双行列表（不再用表格）
+    parts.append("<ul class='funnel-list'>")
     for r in rows:
         st = r["status"]
         icon, label, badge_cls = _FUNNEL_STATUS_LABEL.get(st, ("?", st, ""))
@@ -120,21 +111,23 @@ def _render_funnel_section(parts, active_data, sessions_maps, paired_maps,
             paired_rate_str = "—"
         disabled_cls = " disabled-item" if r.get("disabled") else ""
         parts.append(
-            f"<tr class='funnel-row funnel-row-{html.escape(st)}{disabled_cls}' "
+            f"<li class='funnel-item funnel-row funnel-item-{html.escape(badge_cls)}{disabled_cls}' "
             f"data-funnel-status='{html.escape(st)}' data-owner='{html.escape(owner)}'{owner_filter_attr}>"
-            f"<td class='funnel-name'>{name_html}{scope_tag}</td>"
-            f"<td>{owner_html}</td>"
-            f"<td class='num-col'>{r['read']}</td>"
-            f"<td class='num-col'>{r['explicit']}</td>"
-            f"<td class='num-col'>{r['sessions']}</td>"
-            f"<td class='num-col'>{html.escape(paired_rate_str)}</td>"
-            f"<td>{html.escape(last_seen_str)}</td>"
-            f"<td><span class='funnel-status funnel-status-{html.escape(badge_cls)}'>"
-            f"{html.escape(icon)} {html.escape(label)}</span></td>"
-            f"</tr>"
+            f"<span class='badge {html.escape(badge_cls)} funnel-item-status'>"
+            f"{html.escape(icon)} {html.escape(label)}</span>"
+            f"<span class='funnel-item-name'>{name_html}</span>"
+            f"{scope_tag or '<span class=\"funnel-scope funnel-scope-empty\"></span>'}"
+            f"{owner_html}"
+            f"<span class='funnel-item-metrics'>"
+            f"<span class='m-cell'><i>读</i><b>{r['read']}</b></span>"
+            f"<span class='m-cell'><i>调</i><b>{r['explicit']}</b></span>"
+            f"<span class='m-cell'><i>会话</i><b>{r['sessions']}</b></span>"
+            f"<span class='m-cell m-paired'><i>配对</i><b>{html.escape(paired_rate_str)}</b></span>"
+            f"</span>"
+            f"<span class='funnel-item-last'>最近 {html.escape(last_seen_str)}</span>"
+            f"</li>"
         )
-    parts.append("</tbody></table>")
-    parts.append("</div>")  # /funnel-table-wrap
+    parts.append("</ul>")
     parts.append("</details>")
 
 

@@ -241,14 +241,15 @@
 
   // ===== Phase 3.2: Skill 触发漏斗状态筛选 =====
   // 用独立 class .row-funnel-hidden（CSS !important）跟 owner 筛选解耦——两层筛选叠加
+  // chip 复用 .pill 样式，selector 用 [data-funnel-status] 区分常规 .pill
   const funnelFilter = document.getElementById('funnel-status-filter');
   if (funnelFilter) {
     funnelFilter.addEventListener('click', (e) => {
-      const chip = e.target.closest('.funnel-chip');
+      const chip = e.target.closest('.pill[data-funnel-status]');
       if (!chip) return;
       e.preventDefault();
       const target = chip.dataset.funnelStatus || '';
-      funnelFilter.querySelectorAll('.funnel-chip').forEach(c => {
+      funnelFilter.querySelectorAll('.pill[data-funnel-status]').forEach(c => {
         c.classList.toggle('active', c === chip);
       });
       document.querySelectorAll('.funnel-row').forEach(row => {

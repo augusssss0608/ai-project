@@ -125,6 +125,8 @@
   function closeAllSheets() {
     document.querySelectorAll('.sheet.open').forEach(s => s.classList.remove('open'));
     if (sheetOverlay) sheetOverlay.classList.remove('show');
+    document.body.classList.remove('sheet-open');
+    document.documentElement.classList.remove('sheet-open');
   }
   document.addEventListener('click', e => {
     const sb = e.target.closest('.sheet-btn');
@@ -135,6 +137,8 @@
         closeAllSheets();
         ensureOverlay().classList.add('show');
         target.classList.add('open');
+        document.body.classList.add('sheet-open');
+        document.documentElement.classList.add('sheet-open');
       }
       return;
     }

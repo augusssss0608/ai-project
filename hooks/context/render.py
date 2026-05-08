@@ -20,8 +20,15 @@ def render_context(parts: list, *, session_routes: list, days: int = 30):
     parts.append(
         "<div class='section-head'>"
         "<h2>Session 路由足迹</h2>"
-        f"<span class='meta'>最近 {len(session_routes)} 个 session（{days} 天窗口） · 点击行展开事件时间线</span>"
+        "<span class='meta'>每个会话跨了哪些子项目</span>"
         "</div>"
+    )
+    parts.append(
+        "<p class='section-intro'>"
+        "一行 = 一次 Claude 会话。色块代表读到的子项目，灰色代表没读到。"
+        "本应跨项目却只读一边时，可能是路由漏了；点行看完整事件时间线。"
+        f"（最近 {len(session_routes)} 个 session / {days} 天窗口）"
+        "</p>"
     )
 
     if not session_routes:
@@ -41,9 +48,14 @@ def _render_session_row(parts: list, sess: dict, days: int):
     sess_id_short = (sess["session_id"] or "")[:8]
     last_seen_str = fmt_relative_time(sess["last_ts"]) or sess["last_ts"]
     duration_str = fmt_duration(sess["duration_seconds"])
-    owners_count = len(sess["owners_involved"])
+    # 只看命中的 owner（按 event 数排序）
+    owner_dist = sess["owner_distribution"] or {}
+    hit_owners = sorted(owner_dist.items(), key=lambda kv: -kv[1])
+    owners_count = len(hit_owners)
+    total_events = sess["event_count"] or 1
 
-    parts.append("<details class='routing-session'>")
+    # 默认展开
+    parts.append("<details class='routing-session' open>")
     parts.append("<summary class='routing-summary'>")
     parts.append(
         f"<span class='routing-time'>{html.escape(last_seen_str)}</span>"
@@ -51,52 +63,40 @@ def _render_session_row(parts: list, sess: dict, days: int):
         f"<span class='routing-events'>{sess['event_count']} 事件</span>"
     )
 
-    # owner 色块序列（5 个固定 + 其它追加）
-    parts.append("<span class='routing-owners'>")
-    for owner in ROUTING_OWNER_ORDER:
-        count = sess["owner_distribution"].get(owner, 0)
-        if count > 0:
-            parts.append(_render_owner_chip(owner, count, days, hit=True))
-        else:
-            parts.append(_render_owner_chip(owner, 0, days, hit=False))
-    # 其它 owner（builtin / global / unknown 等）
-    extras = [o for o in sess["owners_involved"] if o not in ROUTING_OWNER_ORDER]
-    for owner in extras:
-        count = sess["owner_distribution"].get(owner, 0)
-        parts.append(_render_owner_chip(owner, count, days, hit=True, secondary=True))
-    parts.append("</span>")
+    # owner 比例 bar（按 event 数分段染色，仅命中）
+    parts.append("<div class='routing-owner-vis'>")
+    parts.append("<div class='routing-bar'>")
+    for owner, count in hit_owners:
+        pct = (count / total_events) * 100
+        if pct < 0.5:
+            continue
+        parts.append(
+            f"<span class='routing-bar-segment owner-{html.escape(owner)}' "
+            f"style='width:{pct:.1f}%'></span>"
+        )
+    parts.append("</div>")
+    # 命中 owner 列表（仅命中，标签不可点击）
+    parts.append("<div class='routing-owner-chips'>")
+    for owner, count in hit_owners:
+        pct = (count / total_events) * 100
+        parts.append(
+            f"<span class='owner-tag {html.escape(owner)}'>"
+            f"{html.escape(owner)} <b>{pct:.0f}%</b></span>"
+        )
+    parts.append("</div>")
+    parts.append("</div>")
 
     # 跨 owner 数（弱提示）
-    parts.append(f"<span class='routing-cross-count'>跨 {owners_count} owner</span>")
-    parts.append(f"<span class='routing-session-id' data-tip='{html.escape(sess['session_id'])}'>"
-                 f"{html.escape(sess_id_short)}…</span>")
+    parts.append(
+        f"<span class='routing-cross-count'>"
+        f"<b>{owners_count}</b> 个项目"
+        f"</span>"
+    )
     parts.append("</summary>")
 
     # 展开事件时间线
     _render_session_timeline(parts, sess)
     parts.append("</details>")
-
-
-def _render_owner_chip(owner: str, count: int, days: int, hit: bool, secondary: bool = False) -> str:
-    cls = "routing-owner-chip"
-    if hit:
-        cls += " hit"
-    else:
-        cls += " miss"
-    if secondary:
-        cls += " secondary"
-    cls += f" owner-{html.escape(owner)}"
-    label = html.escape(owner)
-    count_html = f"<b>{count}</b>" if hit and count > 0 else ""
-    if hit:
-        # 跳到 usage tab，按 owner 筛选
-        href = f"/?days={int(days)}&owner={html.escape(owner)}#usage"
-        return (
-            f"<a class='{cls}' href='{href}' "
-            f"data-tip='跳转到 工具使用 tab，按 {label} 筛选'>"
-            f"{label}{count_html}</a>"
-        )
-    return f"<span class='{cls}' aria-disabled='true'>{label}</span>"
 
 
 def _render_session_timeline(parts: list, sess: dict):
@@ -117,7 +117,7 @@ def _render_session_timeline(parts: list, sess: dict):
     parts.append("<table class='routing-timeline-table'>")
     parts.append(
         "<thead><tr>"
-        "<th>+offset</th><th>type</th><th>name</th><th>owner</th>"
+        "<th>+offset</th><th>event</th><th>owner</th>"
         "</tr></thead><tbody>"
     )
     first_ts_unix = _ts_to_unix(sess["first_ts"])
@@ -131,8 +131,10 @@ def _render_session_timeline(parts: list, sess: dict):
         parts.append(
             f"<tr class='routing-event routing-event-{html.escape(type_label)}'>"
             f"<td class='routing-offset'>{html.escape(offset_str)}</td>"
-            f"<td class='routing-type'><code>{html.escape(type_label)}</code></td>"
-            f"<td class='routing-name'>{name_html}</td>"
+            f"<td class='routing-event-cell'>"
+            f"<span class='routing-type-prefix'>{html.escape(type_label)}</span>"
+            f"{name_html}"
+            f"</td>"
             f"<td><span class='owner-tag {html.escape(owner)}'>{html.escape(owner)}</span></td>"
             f"</tr>"
         )

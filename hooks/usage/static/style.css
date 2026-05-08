@@ -335,126 +335,150 @@
 }
 
 /* ============================================================
- * Phase 3.2：Skill 触发漏斗
+ * Phase 3.2：Skill 触发漏斗（紧凑双行列表，不用表格）
  * ============================================================ */
-.funnel-filter{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  padding:10px 0 14px;
-}
-.funnel-chip{
-  font-family:var(--font-mono);
-  font-size:10px;
-  padding:5px 12px;
-  border-radius:2px;
-  border:1px solid var(--border-soft,rgba(120,150,184,.2));
-  background:transparent;
-  color:var(--text-soft,#8da4c4);
-  letter-spacing:.06em;
-  text-transform:uppercase;
-  cursor:pointer;
-  transition:all var(--dur-fast,.16s) var(--ease-soft,ease);
-  text-decoration:none;
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-}
-.funnel-chip b{font-size:11px;font-weight:700;color:var(--text,#dbe6f4)}
-.funnel-chip:hover{border-color:var(--accent,#39ff14);color:var(--accent,#39ff14)}
-.funnel-chip.active{
-  background:rgba(57,255,20,.08);
-  border-color:rgba(57,255,20,.4);
-  color:var(--accent,#39ff14);
-}
-.funnel-chip-explicit-only{border-color:rgba(255,204,0,.32)}
-.funnel-chip-read-only{border-color:rgba(255,204,0,.32)}
-.funnel-chip-cold{border-color:rgba(120,150,184,.25)}
-.funnel-chip-paired{border-color:rgba(57,255,20,.32)}
-.funnel-chip-icon{font-size:11px}
+.funnel-filter{padding:0 0 var(--space-12)}
 
-.funnel-table-wrap{
-  overflow-x:auto;
-  margin-bottom:18px;
-  border:1px solid var(--border-soft,rgba(120,150,184,.1));
-  border-radius:2px;
-}
-
-.funnel-table{
-  width:100%;
-  min-width:680px;
-  border-collapse:collapse;
-  font-size:11px;
+.funnel-list{
+  list-style:none;
+  padding:0;
+  margin:0 0 var(--space-16);
+  background:var(--card-bg);
+  border:1px solid var(--card-border);
+  border-radius:var(--radius-md);
+  box-shadow:var(--shadow-sm);
+  overflow:hidden;
 }
 
 /* 跟 owner 筛选解耦：两个独立 class 叠加生效 */
 .funnel-row.row-funnel-hidden{display:none !important}
-.funnel-table th{
-  text-align:left;
-  padding:6px 8px;
-  font-size:9px;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  color:var(--text-soft,#8da4c4);
-  border-bottom:1px solid var(--border-soft,rgba(120,150,184,.2));
-  font-weight:600;
-}
-.funnel-table th.num-col,
-.funnel-table td.num-col{
-  text-align:right;
-  width:64px;
-  font-family:var(--font-mono);
-}
-.funnel-table tbody td{
-  padding:7px 8px;
-  border-bottom:1px solid var(--border-soft,rgba(120,150,184,.08));
-  vertical-align:middle;
-}
-.funnel-row:hover{background:rgba(57,255,20,.03)}
-.funnel-row-explicit-only{background:rgba(255,204,0,.04)}
-.funnel-row-read-only{background:rgba(255,204,0,.025)}
-.funnel-row-cold{opacity:.6}
-.funnel-row.disabled-item{opacity:.4;text-decoration:line-through}
-.funnel-name{font-family:var(--font-mono);font-size:11px}
-.funnel-scope{
-  font-size:9px;
-  color:var(--text-soft);
-  margin-left:6px;
-  text-transform:uppercase;
-  letter-spacing:.05em;
-}
-.funnel-status{
-  display:inline-flex;
+
+/* grid 布局：固定列宽让 scope / owner / metrics 跨行对齐 */
+.funnel-item{
+  display:grid;
+  grid-template-columns:
+    [status]   108px
+    [name]     minmax(160px, 1fr)
+    [scope]    64px
+    [owner]    98px
+    [metrics]  auto
+    [last]     104px;
   align-items:center;
-  gap:4px;
-  font-family:var(--font-mono);
-  font-size:9px;
+  gap:14px;
+  padding:10px var(--space-12);
+  border-bottom:1px solid rgba(120,150,184,.06);
+  font-size:11px;
+}
+.funnel-item:last-child{border-bottom:none}
+.funnel-item:hover{background:rgba(120,150,184,.05)}
+
+/* 状态 badge 前置 */
+.funnel-item-status.badge{
+  width:108px;
+  text-align:center;
+  font-size:10px;
+  letter-spacing:.04em;
   padding:3px 8px;
-  border-radius:2px;
-  letter-spacing:.06em;
-  text-transform:uppercase;
-  font-weight:600;
-  white-space:nowrap;
-}
-.funnel-status-ok{
-  background:rgba(57,255,20,.1);
-  color:var(--accent,#39ff14);
-  border:1px solid rgba(57,255,20,.32);
-}
-.funnel-status-warn{
-  background:rgba(255,204,0,.12);
-  color:var(--warning,#ffcc00);
-  border:1px solid rgba(255,204,0,.4);
-}
-.funnel-status-cold{
-  background:rgba(120,150,184,.08);
-  color:var(--text-soft,#8da4c4);
-  border:1px solid rgba(120,150,184,.25);
 }
 
+/* skill 名字：字号比之前大 + 不带下划线 */
+.funnel-item-name{
+  font-family:var(--font-mono);
+  font-size:13px;
+  font-weight:500;
+  color:var(--text);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  min-width:0;
+}
+.funnel-item-name a.open-link,
+.funnel-item-name a.open-link:hover{
+  color:inherit;
+  text-decoration:none;
+  border-bottom:none;
+}
+.funnel-item-name a.open-link:hover{color:var(--accent-bright)}
+
+/* scope 跟 owner-tag 同款小标签 */
+.funnel-scope{
+  display:inline-block;
+  font-size:8px;
+  padding:1px 5px;
+  border-radius:2px;
+  background:rgba(120,150,184,.06);
+  border:1px solid rgba(120,150,184,.16);
+  color:var(--text-soft);
+  letter-spacing:.05em;
+  text-transform:uppercase;
+  text-align:center;
+  margin-left:0;
+  justify-self:end;
+}
+/* scope 为空时占位但隐形（保持 grid 列对齐） */
+.funnel-scope-empty{
+  background:transparent;
+  border-color:transparent;
+}
+
+/* owner-tag 跟 skill 名同一行 */
+.funnel-item > .owner-tag{
+  font-size:8px;
+  padding:1px 5px;
+  margin-left:0;
+  letter-spacing:.05em;
+  justify-self:start;
+}
+
+/* 4 个数字组合：读 调 会话 配对 — 用内部 grid 让数字对齐 */
+.funnel-item-metrics{
+  display:grid;
+  grid-template-columns:repeat(4, 78px);
+  gap:8px;
+  font-family:var(--font-mono);
+  font-size:11px;
+  color:var(--text);
+  font-variant-numeric:tabular-nums;
+  justify-self:end;
+}
+.funnel-item-metrics .m-cell{
+  display:inline-flex;
+  align-items:baseline;
+  gap:5px;
+}
+.funnel-item-metrics i{
+  font-style:normal;
+  font-size:9px;
+  color:var(--text-soft);
+  letter-spacing:.05em;
+  flex-shrink:0;
+}
+.funnel-item-metrics b{font-weight:500;font-variant-numeric:tabular-nums}
+.funnel-item-metrics .m-paired b{color:var(--text-soft);font-size:10px}
+
+.funnel-item-last{
+  font-family:var(--font-mono);
+  font-size:10px;
+  color:var(--text-soft);
+  text-align:right;
+  white-space:nowrap;
+}
+
+.funnel-item.disabled-item{opacity:.4}
+.funnel-item.disabled-item .funnel-item-name a.open-link{text-decoration:line-through}
+.funnel-item-bad{opacity:.7}
+
+@media (max-width:1280px){
+  .funnel-item{
+    grid-template-columns:108px minmax(160px, 1fr) 64px 98px;
+    grid-template-rows:auto auto;
+    row-gap:6px;
+  }
+  .funnel-item-metrics{grid-column:1 / -1;justify-self:start}
+  .funnel-item-last{grid-column:1 / -1;text-align:left}
+}
 @media (max-width:680px){
-  .funnel-table{font-size:10px}
-  .funnel-table th{font-size:8px}
-  .funnel-table th.num-col,
-  .funnel-table td.num-col{width:48px}
+  .funnel-item{grid-template-columns:1fr}
+  .funnel-item-status.badge{width:auto;justify-self:start}
+  .funnel-item-metrics{grid-template-columns:repeat(2, 1fr);width:100%}
 }

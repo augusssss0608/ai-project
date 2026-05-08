@@ -133,6 +133,37 @@ _HEALTH_STATUS_LABEL = {
     "stale": ("·", "未生成"),
 }
 
+# lint check 状态图标（独立于 chip 总状态，避免相互污染）
+_LINT_CHECK_ICON = {
+    "pass": ("✓", "通过"),
+    "fail": ("✗", "失败"),
+    "warn": ("⚠", "注意"),
+    "pending": ("·", "待实现"),
+    "skip": ("·", "跳过"),
+    "error": ("✗", "异常"),
+}
+
+
+def _fmt_lint_run_time(ts_iso: str) -> str:
+    """lint 'last_run' 专用：今 HH:MM / 昨 HH:MM / MM-DD HH:MM
+    跟 fmt_relative_time 区别：今天也带"今 "前缀，避免单看 "00:07" 不知道是哪天
+    """
+    if not ts_iso:
+        return ""
+    from datetime import datetime, timezone
+    try:
+        dt = datetime.strptime(ts_iso.rstrip("Z"), "%Y-%m-%dT%H:%M:%S").replace(tzinfo=timezone.utc)
+        local = dt.astimezone()
+    except Exception:
+        return ts_iso
+    today = datetime.now().astimezone().date()
+    delta = (today - local.date()).days
+    if delta == 0:
+        return "今 " + local.strftime("%H:%M")
+    if delta == 1:
+        return "昨 " + local.strftime("%H:%M")
+    return local.strftime("%m-%d %H:%M")
+
 
 def _render_page_header(parts: list, conn=None):
     """穩定骨架的頁面標題層 (永不隨 tab 變動)."""
@@ -209,9 +240,7 @@ def _render_health_chip(sheet_id: str, label: str, status: str, count_text: str)
 
 def _render_collection_health_sheet(parts: list, health: dict):
     parts.append("<div class='sheet' id='collection-health-sheet'>")
-    parts.append("<div class='sheet-head'><h3>采集健康</h3>")
-    parts.append("<button class='sheet-close'>×</button>")
-    parts.append("</div>")
+    parts.append("<div class='sheet-head'><h3>采集健康</h3></div>")
     parts.append("<div class='sheet-body'>")
 
     # 总览
@@ -261,10 +290,13 @@ def _render_collection_health_sheet(parts: list, health: dict):
 
 def _render_lint_health_sheet(parts: list, lint: dict | None, counts: dict):
     parts.append("<div class='sheet' id='lint-health-sheet'>")
-    parts.append("<div class='sheet-head'><h3>配置健康（workspace-lint）</h3>")
-    parts.append("<button class='sheet-close'>×</button>")
-    parts.append("</div>")
+    parts.append("<div class='sheet-head'><h3>配置健康（workspace-lint）</h3></div>")
     parts.append("<div class='sheet-body'>")
+    parts.append(
+        "<p class='section-intro'>"
+        "8 项配置自动检查。有 ⚠ 或 ✗ 时直接看下面哪条挂了。"
+        "</p>"
+    )
 
     if lint is None:
         parts.append(
@@ -284,7 +316,7 @@ def _render_lint_health_sheet(parts: list, lint: dict | None, counts: dict):
     fp = lint.get("fingerprint") or ""
     fp_short = fp[:12] if fp else "—"
     parts.append("<div class='health-summary'>")
-    parts.append(f"<span class='health-summary-meta'>上次跑: {html.escape(fmt_relative_time(last_run) or last_run)}</span>")
+    parts.append(f"<span class='health-summary-meta'>上次跑: {html.escape(_fmt_lint_run_time(last_run))}</span>")
     parts.append(f"<span class='health-summary-meta'>触发: <code>{html.escape(trigger)}</code></span>")
     if duration is not None:
         parts.append(f"<span class='health-summary-meta'>耗时: {html.escape(str(duration))} ms</span>")
@@ -318,7 +350,7 @@ def _render_lint_health_sheet(parts: list, lint: dict | None, counts: dict):
         name = c.get("name", cid)
         st = c.get("status", "?")
         issues = c.get("issues") or []
-        icon, _ = _HEALTH_STATUS_LABEL.get(st, ("?", ""))
+        icon, _ = _LINT_CHECK_ICON.get(st, ("·", ""))
         parts.append(f"<li class='lint-check status-{html.escape(st)}'>")
         parts.append(
             f"<span class='lint-check-head'>"
