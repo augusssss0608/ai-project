@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-05-07T14:51:54+09:00",
+  "updated_at": "2026-05-08T14:18:59+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -870,6 +870,90 @@
       "title": "【你以為你會用 AI,其實你還在「單線程」】",
       "source": "threads",
       "score": "up"
+    },
+    "https://www.anthropic.com/news/higher-limits-spacex": {
+      "ts": "2026-05-08T14:15:39+09:00",
+      "title": "Higher usage limits for Claude and a compute deal with SpaceX",
+      "source": "hackernews",
+      "score": "up"
+    },
+    "https://bsuh.bearblog.dev/agents-need-control-flow/": {
+      "ts": "2026-05-08T14:15:48+09:00",
+      "title": "Agents need control flow, not more prompts",
+      "source": "hackernews",
+      "score": "up"
+    },
+    "https://github.com/anthropics/financial-services": {
+      "ts": "2026-05-08T14:16:04+09:00",
+      "title": "anthropics/financial-services",
+      "source": "github_trending",
+      "score": "up"
+    },
+    "https://simonwillison.net/2026/May/7/xai-anthropic/#atom-everything": {
+      "ts": "2026-05-08T14:16:35+09:00",
+      "title": "Notes on the xAI/Anthropic data center deal",
+      "source": "simonw",
+      "score": "up"
+    },
+    "https://simonwillison.net/2026/May/7/firefox-claude-mythos/#atom-everything": {
+      "ts": "2026-05-08T14:16:43+09:00",
+      "title": "Behind the Scenes Hardening Firefox with Claude Mythos Preview",
+      "source": "simonw",
+      "score": "up"
+    },
+    "https://simonwillison.net/2026/May/7/llm-gemini/#atom-everything": {
+      "ts": "2026-05-08T14:16:48+09:00",
+      "title": "llm-gemini 0.31",
+      "source": "simonw",
+      "score": "up"
+    },
+    "https://www.threads.com/@wesleylavie/post/DYCWS0skr2I": {
+      "ts": "2026-05-08T14:17:10+09:00",
+      "title": "上週看完《大會計師》的靈感，用Claude Code 開發財報分析Skill，只要輸入股票代號或是公司名稱，就可以根據公司三表產出經營分析、獲利分析跟財務健全分析儀表板，每個財報數據都有趨勢解說。對於學習看財報的人來說很有幫助！",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@miulaviewpoint/post/DYDyVbUEwef": {
+      "ts": "2026-05-08T14:17:22+09:00",
+      "title": "任何以 AI 競賽已經結束某某公司遙遙領先另一家公司已經沒救為基礎的論述，基本上都可以跳過不看，沒有參考價值。AI 競賽現在也只是三局上半，任何領先都可能被逆轉。",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@software_ai_life/post/DYCUupqgmiU": {
+      "ts": "2026-05-08T14:17:26+09:00",
+      "title": "你各位玩過codex + hyperframes了嗎！！",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@cooljerrett/post/DYDtUC7k49V": {
+      "ts": "2026-05-08T14:17:42+09:00",
+      "title": "OpenAI 宣布 Codex 正式支援 Chrome 瀏覽器擴充功能（macOS 與 Windows，跟Claude chrome extension類似)，背景平行多分頁執行：可在多個分頁同時工作，完全不接管你的瀏覽器（不會搶焦點或卡住",
+      "source": "threads",
+      "score": "star"
+    },
+    "https://www.threads.com/@tripleh.ai/post/DYDv-S3ExSm": {
+      "ts": "2026-05-08T14:18:03+09:00",
+      "title": "把 deep research 留在自己手上，這個爆紅 GitHub 專案我覺得很有感。🚀",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@moth.ai/post/DYDsRG7mWeT": {
+      "ts": "2026-05-08T14:18:19+09:00",
+      "title": "Anthropic 三大更新讓個體戶 AI 自動化品質起飛:Agent 自己進化、自己驗收、自己分工",
+      "source": "threads",
+      "score": "star"
+    },
+    "https://www.threads.com/@brew.agent/post/DYBfgR4iRQs": {
+      "ts": "2026-05-08T14:18:29+09:00",
+      "title": "✨ Claude Code 2.1.132 正式發佈，包含 28 項 CLI 變更及 2 項系統提示詞更新。",
+      "source": "threads",
+      "score": "star"
+    },
+    "https://www.threads.com/@tripleh.ai/post/DYD2pd8EyvZ": {
+      "ts": "2026-05-08T14:18:59+09:00",
+      "title": "很多人以為，擴散模型對齊只要把多個 reward 加總就好；但我看完今天 Hugging Face Daily Papers 冠軍《MARBLE》後，反而更確定：真正難的不是「reward 多」，而是每張圖的有效訊號根本不在同一個面向。🎯",
+      "source": "threads",
+      "score": "down"
     }
   },
   "favorites": {
