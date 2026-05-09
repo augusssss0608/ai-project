@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-05-08T14:18:59+09:00",
+  "updated_at": "2026-05-09T14:44:38+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -954,6 +954,54 @@
       "title": "很多人以為，擴散模型對齊只要把多個 reward 加總就好；但我看完今天 Hugging Face Daily Papers 冠軍《MARBLE》後，反而更確定：真正難的不是「reward 多」，而是每張圖的有效訊號根本不在同一個面向。🎯",
       "source": "threads",
       "score": "down"
+    },
+    "https://github.com/antirez/ds4": {
+      "ts": "2026-05-09T14:41:09+09:00",
+      "title": "DeepSeek 4 Flash local inference engine for Metal",
+      "source": "hackernews",
+      "score": "up"
+    },
+    "https://www.anthropic.com/research/natural-language-autoencoders": {
+      "ts": "2026-05-09T14:41:28+09:00",
+      "title": "Natural Language Autoencoders: Turning Claude",
+      "source": "hackernews",
+      "score": "up"
+    },
+    "https://simonwillison.net/2026/May/8/unreasonable-effectiveness-of-html/#atom-everything": {
+      "ts": "2026-05-09T14:42:05+09:00",
+      "title": "Using Claude Code: The Unreasonable Effectiveness of HTML",
+      "source": "simonw",
+      "score": "up"
+    },
+    "https://www.threads.com/@vincent.chanw/post/DYFKyUJmgs-": {
+      "ts": "2026-05-09T14:42:37+09:00",
+      "title": "Anthropic 出了一份 33 頁的 Claude Skills guide，重點不是「怎麼寫 prompt template」，而是把 agent workflow 包成可移植的操作手冊。",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@darwin7381/post/DYEMRXYEeb7": {
+      "ts": "2026-05-09T14:43:29+09:00",
+      "title": "Anthropic 前天在 Code with Claude 開發者大會上發了 Claude Managed Agents 三件套升級，讓 AI 在背景自我進化、交作業前自我驗收、複雜任務拆給多個 AI 協作。",
+      "source": "threads",
+      "score": "star"
+    },
+    "https://www.threads.com/@ar.shek/post/DYEDSO0DWPk": {
+      "ts": "2026-05-09T14:43:51+09:00",
+      "title": "Anthropic 為 Claude Managed Agents 加入了一項名為「Dreaming」的新功能，目前以研究預覽形式推出，核心概念是讓 Agent 在工作之間有時間「沉澱」與「反思」，從過去的工作記錄中找出規律，藉此自我進化。",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@yrzheee/post/DYET0frjjS1": {
+      "ts": "2026-05-09T14:44:17+09:00",
+      "title": "「字节开源 Agent TARS：用自然语言操控你的电脑」",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@cab_late/post/DYFAeIHFNg_": {
+      "ts": "2026-05-09T14:44:38+09:00",
+      "title": "最近把我的 Claude 工具優化一下，現在能更精確看到當次對話的 token 使用量，然後發現了一件事：Subagent 用小模型並不總是比較省錢。",
+      "source": "threads",
+      "score": "up"
     }
   },
   "favorites": {
