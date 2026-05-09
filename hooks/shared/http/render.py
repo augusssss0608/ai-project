@@ -391,14 +391,22 @@ def _render_lint_health_sheet(parts: list, lint: dict | None, counts: dict):
     parts.append("</div></div>")
 
 
-def _render_time_pills(parts: list, days: int, owner_filter: str):
-    """獨立的時間窗口切換 pills (usage tab 等需要但不含完整 hero 的 tab 使用)."""
+def _render_time_pills(parts: list, days: int, owner_filter: str,
+                        usage_days: int = None, routing_days: int = None,
+                        anchor: str = "overview"):
+    """總覽 pills（控制 ?days=N，但保留 usage_days / routing_days 不联动）.
+    用 ?tab= 让服务端预渲染 active tab，避免客户端切换闪烁."""
     parts.append("<div class='pills time-pills'>")
     for d in [1, 7, 30, 90, 365]:
         label = "1天" if d == 1 else "7天" if d == 7 else "30天" if d == 30 else "90天" if d == 90 else "1年"
         url_parts = [f"days={d}"]
+        if usage_days is not None:
+            url_parts.append(f"usage_days={usage_days}")
+        if routing_days is not None:
+            url_parts.append(f"routing_days={routing_days}")
         if owner_filter:
             url_parts.append(f"owner={owner_filter}")
+        url_parts.append(f"tab={anchor}")
         url = "/?" + "&".join(url_parts)
         cls = "pill active" if d == days else "pill"
         parts.append(f"<a class='{cls}' href='{url}'>{label}</a>")
@@ -448,12 +456,23 @@ def _render_footer(parts: list):
 # ============================================================
 # 区块: 主渲染函数 (数据加载 + 子函数调度)
 # ============================================================
-def render(days: int, owner_filter: str = "") -> str:
+def render(days: int, owner_filter: str = "",
+           usage_days: int = None, routing_days: int = None,
+           active_tab: str = "overview") -> str:
+    """
+    `days` = 总览（overview）时间窗
+    `usage_days` = 工具使用 tab 时间窗（未传则与 days 同步）
+    `routing_days` = 路由 tab 时间窗（未传则与 days 同步）
+    """
+    if usage_days is None:
+        usage_days = days
+    if routing_days is None:
+        routing_days = days
     conn = sqlite3.connect(DB_FILE)
 
-    # ===== 加载 Active / Cold 数据 =====
+    # ===== 加载 Active / Cold 数据 (工具使用 tab 用 usage_days) =====
     active_data = {
-        etype: attach_owner_active(etype, query_counts(conn, etype, days))
+        etype: attach_owner_active(etype, query_counts(conn, etype, usage_days))
         for etype, _ in CATEGORIES
     }
     cold_data_by_id = {}
@@ -469,15 +488,16 @@ def render(days: int, owner_filter: str = "") -> str:
         if overridden:
             overridden_user |= overridden
 
-    # ===== 加载摘要/衍生指标 =====
+    # ===== 加载摘要/衍生指标 (总览 hero 用 days) =====
     total = conn.execute("SELECT COUNT(*) FROM events WHERE ts >= ?", (cutoff_ts(days),)).fetchone()[0]
     sessions = conn.execute(
         "SELECT COUNT(DISTINCT session) FROM events WHERE ts >= ? AND session != ''",
         (cutoff_ts(days),),
     ).fetchone()[0]
 
-    sessions_maps = {etype: query_sessions_count(conn, etype, days) for etype, _ in CATEGORIES}
-    paired_maps = {etype: query_paired_count(conn, etype, days) for etype, _ in CATEGORIES}
+    # 工具使用 tab 的 sessions / paired 配对率走 usage_days
+    sessions_maps = {etype: query_sessions_count(conn, etype, usage_days) for etype, _ in CATEGORIES}
+    paired_maps = {etype: query_paired_count(conn, etype, usage_days) for etype, _ in CATEGORIES}
     last_seen_maps = {sd["event_type"]: query_last_seen(conn, sd["event_type"]) for sd in COLD_SECTIONS}
 
     # ===== 加载面板数据 =====
@@ -498,12 +518,16 @@ def render(days: int, owner_filter: str = "") -> str:
     else:
         spark_meta = None
     owner_activity = query_owner_activity(conn, days)
+    # Today · Console Stack 新数据
+    owner_dailies = query_owner_dailies(conn, days)
+    owner_sessions = query_owner_session_counts(conn, days)
+    recent_stream = query_recent_events(conn, days, limit=30)
     # _collect_owners 已迁到 usage.render, 这里 late import 避免循环依赖
     from usage.render import _collect_owners
     ordered_owners = _collect_owners(active_data, cold_data_by_id)
 
     # Phase 3.3：Owner 路由足迹（context tab 重做）
-    session_routes = query_session_routing(conn, days, limit=50)
+    session_routes = query_session_routing(conn, routing_days, limit=50)
 
     mem_files = list_memory_browser()
     compact_files = list_compact_notes()
@@ -514,7 +538,8 @@ def render(days: int, owner_filter: str = "") -> str:
 
     # 穩定骨架: 永不變動的 header + sticky tab bar
     _render_page_header(parts, conn=conn)
-    _render_tab_bar(parts, "overview")
+    _render_tab_bar(parts, active_tab)
+    _ac = lambda t: " active" if t == active_tab else ""
 
     # Tab viewport: 固定 min-height, 內部各 tab 自帶所需控件
     parts.append("<div class='tab-viewport'>")
@@ -528,17 +553,23 @@ def render(days: int, owner_filter: str = "") -> str:
 
     # Tab 1: 总览
     hero_agg = query_hero_aggregates(conn, days)
-    parts.append("<div class='tab-content active' data-tab='overview'>")
+    parts.append(f"<div class='tab-content{_ac('overview')}' data-tab='overview'>")
     render_overview(parts, days=days, owner_filter=owner_filter,
                     total=total, sessions=sessions,
                     sparkline_svg=sparkline_svg, spark_meta=spark_meta,
                     hero_agg=hero_agg,
-                    owner_activity=owner_activity, conn=conn)
+                    owner_activity=owner_activity,
+                    owner_dailies=owner_dailies,
+                    owner_sessions=owner_sessions,
+                    recent_stream=recent_stream,
+                    conn=conn,
+                    usage_days=usage_days, routing_days=routing_days)
     parts.append("</div>")
 
     # Tab 2: 工具使用
-    parts.append("<div class='tab-content' data-tab='usage'>")
-    render_usage(parts, days=days, owner_filter=owner_filter,
+    parts.append(f"<div class='tab-content{_ac('usage')}' data-tab='usage'>")
+    render_usage(parts, days=usage_days, owner_filter=owner_filter,
+                 overview_days=days, routing_days=routing_days,
                  ordered_owners=ordered_owners,
                  active_data=active_data, cold_data_by_id=cold_data_by_id,
                  sessions_maps=sessions_maps, paired_maps=paired_maps,
@@ -547,17 +578,19 @@ def render(days: int, owner_filter: str = "") -> str:
     parts.append("</div>")
 
     # Tab 3: 上下文
-    parts.append("<div class='tab-content' data-tab='context'>")
-    render_context(parts, session_routes=session_routes, days=days)
+    parts.append(f"<div class='tab-content{_ac('context')}' data-tab='context'>")
+    render_context(parts, session_routes=session_routes, days=routing_days,
+                   overview_days=days, usage_days=usage_days,
+                   owner_filter=owner_filter)
     parts.append("</div>")
 
     # Tab 4: 记忆
-    parts.append("<div class='tab-content' data-tab='memory'>")
+    parts.append(f"<div class='tab-content{_ac('memory')}' data-tab='memory'>")
     render_memory(parts, mem_files=mem_files, compact_files=compact_files)
     parts.append("</div>")
 
     # Tab 5: 每日 AI 大事
-    parts.append("<div class='tab-content' data-tab='news'>")
+    parts.append(f"<div class='tab-content{_ac('news')}' data-tab='news'>")
     render_news(parts)
     parts.append("</div>")
 
@@ -662,8 +695,9 @@ def _owner_dist_html(items: list, label_fn, limit: int = 6, columns: bool = Fals
 
 
 def _owner_tag_label(owner: str) -> str:
-    esc = html.escape(owner)
-    return f"<span class='owner-tag {esc}'>{esc}</span>"
+    cls = html.escape(owner)
+    label = html.escape(owner_display(owner))
+    return f"<span class='owner-tag {cls}'>{label}</span>"
 
 
 # _HERO_BACK_DISPATCH 迁到 overview/render.py (hero 相关函数都在那)

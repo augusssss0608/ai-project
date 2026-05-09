@@ -63,16 +63,18 @@
     if (id) activateTab(id, false);
   });
 
-  // 初始化: 从 URL hash 读取当前 tab (不推歷史)
-  const initialTab = location.hash.replace('#', '');
+  // 初始化: 从 URL hash 读取当前 tab (不推歷史)；若 hash 损坏含多 # 取第一段
+  const initialTab = location.hash.replace(/^#/, '').split('#')[0];
   if (initialTab) activateTab(initialTab, false);
 
-  // 時間 pills 是 <a href>, 會整頁刷新 — 點擊時保留當前 tab hash
+  // 時間 pills 是 <a href>, 會整頁刷新 — 若 href 自身未帶 hash 才補當前 tab hash
   document.addEventListener('click', e => {
     const pill = e.target.closest('.time-pills .pill');
     if (!pill || !location.hash) return;
+    const href = pill.getAttribute('href') || '';
+    if (href.includes('#')) return;  // 已自带 hash，浏览器默认行为即可
     e.preventDefault();
-    location.href = pill.getAttribute('href') + location.hash;
+    location.href = href + location.hash;
   });
 
   // ===== 卡片翻面 controller (Phase 0) - 無上限 =====

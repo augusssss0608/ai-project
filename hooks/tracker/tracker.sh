@@ -38,6 +38,7 @@ if [ -z "$INPUT" ]; then
 fi
 
 TOOL_NAME=$(printf '%s' "$INPUT" | jq -r '.tool_name // empty')
+HOOK_EVENT=$(printf '%s' "$INPUT" | jq -r '.hook_event_name // empty')
 TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 SESSION=$(printf '%s' "$INPUT" | jq -r '.session_id // empty')
 
@@ -148,5 +149,22 @@ case "$TOOL_NAME" in
       '{ts:$ts,type:"skill_explicit",name:$name,session:$sid}')"
     ;;
 esac
+
+# UserPromptSubmit hook：记录每个 prompt 前 200 字（路由 tab 显示用）
+# Hook 输入 JSON 字段：hook_event_name=UserPromptSubmit / prompt
+if [ "$HOOK_EVENT" = "UserPromptSubmit" ]; then
+  PROMPT=$(printf '%s' "$INPUT" | jq -r '.prompt // .user_prompt // empty')
+  if [ -n "$PROMPT" ]; then
+    # 截前 200 字（按 unicode 字符不是字节）
+    PROMPT_TRUNC=$(printf '%s' "$PROMPT" | awk '{
+      n=length($0)
+      if (n <= 200) print $0
+      else print substr($0, 1, 200) "…"
+    }')
+    emit "$(jq -nc \
+      --arg ts "$TS" --arg name "$PROMPT_TRUNC" --arg sid "$SESSION" \
+      '{ts:$ts,type:"user_prompt",name:$name,session:$sid}')"
+  fi
+fi
 
 exit 0

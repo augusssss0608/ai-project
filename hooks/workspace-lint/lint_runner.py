@@ -588,6 +588,13 @@ SUBPROJECT_PAIRS = [
     ("live3_svr_api", "live3_svr_admin"),
 ]
 
+# 已知无业务关系的对：admin（后台管理）跟 client-app/旧 lua 服务都没业务交互
+# 这些组合不需要 cross 文档 / triage / sync skill 兜底，状态视为 N/A 不计 warn
+NO_COVERAGE_NEEDED = {
+    frozenset({"live3_app", "live3_svr_admin"}),
+    frozenset({"live3_svr_api", "live3_svr_admin"}),
+}
+
 # 子项目名 → hyphenated（_ 替换为 -）用于匹配 skill 命名约定
 # live3_app → live3-app，live3_svr_api → live3-svr-api，等
 def _hyphenate(name: str) -> str:
@@ -669,10 +676,15 @@ def _find_pair_coverage(workspace_root: Path, a: str, b: str) -> dict:
 def check_subproject_coverage_matrix(workspace_root: Path) -> dict:
     issues = []
     matrix = []
+    n_a = 0  # N/A：在 NO_COVERAGE_NEEDED 白名单里
     for a, b in SUBPROJECT_PAIRS:
         cov = _find_pair_coverage(workspace_root, a, b)
-        cell = {"a": a, "b": b, **cov}
+        is_na = frozenset({a, b}) in NO_COVERAGE_NEEDED
+        cell = {"a": a, "b": b, "no_coverage_needed": is_na, **cov}
         matrix.append(cell)
+        if is_na:
+            n_a += 1
+            continue  # 白名单内不计 issue
         if not cov["has_coverage"]:
             issues.append({
                 "pair": f"{a} ↔ {b}",
@@ -686,7 +698,8 @@ def check_subproject_coverage_matrix(workspace_root: Path) -> dict:
         "issues": issues,
         "matrix": matrix,
         "total_pairs": len(SUBPROJECT_PAIRS),
-        "covered_pairs": len(SUBPROJECT_PAIRS) - len(issues),
+        "covered_pairs": len(SUBPROJECT_PAIRS) - len(issues) - n_a,
+        "na_pairs": n_a,
     }
 
 

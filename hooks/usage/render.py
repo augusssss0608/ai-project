@@ -4,7 +4,7 @@ import html
 from shared.infra.core import (
     LABELS, CATEGORIES, COLD_SECTIONS, PAIRABLE_READ_TYPES,
     fmt_relative_time, fmt_last_seen,
-    severity_cls,
+    severity_cls, owner_display,
 )
 from shared.data.queries import (
     query_etype_aggregate, query_cold_progress,
@@ -22,6 +22,7 @@ from shared.http.render import (
 
 def render_usage(parts: list, *,
                  days: int, owner_filter: str,
+                 overview_days: int, routing_days: int,
                  ordered_owners: list,
                  active_data: dict, cold_data_by_id: dict,
                  sessions_maps: dict, paired_maps: dict,
@@ -30,7 +31,7 @@ def render_usage(parts: list, *,
     parts.append("<div class='tab-controls'>")
     parts.append("<div class='control-row'>")
     parts.append("<span class='control-label'>时间范围</span>")
-    _render_time_pills(parts, days, owner_filter)
+    _render_usage_pills(parts, days, owner_filter, overview_days, routing_days)
     parts.append("</div>")
     parts.append("<div class='control-row'>")
     parts.append("<span class='control-label'>目录归属</span>")
@@ -41,6 +42,22 @@ def render_usage(parts: list, *,
                             cold_data_by_id, last_seen_maps, owner_filter)
     _render_active_section(parts, active_data, sessions_maps, paired_maps, days, conn, owner_filter)
     _render_cold_section(parts, cold_data_by_id, last_seen_maps, overridden_user)
+
+
+def _render_usage_pills(parts: list, current: int, owner_filter: str,
+                         overview_days: int, routing_days: int):
+    """工具使用 tab 独立 pills（控制 ?usage_days=N，保留 days / routing_days）。"""
+    parts.append("<div class='pills time-pills'>")
+    for d in [1, 7, 30, 90, 365]:
+        label = "1天" if d == 1 else "7天" if d == 7 else "30天" if d == 30 else "90天" if d == 90 else "1年"
+        url_parts = [f"days={overview_days}", f"usage_days={d}",
+                     f"routing_days={routing_days}", "tab=usage"]
+        if owner_filter:
+            url_parts.append(f"owner={html.escape(owner_filter)}")
+        url = "/?" + "&".join(url_parts)
+        cls = "pill active" if d == current else "pill"
+        parts.append(f"<a class='{cls}' href='{url}'>{label}</a>")
+    parts.append("</div>")
 
 
 _FUNNEL_STATUS_LABEL = {
@@ -95,13 +112,13 @@ def _render_funnel_section(parts, active_data, sessions_maps, paired_maps,
     for r in rows:
         st = r["status"]
         icon, label, badge_cls = _FUNNEL_STATUS_LABEL.get(st, ("?", st, ""))
-        owner = r.get("owner") or "unknown"
+        owner = r.get("owner") or "other"
         owner_filter_attr = ""
         if owner_filter and owner_filter != owner:
             owner_filter_attr = " style='display:none'"
         name_html = _file_link(r["name"], r["path"])
         scope_tag = f"<span class='funnel-scope'>{html.escape(r['scope'] or '')}</span>" if r.get("scope") else ""
-        owner_html = f"<span class='owner-tag {html.escape(owner)}'>{html.escape(owner)}</span>"
+        owner_html = f"<span class='owner-tag {html.escape(owner)}'>{html.escape(owner_display(owner))}</span>"
         last_seen = r.get("last_seen")
         last_seen_str = fmt_relative_time(last_seen) if last_seen else "(从未)"
         # 配对率
@@ -137,7 +154,7 @@ def cold_row_with_owner(
 ) -> str:
     name_html = _file_link(name_text, path)
     owner_tip = f" data-tip='{html.escape(path)}'" if path else ""
-    owner_html = f"<span class='owner-tag {html.escape(owner)}'{owner_tip}>{html.escape(owner)}</span>"
+    owner_html = f"<span class='owner-tag {html.escape(owner)}'{owner_tip}>{html.escape(owner_display(owner))}</span>"
     seen_html = f"<span class='last-seen'>{last_seen_str}</span>" if last_seen_str else ""
     archive_html = ""
     if archive_type and archive_scope:
@@ -222,11 +239,15 @@ def _render_owner_filter(parts: list, ordered_owners: list, owner_filter: str):
     parts.append("</div>")
 
 def _render_active_section(parts: list, active_data: dict, sessions_maps: dict, paired_maps: dict, days: int, conn, owner_filter: str = ""):
+    # skill_read / skill_explicit 已被触发漏斗覆盖，跳过避免重复
+    SKIP_ACTIVE = {"skill_read", "skill_explicit"}
     parts.append("<details class='section collapsible' data-default-open open>")
     parts.append(f"<summary class='section-head'><span class='collapse-chevron'></span><h2>{LABELS['active_usage']}</h2>"
                  "<span class='meta'>总次数 / 会话 / 配对率 / 目录归属</span></summary>")
     parts.append("<div class='active-grid'>")
     for etype, title in CATEGORIES:
+        if etype in SKIP_ACTIVE:
+            continue
         rows = active_data.get(etype, [])
         sessions_map = sessions_maps.get(etype, {})
         paired_map = paired_maps.get(etype, {})
@@ -251,7 +272,7 @@ def _render_active_section(parts: list, active_data: dict, sessions_maps: dict, 
                     badge_html = f"<span class='badge {cls}'>{paired_n}/{pairable_total} 配对</span>"
             name_html = _file_link(name or "", path)
             owner_tip = f" data-tip='{html.escape(path)}'" if path else ""
-            owner_html = f"<span class='owner-tag {html.escape(owner)}'{owner_tip}>{html.escape(owner)}</span>"
+            owner_html = f"<span class='owner-tag {html.escape(owner)}'{owner_tip}>{html.escape(owner_display(owner))}</span>"
             parts.append(
                 f"<div class='row' data-owner='{html.escape(owner)}'>"
                 f"<span class='num'>{count}</span>"
@@ -295,11 +316,15 @@ def _make_cold_name_fmt(section_def: dict, ls_map: dict):
     return fmt
 
 def _render_cold_section(parts: list, cold_data_by_id: dict, last_seen_maps: dict, overridden_user: set):
+    # cold_skills / cold_skills_explicit 已被触发漏斗的 "长期冷藏" 状态覆盖，跳过避免重复
+    SKIP_COLD = {"cold_skills", "cold_skills_explicit"}
     parts.append("<details class='section collapsible' data-default-open open>")
     parts.append(f"<summary class='section-head'><span class='collapse-chevron'></span><h2>{LABELS['cold_candidates']}</h2>"
                  "<span class='meta'>最近时间窗口内 0 触发的对象，建议清理或合并</span></summary>")
     parts.append("<div class='cold-grid'>")
     for section_def in COLD_SECTIONS:
+        if section_def["id"] in SKIP_COLD:
+            continue
         data = cold_data_by_id[section_def["id"]]
         data["cold"] = _sort_cold_by_section(data["cold"], section_def, last_seen_maps)
         ls_map = last_seen_maps[section_def["event_type"]]

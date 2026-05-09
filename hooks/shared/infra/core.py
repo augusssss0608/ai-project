@@ -42,7 +42,7 @@ EVENT_TYPES = [
     ("skill_read",     "Skill 读取",        True),
     ("skill_explicit", "显式 Skill 调用",   False),
     ("subagent",       "Subagent 派发",     False),
-    ("clinerule_read", ".clinerules 读取",  True),
+    ("clinerule_read", ".claude/docs 读取",  True),
     ("claude_md_read", "CLAUDE.md 读取",    True),
     ("agents_md_read", "AGENTS.md 读取",    True),
     ("memory_read",    "memory 读取",       True),
@@ -63,7 +63,7 @@ LABELS = {
     "cold_skills":        "未触发 Skill 读取",
     "cold_skills_explicit": "未触发 Skill 调用",
     "cold_subagents":     "未触发 Subagent",
-    "cold_clinerules":    "未触发 .clinerules",
+    "cold_clinerules":    "未触发 .claude/docs",
     "cold_claude_md":     "未触发 CLAUDE.md",
     "cold_memory":        "未触发 memory",
     "cold_agents_md":     "未触发 AGENTS.md",
@@ -98,11 +98,11 @@ def compute_owner(path: str) -> str:
     """根据文件路径计算 owner 标签.
     global / live_app / 子项目名 / plugin 之一."""
     if not path:
-        return "unknown"
+        return "other"
     try:
         real = os.path.realpath(path)
     except Exception:
-        return "unknown"
+        return "other"
     user_claude = os.path.realpath(f"{USER_HOME}/.claude")
     project_real = os.path.realpath(PROJECT_ROOT)
     memory_real = os.path.realpath(MEMORY_DIR)
@@ -138,7 +138,19 @@ def compute_owner(path: str) -> str:
             if len(parts) >= 3 and parts[1] == "references" and parts[2] in SUBPROJECT_NAMES_FLAT:
                 return parts[2]
         return "live_app"
-    return "unknown"
+    return "other"
+
+
+# owner 标签的展示文本（CSS class 仍用英文 key，仅展示层翻译）
+OWNER_DISPLAY_LABEL = {
+    "other": "其他",
+}
+
+
+def owner_display(owner: str) -> str:
+    """渲染层用：owner 字符串 → 显示文本。
+    其他 owner 维持英文（CSS text-transform:uppercase 会渲染成 [GLOBAL] [LIVE_APP] 风格）。"""
+    return OWNER_DISPLAY_LABEL.get(owner, owner)
 
 
 _PLUGIN_SKILL_CACHE = None
@@ -353,8 +365,9 @@ def list_subagent_files():
 
 
 def list_clinerules():
-    """返回 [dict]. 每项: {name (相对路径), scope, path, owner}."""
-    root = f"{PROJECT_ROOT}/.clinerules"
+    """返回 [dict]. 每项: {name (相对路径), scope, path, owner}.
+    名字保留 list_clinerules 是为了 cold-pool 配置不动；实际扫 .claude/docs（旧 .clinerules 目录已迁移）。"""
+    root = f"{PROJECT_ROOT}/.claude/docs"
     out = []
     if not os.path.isdir(root):
         return out

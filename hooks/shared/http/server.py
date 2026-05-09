@@ -557,11 +557,26 @@ class Handler(BaseHTTPRequestHandler):
             days = 30
         # Owner 筛选
         owner_filter = qs.get("owner", [""])[0]
+        # 各 tab 独立时间窗口（未传则回退到 `days`）
+        def _parse_subdays(key):
+            try:
+                v = int(qs.get(key, [str(days)])[0])
+                return v if 1 <= v <= 3650 else days
+            except (ValueError, TypeError):
+                return days
+        usage_days = _parse_subdays("usage_days")
+        routing_days = _parse_subdays("routing_days")
+        # 服务端预判 active tab，避免客户端 hash 切换造成的闪烁
+        VALID_TABS = {"overview", "usage", "context", "memory", "news"}
+        tab_param = qs.get("tab", [""])[0]
+        active_tab = tab_param if tab_param in VALID_TABS else "overview"
         if not os.path.isfile(DB_FILE):
             body = "<h1>暂无数据</h1><p>events.db 不存在。请先正常使用 Claude Code 触发一些工具调用。</p>"
         else:
             try:
-                body = render(days, owner_filter=owner_filter)
+                body = render(days, owner_filter=owner_filter,
+                              usage_days=usage_days, routing_days=routing_days,
+                              active_tab=active_tab)
             except Exception as e:
                 import traceback
                 body = f"<h1>错误</h1><pre>{html.escape(traceback.format_exc())}</pre>"

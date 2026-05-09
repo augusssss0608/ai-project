@@ -4,6 +4,73 @@
    ============================================================ */
 
 
+/* owner chip 可点击过滤 */
+.owner-tag-clickable{
+  cursor:pointer;
+  font:inherit;
+  outline:none;
+  /* 继承 .owner-tag 的所有视觉，仅追加交互态 */
+  transition:transform var(--dur-fast) var(--ease-soft),
+             box-shadow var(--dur-fast) var(--ease-soft),
+             filter var(--dur-fast) var(--ease-soft);
+}
+.owner-tag-clickable:hover{
+  transform:translateY(-1px);
+  filter:brightness(1.15);
+}
+.owner-tag-clickable[aria-pressed="true"]{
+  box-shadow:0 0 0 1px currentColor, 0 0 12px rgba(57,255,20,.15);
+  filter:brightness(1.25);
+}
+.owner-tag-clickable:focus-visible{outline:1px solid var(--accent);outline-offset:2px}
+
+/* JS 在过滤时给 routing-event 行加 data-hidden="true" */
+.routing-event[data-hidden="true"]{display:none}
+
+
+/* 路由 tab 独立时间筛选 pills */
+.routing-pills{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-family:var(--font-mono);
+  margin:0 0 var(--space-12);
+  flex-wrap:wrap;
+}
+.routing-pills-label{
+  font-size:9px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--text-faint);
+  margin-right:6px;
+}
+.routing-pill{
+  font-size:11px;
+  padding:3px 10px;
+  border:1px solid rgba(57,255,20,.18);
+  background:transparent;
+  color:var(--text-soft);
+  border-radius:2px;
+  text-decoration:none;
+  letter-spacing:.06em;
+  transition:color var(--dur-fast) var(--ease-soft),
+             background var(--dur-fast) var(--ease-soft),
+             border-color var(--dur-fast) var(--ease-soft);
+  font-variant-numeric:tabular-nums;
+}
+.routing-pill:hover{
+  color:var(--accent-bright);
+  border-color:rgba(57,255,20,.4);
+  background:rgba(57,255,20,.04);
+}
+.routing-pill.active{
+  background:rgba(57,255,20,.08);
+  border-color:rgba(57,255,20,.5);
+  color:var(--accent-bright);
+  text-shadow:0 0 6px rgba(57,255,20,.3);
+}
+
+
 
 /* ============================================================
    CLAUDE.md 熱度分析
@@ -263,7 +330,7 @@
 .routing-bar-segment.owner-builtin{background:rgba(110,168,254,.65)}
 .routing-bar-segment.owner-global{background:rgba(120,150,184,.5)}
 .routing-bar-segment.owner-plugin{background:rgba(255,45,149,.6)}
-.routing-bar-segment.owner-unknown{background:rgba(120,150,184,.3)}
+.routing-bar-segment.owner-other{background:rgba(120,150,184,.3)}
 
 .routing-owner-chips{
   display:flex;
@@ -317,6 +384,77 @@
   color:var(--warning,#ffcc00);
   padding:var(--space-4) 0 var(--space-8);
   font-style:italic;
+}
+
+/* user prompts 列表（在 timeline 上方） */
+.routing-prompts{
+  margin:0 0 var(--space-12);
+  padding:var(--space-8) var(--space-12);
+  background:rgba(57,255,20,.04);
+  border:1px solid rgba(57,255,20,.18);
+  border-radius:var(--radius-sm);
+}
+.routing-prompts-head{
+  font-size:10px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--text-soft);
+  cursor:pointer;
+  user-select:none;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  list-style:none;
+  transition:color var(--dur-fast) var(--ease-soft);
+}
+.routing-prompts-head::-webkit-details-marker{display:none}
+.routing-prompts-head::before{
+  content:'▸';
+  font-size:9px;
+  color:var(--accent);
+  transition:transform var(--dur-fast) var(--ease-soft);
+  display:inline-block;
+}
+.routing-prompts[open] .routing-prompts-head::before{transform:rotate(90deg)}
+.routing-prompts-head:hover{color:var(--accent-bright)}
+.routing-prompts-head b{
+  color:var(--accent);
+  font-family:var(--font-mono);
+  font-weight:700;
+  margin:0 4px;
+}
+.routing-prompts-hint{
+  margin-left:auto;
+  font-size:9px;
+  letter-spacing:.16em;
+  color:var(--text-faint);
+  opacity:.6;
+}
+.routing-prompts[open] .routing-prompts-hint{opacity:0}
+.routing-prompts-list{
+  list-style:decimal inside;
+  padding:0;
+  margin:var(--space-8) 0 0;
+  font-size:12px;
+  line-height:1.6;
+  color:var(--text);
+}
+.routing-prompt-item{
+  padding:var(--space-4) 0;
+  border-bottom:1px dashed rgba(120,150,184,.12);
+}
+.routing-prompt-item:last-child{border-bottom:none}
+.routing-prompt-time{
+  display:inline-block;
+  font-family:var(--font-mono);
+  font-size:10px;
+  color:var(--text-soft);
+  min-width:48px;
+  margin-right:var(--space-8);
+}
+.routing-prompt-text{
+  word-break:normal;
+  overflow-wrap:anywhere;
 }
 
 .routing-timeline-table{width:100%;border-collapse:collapse;font-size:11px;font-family:var(--font-mono)}

@@ -34,10 +34,13 @@ def query_last_seen(conn, etype: str):
 
 def query_owner_activity(conn, days: int):
     """按 owner 聚合活动数据, 用于跨项目 Today 面板.
-    返回 {owner: {last_ts, event_count, recent_items: [(name, type, ts, path)]}}."""
+    返回 {owner: {last_ts, event_count, recent_items: [(name, type, ts, path)]}}.
+
+    user_prompt 是会话级元数据（只在路由 tab 的 session 展开里显示），
+    不算"工具使用活动"，从 Today 排除。"""
     cur = conn.execute(
         "SELECT name, type, path, ts, scope FROM events "
-        "WHERE ts >= ? ORDER BY ts DESC",
+        "WHERE ts >= ? AND type != 'user_prompt' ORDER BY ts DESC",
         (cutoff_ts(days),),
     )
     result = {}
@@ -53,6 +56,84 @@ def query_owner_activity(conn, days: int):
         if len(result[owner]["recent_items"]) < 5:
             result[owner]["recent_items"].append((name or "", etype, ts, path or ""))
     return result
+
+
+def query_recent_events(conn, days: int, limit: int = 30):
+    """跨 owner 混合的最近 N 条事件，按时间倒序。
+    返回 [{ts, owner, type, name, path}]，用于 Today · Event Stream。
+
+    user_prompt 排除（同 Today 其他面板）。"""
+    cur = conn.execute(
+        "SELECT ts, name, type, path FROM events "
+        "WHERE ts >= ? AND type != 'user_prompt' "
+        "ORDER BY ts DESC LIMIT ?",
+        (cutoff_ts(days), limit),
+    )
+    out = []
+    for ts, name, etype, path in cur.fetchall():
+        owner = compute_owner(path) if path else (
+            "live_app" if etype == "memory_read"
+            else ("builtin" if etype == "subagent" else "global")
+        )
+        out.append({
+            "ts": ts,
+            "owner": owner,
+            "type": etype,
+            "name": name or "",
+            "path": path or "",
+        })
+    return out
+
+
+def query_owner_dailies(conn, days: int) -> dict:
+    """每个 owner 的 daily 计数序列，用于 Owner Bay sparkline。
+    返回 {owner: [(day, count), ...]}（覆盖 cutoff 到今日完整日期序列）。"""
+    cur = conn.execute(
+        "SELECT substr(ts, 1, 10) AS day, type, path, COUNT(*) "
+        "FROM events WHERE ts >= ? AND type != 'user_prompt' "
+        "GROUP BY day, type, path",
+        (cutoff_ts(days),),
+    )
+    raw = {}  # {owner: {day: count}}
+    for day, etype, path, c in cur.fetchall():
+        owner = compute_owner(path) if path else (
+            "live_app" if etype == "memory_read"
+            else ("builtin" if etype == "subagent" else "global")
+        )
+        raw.setdefault(owner, {})
+        raw[owner][day] = raw[owner].get(day, 0) + c
+
+    now = datetime.now(timezone.utc)
+    start_date = (now - timedelta(days=max(days - 1, 1))).date()
+    end_date = now.date()
+    out = {}
+    for owner, day_map in raw.items():
+        series = []
+        d = start_date
+        while d <= end_date:
+            key = d.strftime("%Y-%m-%d")
+            series.append((key, day_map.get(key, 0)))
+            d += timedelta(days=1)
+        out[owner] = series
+    return out
+
+
+def query_owner_session_counts(conn, days: int) -> dict:
+    """每个 owner 的 session_count，用于 Owner Bay。
+    返回 {owner: int}。"""
+    cur = conn.execute(
+        "SELECT path, type, session FROM events "
+        "WHERE ts >= ? AND type != 'user_prompt' AND session != ''",
+        (cutoff_ts(days),),
+    )
+    seen = {}  # {owner: set(session)}
+    for path, etype, session in cur.fetchall():
+        owner = compute_owner(path) if path else (
+            "live_app" if etype == "memory_read"
+            else ("builtin" if etype == "subagent" else "global")
+        )
+        seen.setdefault(owner, set()).add(session)
+    return {o: len(s) for o, s in seen.items()}
 
 
 def query_daily_counts(conn, days: int):
@@ -99,7 +180,7 @@ def attach_owner_active(etype: str, rows):
             # 没有文件的 skill_explicit = Claude Code 内建/系统 skill (如 update-config)
             owner = "builtin"
         else:
-            owner = "unknown"
+            owner = "other"
         out.append((name, scope, count, path or "", owner))
     return out
 
@@ -107,25 +188,28 @@ def attach_owner_active(etype: str, rows):
 def build_weighted_event_counts(conn):
     """A: 时间加权 hit_count.
     近 7 天 ×3, 7-30 天 ×1, 30+ 天 ×0.3.
-    返回 {name: weighted_count}."""
+    返回 {name: weighted_count}.
+
+    user_prompt.name 是 prompt 前 200 字内容，不是资源名，
+    不能进资源热度统计，否则 CLAUDE.md 热度分析会把提问文本当成 hit。"""
     now = datetime.now(timezone.utc)
     cut_7d = (now - timedelta(days=7)).strftime("%Y-%m-%dT%H:%M:%SZ")
     cut_30d = (now - timedelta(days=30)).strftime("%Y-%m-%dT%H:%M:%SZ")
     weighted = {}
     # 近 7 天 x3
     for name, c in conn.execute(
-        "SELECT name, COUNT(*) FROM events WHERE ts >= ? GROUP BY name", (cut_7d,)
+        "SELECT name, COUNT(*) FROM events WHERE ts >= ? AND type != 'user_prompt' GROUP BY name", (cut_7d,)
     ).fetchall():
         weighted[name] = weighted.get(name, 0) + c * 3.0
     # 7-30 天 x1
     for name, c in conn.execute(
-        "SELECT name, COUNT(*) FROM events WHERE ts >= ? AND ts < ? GROUP BY name",
+        "SELECT name, COUNT(*) FROM events WHERE ts >= ? AND ts < ? AND type != 'user_prompt' GROUP BY name",
         (cut_30d, cut_7d),
     ).fetchall():
         weighted[name] = weighted.get(name, 0) + c * 1.0
     # 30+ 天 x0.3
     for name, c in conn.execute(
-        "SELECT name, COUNT(*) FROM events WHERE ts < ? GROUP BY name", (cut_30d,)
+        "SELECT name, COUNT(*) FROM events WHERE ts < ? AND type != 'user_prompt' GROUP BY name", (cut_30d,)
     ).fetchall():
         weighted[name] = weighted.get(name, 0) + c * 0.3
     return weighted
@@ -188,8 +272,8 @@ def _collect_known_resources(conn):
             for f in os.listdir(d):
                 if f.endswith(".md") and not f.startswith("."):
                     names.add(f[:-3])
-    # clinerules 文件名
-    for root, _, files in os.walk(f"{PROJECT_ROOT}/.clinerules"):
+    # .claude/docs 文件名（旧 .clinerules 已迁移到这里）
+    for root, _, files in os.walk(f"{PROJECT_ROOT}/.claude/docs"):
         for f in files:
             if f.endswith(".md"):
                 names.add(f[:-3])  # 去掉 .md
@@ -563,10 +647,13 @@ def query_hero_aggregates(conn, days: int) -> dict:
 
 
 def query_owner_back(conn, owner: str, days: int) -> dict:
-    """Today 卡片背面 (per owner) 數據."""
+    """Today 卡片背面 (per owner) 數據.
+
+    user_prompt 排除：会话级元数据，不算工具使用活动。"""
     cutoff = cutoff_ts(days)
     cur = conn.execute(
-        "SELECT path, type, ts, session FROM events WHERE ts >= ? ORDER BY ts DESC",
+        "SELECT path, type, ts, session FROM events "
+        "WHERE ts >= ? AND type != 'user_prompt' ORDER BY ts DESC",
         (cutoff,),
     )
     rows = []
@@ -863,11 +950,11 @@ def build_skill_funnel_rows(active_data, sessions_maps, paired_maps,
     """
     # active 数据：[(name, scope, count, path, owner)]
     read_rows = {
-        ((r[0] or ""), (r[1] or "")): (r[2], r[3] or "", r[4] or "unknown")
+        ((r[0] or ""), (r[1] or "")): (r[2], r[3] or "", r[4] or "other")
         for r in active_data.get("skill_read", [])
     }
     explicit_rows = {
-        ((r[0] or ""), (r[1] or "")): (r[2], r[3] or "", r[4] or "unknown")
+        ((r[0] or ""), (r[1] or "")): (r[2], r[3] or "", r[4] or "other")
         for r in active_data.get("skill_explicit", [])
         if ":" not in (r[0] or "")  # 排除 plugin:cmd
     }
@@ -876,11 +963,11 @@ def build_skill_funnel_rows(active_data, sessions_maps, paired_maps,
     for key, (_count, path, owner) in read_rows.items():
         universe.setdefault(key, {})
         universe[key]["path"] = path or universe[key].get("path", "")
-        universe[key]["owner"] = owner or universe[key].get("owner", "unknown")
+        universe[key]["owner"] = owner or universe[key].get("owner", "other")
     for key, (_count, path, owner) in explicit_rows.items():
         universe.setdefault(key, {})
         universe[key]["path"] = path or universe[key].get("path", "")
-        universe[key]["owner"] = owner or universe[key].get("owner", "unknown")
+        universe[key]["owner"] = owner or universe[key].get("owner", "other")
 
     # cold 数据并入 universe（用 cold_skills + cold_skills_explicit）
     for section_id in ("cold_skills", "cold_skills_explicit"):
@@ -893,7 +980,7 @@ def build_skill_funnel_rows(active_data, sessions_maps, paired_maps,
             key = (name, scope)
             universe.setdefault(key, {})
             universe[key].setdefault("path", item.get("path", ""))
-            universe[key].setdefault("owner", item.get("owner", "unknown"))
+            universe[key].setdefault("owner", item.get("owner", "other"))
             if item.get("disabled"):
                 universe[key]["disabled"] = True
 
@@ -930,7 +1017,7 @@ def build_skill_funnel_rows(active_data, sessions_maps, paired_maps,
         rows.append({
             "name": key[0],
             "scope": key[1],
-            "owner": meta.get("owner", "unknown"),
+            "owner": meta.get("owner", "other"),
             "path": meta.get("path", ""),
             "read": read_count,
             "explicit": explicit_count,
@@ -1068,6 +1155,15 @@ def query_session_routing(conn, days: int, limit: int = 50) -> list:
             if o not in ROUTING_OWNER_ORDER and o not in owners_involved:
                 owners_involved.append(o)
 
+        # 抽出 user_prompt 事件单独列出（不夹在普通事件流里）
+        prompts = [
+            {"ts": ev["ts"], "text": ev["name"]}
+            for ev in events
+            if ev["type"] == "user_prompt" and ev.get("name")
+        ]
+        # 普通事件（去掉 user_prompt，避免重复显示）
+        non_prompt_events = [ev for ev in kept_events if ev["type"] != "user_prompt"]
+
         out.append({
             "session_id": sess_id,
             "first_ts": first_ts,
@@ -1076,7 +1172,8 @@ def query_session_routing(conn, days: int, limit: int = 50) -> list:
             "duration_seconds": duration_s,
             "owners_involved": owners_involved,
             "owner_distribution": owner_dist,
-            "events": kept_events,
+            "events": non_prompt_events,
+            "prompts": prompts,
             "truncated_count": truncated_count,
         })
     return out
