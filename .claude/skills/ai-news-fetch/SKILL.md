@@ -141,7 +141,7 @@ from ai_news.data.feedback import load_feedback, get_stage
 
 #### 2.5 分批派 news-analysis × N (每条 Top N 一次)
 
-每批 **5 个并行** (Opus 慢, 更低并发). 跑 ~8 批.
+每批 **3 个并行** (Opus 慢 + 控制主 context 累积, 防止长 loop 中段空 turn). 跑 ~12 批.
 
 每个 prompt:
 ```
