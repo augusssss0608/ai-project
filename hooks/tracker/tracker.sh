@@ -1,9 +1,8 @@
 #!/bin/bash
 # Usage tracker: 记录 skill SKILL.md / .clinerules 文件 Read、subagent 派发、显式 Skill 调用
-# 挂在 PostToolUse 上，单文件追加 JSONL 日志
+# 挂在 PostToolUse 上，写入 events.db (SQLite 单一真理源)
 
 LOG_DIR="$HOME/Desktop/ai-project/data"
-LOG_FILE="$LOG_DIR/events.jsonl"
 DB_FILE="$LOG_DIR/events.db"
 ERR_FILE="$LOG_DIR/tracker-errors.log"
 # SB2: scope 路径检测改用精确前缀，避免任何含 'live_app' 子串的路径被误判为 project
@@ -48,12 +47,7 @@ sql_escape() {
 }
 
 emit() {
-  # $1 = JSON line, 写入 jsonl (备份)
-  # A6 + B1 修复：用花括号外层包裹，捕获 bash 重定向错误（"Permission denied" 之类）
-  if ! { printf '%s\n' "$1" >> "$LOG_FILE"; } 2>/dev/null; then
-    printf '[%s] jsonl_write_failed payload_len=%d\n' "$TS" "${#1}" >> "$ERR_FILE"
-  fi
-  # 同步写入 SQLite (真理源)
+  # $1 = JSON line, 直接写入 SQLite
   local etype ename escope epath edesc sql_err
   etype=$(printf '%s' "$1" | jq -r '.type // ""')
   ename=$(printf '%s' "$1" | jq -r '.name // ""')

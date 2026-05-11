@@ -25,7 +25,6 @@ Claude Code 使用统计 dashboard + AI 大事每日聚合。原在 `~/.claude/h
 **清空使用统计**（events.db 重新计数）：
 
     sqlite3 ~/Desktop/ai-project/data/events.db "DELETE FROM events; VACUUM;"
-    : > ~/Desktop/ai-project/data/events.jsonl
     date -u +"%Y-%m-%dT%H:%M:%SZ" > ~/Desktop/ai-project/data/last-cleared.txt
 
 清零时间会显示在 dashboard 顶部。
@@ -50,9 +49,8 @@ Claude Code 使用统计 dashboard + AI 大事每日聚合。原在 `~/.claude/h
     │   ├── fetch_debug.py      debug 抓取入口（绕过 pipeline）
     │   └── static/             ai_news 专属 CSS / JS
     ├── tracker/                PostToolUse hook + 数据维护脚本
-    │   ├── tracker.sh          事件采集（Read/Agent/Skill → events.db + events.jsonl）
+    │   ├── tracker.sh          事件采集（Read/Agent/Skill → events.db）
     │   ├── archive-cold.sh     冷藏 skill/subagent 自动归档（可逆）
-    │   ├── rebuild-db.sh       events.jsonl 回灌重建 SQLite
     │   └── report.sh           命令行报表
     ├── workspace-lint/         workspace 配置检查（trigger.sh + lint_runner.py）
     └── tg_notify.py            Telegram Bot API 直发脚本（ai-news pipeline 用）
@@ -62,7 +60,7 @@ Claude Code 使用统计 dashboard + AI 大事每日聚合。原在 `~/.claude/h
 - `.claude/{skills,agents}/` — ai-news pipeline 用的 skill / subagent 定义（项目级）
 - `cloud-sync/` — AI 大事数据（ai-news.json / ai-news-feedback.json / ai-news-history.jsonl），需要跨机同步
 - `data/` — 本机运行时数据 [gitignore]
-  - `events.db`、`events.jsonl` — 使用统计事件流
+  - `events.db` — 使用统计事件 SQLite（单一真理源）
   - `last-cleared.txt` — 上次清零时间（dashboard 顶部展示）
   - `summaries.json`、`summary-quota.json` — AI 摘要缓存 + 日额度
   - `archive-log.jsonl` — skill/subagent 归档记录
