@@ -353,36 +353,78 @@
 /* 跟 owner 筛选解耦：两个独立 class 叠加生效 */
 .funnel-row.row-funnel-hidden{display:none !important}
 
-/* grid 布局：固定列宽让 scope / owner / metrics 跨行对齐 */
-.funnel-item{
+/* sparkline 行布局：state / name / owner / spark / total / last / detail */
+.spark-header,
+.spark-row{
   display:grid;
-  grid-template-columns:
-    [status]   108px
-    [name]     minmax(160px, 1fr)
-    [scope]    64px
-    [owner]    98px
-    [metrics]  auto
-    [last]     104px;
+  grid-template-columns:132px minmax(0, 1fr) 110px 200px 64px 96px 56px;
+  column-gap:12px;
   align-items:center;
-  gap:14px;
-  padding:10px var(--space-12);
-  border-bottom:1px solid rgba(120,150,184,.06);
+}
+.spark-header{
+  padding:9px var(--space-12);
+  background:var(--bg-elevated);
+  border-bottom:1px solid var(--border);
+  font-size:10px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--text-faint);
+  font-weight:500;
+}
+/* 列对齐：所有 header 居中；数据左对齐（数字列也左对齐） */
+.spark-header > div{text-align:center}
+
+/* 可排序列头 */
+.spark-header .sortable{
+  cursor:pointer;
+  user-select:none;
+  transition:color var(--dur-fast) var(--ease-soft);
+}
+.spark-header .sortable:hover{color:var(--accent-bright)}
+.spark-header .sortable.sort-asc,
+.spark-header .sortable.sort-desc{color:var(--accent-bright)}
+
+/* 三角指示器 fixed-width，避免不同符号导致 header 位置漂移 */
+.spark-header .sort-ind{
+  display:inline-block;
+  width:12px;
+  margin-left:4px;
+  text-align:center;
+  font-size:9px;
+  font-weight:600;
+  color:var(--text-faint);
+  opacity:.45;
+  transition:color var(--dur-fast) var(--ease-soft), opacity var(--dur-fast) var(--ease-soft);
+}
+.spark-header .sortable.sort-asc .sort-ind,
+.spark-header .sortable.sort-desc .sort-ind{
+  opacity:1;
+  color:var(--accent);
+  text-shadow:0 0 6px rgba(57,255,20,.4);
+}
+
+.spark-list{list-style:none;padding:0;margin:0}
+
+.spark-row{
+  padding:7px var(--space-12);
+  border-bottom:1px solid rgba(57,255,20,.05);
   font-size:11px;
 }
-.funnel-item:last-child{border-bottom:none}
-.funnel-item:hover{background:rgba(120,150,184,.05)}
+.spark-row.row-funnel-hidden{display:none !important}
+.spark-row:last-child{border-bottom:none}
+.spark-row:hover{background:rgba(57,255,20,.03)}
 
-/* 状态 badge 前置 */
-.funnel-item-status.badge{
-  width:108px;
-  text-align:center;
+.spark-status.badge{
+  justify-self:start;      /* badge 左对齐与其它数据列一致 */
+  text-align:center;       /* 文本在 badge 内仍居中 */
   font-size:10px;
   letter-spacing:.04em;
   padding:3px 8px;
+  cursor:default;
+  pointer-events:none;     /* badge 本身无 hover 反应 */
 }
 
-/* skill 名字：字号比之前大 + 不带下划线 */
-.funnel-item-name{
+.spark-name{
   font-family:var(--font-mono);
   font-size:13px;
   font-weight:500;
@@ -392,93 +434,286 @@
   text-overflow:ellipsis;
   min-width:0;
 }
-.funnel-item-name a.open-link,
-.funnel-item-name a.open-link:hover{
-  color:inherit;
-  text-decoration:none;
-  border-bottom:none;
-}
-.funnel-item-name a.open-link:hover{color:var(--accent-bright)}
+.spark-name a.open-link,
+.spark-name a.open-link:hover{color:inherit;text-decoration:none;border-bottom:none}
+.spark-name a.open-link:hover{color:var(--accent-bright)}
 
-/* scope 跟 owner-tag 同款小标签 */
-.funnel-scope{
-  display:inline-block;
-  font-size:8px;
-  padding:1px 5px;
-  border-radius:2px;
-  background:rgba(120,150,184,.06);
-  border:1px solid rgba(120,150,184,.16);
-  color:var(--text-soft);
-  letter-spacing:.05em;
-  text-transform:uppercase;
-  text-align:center;
-  margin-left:0;
-  justify-self:end;
+.owner-wrap{
+  min-width:0;
+  overflow:hidden;
 }
-/* scope 为空时占位但隐形（保持 grid 列对齐） */
-.funnel-scope-empty{
-  background:transparent;
-  border-color:transparent;
-}
-
-/* owner-tag 跟 skill 名同一行 */
-.funnel-item > .owner-tag{
-  font-size:8px;
-  padding:1px 5px;
-  margin-left:0;
-  letter-spacing:.05em;
-  justify-self:start;
-}
-
-/* 4 个数字组合：读 调 会话 配对 — 用内部 grid 让数字对齐 */
-.funnel-item-metrics{
-  display:grid;
-  grid-template-columns:repeat(4, 78px);
-  gap:8px;
-  font-family:var(--font-mono);
-  font-size:11px;
-  color:var(--text);
-  font-variant-numeric:tabular-nums;
-  justify-self:end;
-}
-.funnel-item-metrics .m-cell{
-  display:inline-flex;
-  align-items:baseline;
-  gap:5px;
-}
-.funnel-item-metrics i{
-  font-style:normal;
+.spark-row .owner-wrap .owner-tag{
   font-size:9px;
-  color:var(--text-soft);
+  padding:2px 7px;
   letter-spacing:.05em;
-  flex-shrink:0;
+  max-width:100%;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  display:inline-block;
 }
-.funnel-item-metrics b{font-weight:500;font-variant-numeric:tabular-nums}
-.funnel-item-metrics .m-paired b{color:var(--text-soft);font-size:10px}
+.owner-tag.owner-filter-trigger{
+  cursor:pointer;
+  transition:filter var(--dur-fast) var(--ease-soft),
+             box-shadow var(--dur-fast) var(--ease-soft);
+}
+.owner-tag.owner-filter-trigger:hover{
+  filter:brightness(1.35);
+  box-shadow:0 0 8px currentColor;
+}
+.owner-tag.owner-filter-trigger.owner-filter-active{
+  filter:brightness(1.5);
+  box-shadow:0 0 10px currentColor;
+  outline:1px solid currentColor;
+  outline-offset:1px;
+}
 
-.funnel-item-last{
+/* 顶部当前筛选指示 chip */
+.owner-active-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  margin-left:auto;
+  padding:4px 10px 4px 12px;
+  background:var(--accent-soft);
+  border:1px solid var(--accent);
+  border-radius:3px;
+  color:var(--accent-bright);
+  font-size:11px;
+  font-family:var(--font-mono);
+  text-decoration:none;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  transition:all var(--dur-fast) var(--ease-soft);
+}
+.owner-active-chip:hover{
+  background:rgba(255,51,102,.12);
+  border-color:var(--danger);
+  color:var(--danger);
+}
+.owner-active-chip b{font-weight:700;color:var(--text)}
+.owner-active-chip:hover b{color:var(--danger)}
+.owner-active-clear{
+  display:inline-block;
+  font-size:13px;
+  line-height:1;
+  font-family:var(--font-sans);
+}
+
+.spark-cell{
+  height:26px;
+  background:rgba(57,255,20,.02);
+  border-radius:3px;
+  overflow:hidden;
+}
+.spark-svg{width:100%;height:100%;display:block}
+
+.spark-total{
+  font-family:var(--font-mono);
+  font-variant-numeric:tabular-nums;
+  font-size:14px;
+  color:var(--accent);
+  font-weight:500;
+  text-align:center;
+}
+.spark-total.cold{color:var(--text-faint)}
+.spark-total.mid{color:var(--warning)}
+
+.spark-last{
   font-family:var(--font-mono);
   font-size:10px;
+  color:var(--text-faint);
+  white-space:nowrap;
+  text-align:left;
+}
+
+.spark-row.disabled-item{opacity:.4}
+.spark-row.disabled-item .spark-name a.open-link{text-decoration:line-through}
+
+/* 详细按钮 + 弹出面板 */
+.spark-detail-wrap{position:relative;display:flex;justify-content:flex-end}
+.spark-detail-btn{
+  background:transparent;
+  border:1px solid var(--border);
   color:var(--text-soft);
-  text-align:right;
+  font-size:10px;
+  padding:3px 9px;
+  border-radius:4px;
+  cursor:pointer;
+  font-family:var(--font-sans);
+  letter-spacing:.04em;
+  transition:all var(--dur-fast) var(--ease-soft);
+}
+.spark-detail-btn:hover{
+  background:var(--accent-soft);
+  border-color:var(--accent);
+  color:var(--accent-bright);
+}
+.spark-detail-btn.active{
+  background:var(--accent-soft);
+  border-color:var(--accent);
+  color:var(--accent-bright);
+}
+
+/* Neo-Terminal 风格紧凑详情条 */
+.spark-detail-pop{
+  display:none;
+  position:absolute;
+  top:calc(100% + 6px);
+  right:0;
+  z-index:50;
+  padding:8px 16px 8px 18px;
+  background:#0a0f1a;
+  border:1px solid var(--accent);
+  border-radius:2px;
+  box-shadow:0 6px 24px rgba(0,0,0,.7),
+             0 0 16px rgba(57,255,20,.18);
+  align-items:baseline;
+  gap:14px;
   white-space:nowrap;
 }
+.spark-detail-pop.show{display:flex}
+/* 左侧 accent bar */
+.spark-detail-pop::before{
+  content:'';
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width:2px;
+  background:var(--accent);
+  box-shadow:0 0 8px var(--accent);
+}
+/* 顶部小三角箭头（实色填充） */
+.spark-detail-pop::after{
+  content:'';
+  position:absolute;
+  top:-5px;
+  right:18px;
+  width:8px;
+  height:8px;
+  background:#0a0f1a;
+  border-left:1px solid var(--accent);
+  border-top:1px solid var(--accent);
+  transform:rotate(45deg);
+}
 
-.funnel-item.disabled-item{opacity:.4}
-.funnel-item.disabled-item .funnel-item-name a.open-link{text-decoration:line-through}
-.funnel-item-bad{opacity:.7}
+.spark-detail-pop .dt-cell{
+  display:inline-flex;
+  align-items:baseline;
+  gap:6px;
+  font-family:var(--font-mono);
+  font-variant-numeric:tabular-nums;
+}
+.spark-detail-pop .dt-cell i{
+  font-style:normal;
+  font-size:9px;
+  color:var(--text-faint);
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.spark-detail-pop .dt-cell b{
+  font-weight:600;
+  color:var(--accent-bright);
+  font-size:15px;
+  text-shadow:0 0 6px rgba(57,255,20,.4);
+}
+.spark-detail-pop .dt-sep{
+  display:inline-block;
+  width:1px;
+  height:14px;
+  background:rgba(57,255,20,.2);
+  align-self:center;
+}
 
-@media (max-width:1280px){
-  .funnel-item{
-    grid-template-columns:108px minmax(160px, 1fr) 64px 98px;
-    grid-template-rows:auto auto;
+@media (max-width:1100px){
+  .spark-header,
+  .spark-row{
+    grid-template-columns:120px minmax(0, 1fr) 96px 80px;
+    grid-template-areas:
+      "status name owner total"
+      "status spark spark last";
     row-gap:6px;
   }
-  .funnel-item-metrics{grid-column:1 / -1;justify-self:start}
-  .funnel-item-last{grid-column:1 / -1;text-align:left}
+  .spark-header > div:nth-child(1){grid-area:status}
+  .spark-header > div:nth-child(2){grid-area:name}
+  .spark-header > div:nth-child(3){grid-area:owner}
+  .spark-header > div:nth-child(4){grid-area:spark}
+  .spark-header > div:nth-child(5){grid-area:total}
+  .spark-header > div:nth-child(6){grid-area:last}
+  .spark-row .spark-status{grid-area:status;align-self:center}
+  .spark-row .spark-name{grid-area:name}
+  .spark-row .owner-wrap{grid-area:owner}
+  .spark-row .spark-cell{grid-area:spark}
+  .spark-row .spark-total{grid-area:total}
+  .spark-row .spark-last{grid-area:last}
 }
-@media (max-width:680px){
-  .funnel-item{grid-template-columns:1fr}
-  .funnel-item-status.badge{width:auto;justify-self:start}
-  .funnel-item-metrics{grid-template-columns:repeat(2, 1fr);width:100%}
+
+/* ============================================================
+   F 方案：概览表（overview-table）
+   ============================================================ */
+.overview-table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:var(--space-12);
+  font-size:13px;
 }
+.overview-table thead th{
+  text-align:left;
+  padding:10px 14px;
+  color:var(--text-faint);
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  font-weight:500;
+  border-bottom:1px solid var(--border);
+  font-family:var(--font-sans);
+}
+.overview-table th.th-num{text-align:right;width:90px}
+.overview-table th.th-last{width:140px;text-align:right}
+.overview-table th.th-used{color:var(--accent)}
+.overview-table th.th-cold{color:var(--danger)}
+.overview-table tr.ov-summary-row{cursor:pointer;transition:background var(--dur-fast) var(--ease-soft)}
+.overview-table tr.ov-summary-row:hover{background:rgba(57,255,20,.04)}
+.overview-table tr.ov-summary-row.ov-expanded{background:rgba(57,255,20,.06)}
+.overview-table tr.ov-summary-row td{
+  padding:11px 14px;
+  border-bottom:1px solid var(--border);
+  font-family:var(--font-mono);
+  vertical-align:middle;
+}
+.overview-table .ov-kind{font-family:var(--font-sans);color:var(--text);font-size:13px;font-weight:500;letter-spacing:.02em}
+.overview-table .ov-chevron{
+  display:inline-block;
+  width:14px;
+  color:var(--text-faint);
+  font-size:10px;
+  margin-right:8px;
+  transition:transform var(--dur-fast) var(--ease-soft);
+}
+.overview-table .ov-num{text-align:right;color:var(--text);font-variant-numeric:tabular-nums}
+.overview-table .ov-num-cold{color:var(--danger)}
+.overview-table .ov-clickable{
+  cursor:pointer;
+  border-bottom:1px dotted var(--text-faint);
+  transition:color var(--dur-fast) var(--ease-soft);
+}
+.overview-table .ov-clickable:hover{color:var(--accent-bright)}
+.overview-table .ov-num-cold.ov-clickable:hover{color:var(--danger)}
+.overview-table .ov-last{text-align:right;color:var(--text-soft);font-size:11px}
+.overview-table tr.ov-summary-row.ov-dim{opacity:.35}
+.overview-table tr.ov-detail-row td.ov-detail-cell{
+  padding:0 0 var(--space-12) 0;
+  background:rgba(6,10,18,.5);
+  border-bottom:1px solid var(--border);
+}
+.overview-table .ov-funnel{
+  border:none;
+  border-radius:0;
+  margin:0;
+}
+.overview-table .ov-funnel .funnel-item{border-bottom:1px solid rgba(57,255,20,.06)}
+.overview-table .ov-funnel .funnel-item:last-child{border-bottom:none}
+
+/* 状态 chip 的 cold badge */
+.badge.cold{background:rgba(73,90,116,.18);color:var(--text-faint)}

@@ -5,77 +5,46 @@
   const showToast = (...a) => D.showToast && D.showToast(...a);
   const flipOpenOrder = D.flipOpenOrder || [];
 
-  // ===== 纯客户端 owner 过滤 (瞬时, 无 fetch, 无闪烁) =====
+  // ===== 纯客户端 owner 过滤（F 方案：只过 funnel-row） =====
   function applyFilter(owner) {
-    currentOwner = owner;
-    // 過濾條件變化時自動復原所有翻開卡片, 避免背面數據與前面 owner 不一致
-    if (typeof flipOpenOrder !== 'undefined' && flipOpenOrder.length > 0) {
-      flipOpenOrder.forEach(c => c.classList.remove('flipped'));
-      flipOpenOrder.length = 0;
+    // 过滤所有 funnel-row
+    document.querySelectorAll('.funnel-row[data-owner]').forEach(row => {
+      const match = !owner || row.dataset.owner === owner;
+      row.style.display = match ? '' : 'none';
+    });
+    // 高亮当前激活的 owner tag
+    document.querySelectorAll('.owner-filter-trigger').forEach(t => {
+      t.classList.toggle('owner-filter-active',
+        !!owner && t.dataset.ownerFilter === owner);
+    });
+    updateActiveChip(owner);
+  }
+
+  function updateActiveChip(owner) {
+    let chip = document.querySelector('.owner-active-chip');
+    if (owner) {
+      if (!chip) {
+        const row = document.querySelector('.tab-controls .control-row');
+        if (!row) return;
+        chip = document.createElement('a');
+        chip.className = 'owner-active-chip';
+        chip.href = '#';
+        chip.innerHTML = '筛选: <b></b><span class="owner-active-clear">✕</span>';
+        row.appendChild(chip);
+      }
+      chip.querySelector('b').textContent = owner;
+    } else if (chip) {
+      chip.remove();
     }
-    // chip 高亮
-    document.querySelectorAll('.owner-chip').forEach(c => {
-      c.classList.toggle('active', (c.dataset.owner || '') === owner);
-    });
-    // 过滤 active rows
-    document.querySelectorAll('.active-card').forEach(card => {
-      const rows = card.querySelectorAll('.row');
-      let visible = 0;
-      rows.forEach(r => {
-        const match = !owner || r.dataset.owner === owner;
-        r.style.display = match ? '' : 'none';
-        if (match) visible++;
-      });
-      // 更新 count
-      const cnt = card.querySelector('.active-count');
-      if (cnt) cnt.textContent = visible + ' 个';
-      // 空状态提示
-      const emptyNote = card.querySelector('.empty-note');
-      if (visible === 0 && !emptyNote) {
-        const note = document.createElement('div');
-        note.className = 'empty-note js-empty';
-        note.textContent = '(此范围内无数据)';
-        card.appendChild(note);
-      } else if (visible > 0) {
-        const js = card.querySelector('.js-empty');
-        if (js) js.remove();
-      }
-    });
-    // 过滤 cold items
-    document.querySelectorAll('.risk').forEach(risk => {
-      const items = risk.querySelectorAll('.risk-list li[data-owner]');
-      let visible = 0;
-      items.forEach(li => {
-        const match = !owner || li.dataset.owner === owner;
-        li.dataset.visible = match ? '1' : '0';
-        if (match) visible++;
-      });
-      // 更新 risk-count
-      const rc = risk.querySelector('.risk-count');
-      if (rc) {
-        const total = items.length;
-        rc.textContent = visible + ' / ' + total;
-      }
-      // 更新 risk-bar 宽度
-      const bar = risk.querySelector('.risk-bar-fill');
-      if (bar && items.length > 0) {
-        const pct = (visible / items.length) * 100;
-        bar.style.width = pct.toFixed(0) + '%';
-      }
-      // 更新严重度 class
-      if (items.length > 0) {
-        const ratio = visible / items.length;
-        risk.classList.remove('high','mid','low');
-        if (ratio >= 0.7) risk.classList.add('high');
-        else if (ratio >= 0.3) risk.classList.add('mid');
-        else risk.classList.add('low');
-      }
-      // 直接显示/隐藏匹配项 (cold list 是 scroll 容器, 无 expand 概念)
-      items.forEach(li => {
-        li.style.display = li.dataset.visible === '1' ? '' : 'none';
-      });
-    });
-    // URL 更新由调用方决定 (chip click vs popstate vs init)
+  }
+
+  function setOwnerFilter(owner) {
+    const u = new URL(location.href);
+    if (owner) u.searchParams.set('owner', owner);
+    else u.searchParams.delete('owner');
+    if (!u.hash) u.hash = '#usage';
+    history.replaceState({owner}, '', u.toString());
+    applyFilter(owner);
   }
 
   // URL 状态管理 (pushState + popstate 支持浏览器前进后退)
@@ -91,18 +60,21 @@
     }
   }
 
-  // chip 点击: 整页 reload 让 server 端重算 back face (前端 hide 不夠, 翻面數據需要 server 過濾)
-  document.querySelectorAll('.owner-chip').forEach(chip => {
-    chip.addEventListener('click', e => {
+  // spark-row 内的 owner-tag 点击 = 设置筛选；再次点击同一 owner = 清除（纯客户端，不刷新）
+  document.addEventListener('click', e => {
+    // 顶部「筛选 X ✕」chip 点击清除
+    if (e.target.closest('.owner-active-chip')) {
       e.preventDefault();
-      const owner = chip.dataset.owner || '';
-      const u = new URL(location.href);
-      if (owner) u.searchParams.set('owner', owner);
-      else u.searchParams.delete('owner');
-      // 保留當前 tab hash; URL 物件處理 hash, 不要再字串拼接以免重複
-      if (!u.hash) u.hash = '#usage';
-      location.href = u.toString();
-    });
+      setOwnerFilter('');
+      return;
+    }
+    const tag = e.target.closest('.owner-filter-trigger[data-owner-filter]');
+    if (!tag) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const owner = tag.dataset.ownerFilter || '';
+    const cur = new URL(location.href).searchParams.get('owner') || '';
+    setOwnerFilter(cur === owner ? '' : owner);
   });
 
   // 浏览器后退/前进: 从 URL 读取 owner 重新应用 (不再推历史)
@@ -176,40 +148,6 @@
     }
   });
 
-  // ===== 行 name 溢出时 hover 触发跑马灯 =====
-  document.addEventListener('pointerover', e => {
-    const row = e.target.closest && e.target.closest('.active-card .row');
-    if (!row) return;
-    const name = row.querySelector('.name');
-    if (!name || name.classList.contains('marquee')) return;
-    if (name.scrollWidth > name.clientWidth + 2) {
-      const shift = -(name.scrollWidth - name.clientWidth + 12);
-      name.style.setProperty('--marquee-shift', shift + 'px');
-      name.classList.add('marquee');
-    }
-  });
-  document.addEventListener('pointerout', e => {
-    const row = e.target.closest && e.target.closest('.active-card .row');
-    if (!row) return;
-    // 离开整行才停, 否则在 row 内子元素间移动会闪
-    if (e.relatedTarget && row.contains(e.relatedTarget)) return;
-    const name = row.querySelector('.name');
-    if (name) {
-      name.classList.remove('marquee');
-      name.style.removeProperty('--marquee-shift');
-    }
-  });
-
-  // ===== 一键批量禁用 (背面操作按钮) =====
-  document.addEventListener('click', async e => {
-    const btn = e.target.closest('[data-bulk-disable]');
-    if (!btn) return;
-    e.preventDefault();
-    if (!confirm('确认一键禁用此分类下所有冷藏项? 此操作可逆 (.disabled/ 目录)')) return;
-    showToast('批量禁用功能开发中', 'error');
-    // TODO: 后端 endpoint 实现, 当前只做 UI 占位
-  });
-
   // ===== owner-tag 點擊複製完整路徑 =====
   document.addEventListener('click', async e => {
     const tag = e.target.closest('.owner-tag[data-tip]');
@@ -239,25 +177,181 @@
     }
   });
 
-  // ===== Phase 3.2: Skill 触发漏斗状态筛选 =====
-  // 用独立 class .row-funnel-hidden（CSS !important）跟 owner 筛选解耦——两层筛选叠加
-  // chip 复用 .pill 样式，selector 用 [data-funnel-status] 区分常规 .pill
-  const funnelFilter = document.getElementById('funnel-status-filter');
-  if (funnelFilter) {
-    funnelFilter.addEventListener('click', (e) => {
+  // ===== F 方案：概览表交互（状态 chip + 行展开 + 表头数字快捷） =====
+  const ovTable = document.getElementById('overview-table');
+  const ovFilter = document.getElementById('overview-status-filter');
+
+  function setStatusFilter(target) {
+    target = target || '';
+    if (ovFilter) {
+      ovFilter.querySelectorAll('.pill[data-funnel-status]').forEach(c => {
+        c.classList.toggle('active', (c.dataset.funnelStatus || '') === target);
+      });
+    }
+    // 过滤所有 funnel-row
+    document.querySelectorAll('.funnel-row').forEach(row => {
+      const rowStatus = row.dataset.funnelStatus || '';
+      const matchStatus = !target || target === rowStatus;
+      row.classList.toggle('row-funnel-hidden', !matchStatus);
+    });
+    // 概览表：每个类别根据该状态命中数更新 dim 状态；有命中的自动展开
+    if (ovTable) {
+      ovTable.querySelectorAll('tr.ov-summary-row').forEach(row => {
+        const kind = row.dataset.kind;
+        let hits;
+        if (!target) {
+          hits = parseInt(row.dataset.paired||0) + parseInt(row.dataset.readOnly||0)
+               + parseInt(row.dataset.explicitOnly||0) + parseInt(row.dataset.cold||0);
+        } else {
+          // dataset 名: read-only -> readOnly, explicit-only -> explicitOnly
+          const key = target.replace(/-([a-z])/g, (_,c)=>c.toUpperCase());
+          hits = parseInt(row.dataset[key]||0);
+        }
+        row.classList.toggle('ov-dim', !!target && hits === 0);
+        const detail = row.nextElementSibling;
+        if (!detail || !detail.classList.contains('ov-detail-row')) return;
+        if (target && hits > 0) {
+          // 自动展开有命中的类别
+          detail.style.display = '';
+          row.classList.add('ov-expanded');
+          const chevron = row.querySelector('.ov-chevron');
+          if (chevron) chevron.textContent = '▼';
+        } else if (!target) {
+          // 取消过滤回到默认全折叠（不主动收起，保留用户已展开的）
+          // → 不改 detail.display
+        } else {
+          // 该状态命中=0，折叠
+          detail.style.display = 'none';
+          row.classList.remove('ov-expanded');
+          const chevron = row.querySelector('.ov-chevron');
+          if (chevron) chevron.textContent = '▶';
+        }
+      });
+    }
+  }
+
+  if (ovFilter) {
+    ovFilter.addEventListener('click', e => {
       const chip = e.target.closest('.pill[data-funnel-status]');
       if (!chip) return;
       e.preventDefault();
-      const target = chip.dataset.funnelStatus || '';
-      funnelFilter.querySelectorAll('.pill[data-funnel-status]').forEach(c => {
-        c.classList.toggle('active', c === chip);
-      });
-      document.querySelectorAll('.funnel-row').forEach(row => {
-        const rowStatus = row.dataset.funnelStatus || '';
-        const matchStatus = !target || target === rowStatus;
-        row.classList.toggle('row-funnel-hidden', !matchStatus);
-      });
+      setStatusFilter(chip.dataset.funnelStatus || '');
     });
   }
+
+  // 行展开 / 折叠：点击 ov-summary-row 任意位置（除非点的是可点数字）
+  if (ovTable) {
+    ovTable.addEventListener('click', e => {
+      // 表头数字快捷：点 used / cold 数字 = 切换到对应状态 chip
+      const numCell = e.target.closest('td.ov-clickable[data-jump-status]');
+      if (numCell) {
+        e.preventDefault();
+        e.stopPropagation();
+        setStatusFilter(numCell.dataset.jumpStatus);
+        return;
+      }
+      const row = e.target.closest('tr.ov-summary-row');
+      if (!row) return;
+      const detail = row.nextElementSibling;
+      if (!detail || !detail.classList.contains('ov-detail-row')) return;
+      const willOpen = detail.style.display === 'none';
+      detail.style.display = willOpen ? '' : 'none';
+      row.classList.toggle('ov-expanded', willOpen);
+      const chevron = row.querySelector('.ov-chevron');
+      if (chevron) chevron.textContent = willOpen ? '▼' : '▶';
+    });
+  }
+
+  // ===== 列头排序：3 态循环 none → asc → desc → none，每个 spark-list 独立维护 =====
+  function sortList(list, key, dir) {
+    const rows = Array.from(list.querySelectorAll('.spark-row'));
+    const cmp = (a, b) => {
+      let va, vb;
+      if (dir === 'none' || !key) {
+        va = parseInt(a.dataset.origIdx || '0', 10);
+        vb = parseInt(b.dataset.origIdx || '0', 10);
+        return va - vb;
+      }
+      if (key === 'status') {
+        va = parseInt(a.dataset.statusSev || '9', 10);
+        vb = parseInt(b.dataset.statusSev || '9', 10);
+      } else if (key === 'total') {
+        va = parseInt(a.dataset.total || '0', 10);
+        vb = parseInt(b.dataset.total || '0', 10);
+      } else if (key === 'last') {
+        va = a.dataset.lastTs || '';
+        vb = b.dataset.lastTs || '';
+      } else if (key === 'name') {
+        va = a.dataset.name || '';
+        vb = b.dataset.name || '';
+      } else if (key === 'owner') {
+        va = a.dataset.owner || '';
+        vb = b.dataset.owner || '';
+      } else {
+        return 0;
+      }
+      if (va < vb) return dir === 'asc' ? -1 : 1;
+      if (va > vb) return dir === 'asc' ? 1 : -1;
+      return 0;
+    };
+    rows.sort(cmp);
+    const frag = document.createDocumentFragment();
+    rows.forEach(r => frag.appendChild(r));
+    list.appendChild(frag);
+  }
+
+  document.addEventListener('click', e => {
+    const hdr = e.target.closest('.spark-header .sortable');
+    if (!hdr) return;
+    e.preventDefault();
+    const headerEl = hdr.parentElement;
+    const list = headerEl.nextElementSibling;
+    if (!list || !list.classList.contains('spark-list')) return;
+    const key = hdr.dataset.sort;
+    // 3 态循环：none → asc → desc → none
+    const cur = hdr.classList.contains('sort-asc') ? 'asc'
+              : hdr.classList.contains('sort-desc') ? 'desc'
+              : 'none';
+    const nextDir = cur === 'none' ? 'asc'
+                  : cur === 'asc'  ? 'desc'
+                  :                  'none';
+    // 重置同 header 内所有 sortable 的状态
+    headerEl.querySelectorAll('.sortable').forEach(s => {
+      s.classList.remove('sort-asc', 'sort-desc');
+      const ind = s.querySelector('.sort-ind');
+      if (ind) ind.textContent = '⇅';
+    });
+    if (nextDir !== 'none') {
+      hdr.classList.add('sort-' + nextDir);
+      const ind = hdr.querySelector('.sort-ind');
+      if (ind) ind.textContent = nextDir === 'asc' ? '▲' : '▼';
+    }
+    sortList(list, key, nextDir);
+  });
+
+  // ===== 详细按钮：点击切换弹出面板（一次只开一个） =====
+  function closeAllDetailPops() {
+    document.querySelectorAll('.spark-detail-pop.show').forEach(p => p.classList.remove('show'));
+    document.querySelectorAll('.spark-detail-btn.active').forEach(b => b.classList.remove('active'));
+  }
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('.spark-detail-btn');
+    if (btn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const pop = btn.parentElement.querySelector('.spark-detail-pop');
+      const isOpen = pop && pop.classList.contains('show');
+      closeAllDetailPops();
+      if (!isOpen && pop) {
+        pop.classList.add('show');
+        btn.classList.add('active');
+      }
+      return;
+    }
+    // 点击面板内部不关闭
+    if (e.target.closest('.spark-detail-pop')) return;
+    // 点击其它地方关闭
+    closeAllDetailPops();
+  });
 
 })();

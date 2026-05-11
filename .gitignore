@@ -1,5 +1,4 @@
 data/
-progress/
 __pycache__/
 *.bak
 *.tmp

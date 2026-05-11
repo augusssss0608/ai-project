@@ -174,6 +174,15 @@ def _render_page_header(parts: list, conn=None):
     parts.append("<div class='page-actions'>")
     if conn is not None:
         _render_health_strip(parts, conn)
+    # 上次清理时间（events 数据清零的时间点）
+    last_cleared = _read_last_cleared()
+    if last_cleared:
+        parts.append(
+            "<div class='last-cleared-meter' title='事件数据上次清零的时间'>"
+            "<span class='last-cleared-label'>清零</span>"
+            f"<span class='last-cleared-time'>{html.escape(last_cleared)}</span>"
+            "</div>"
+        )
     parts.append(
         "<div class='summary-meter'>"
         "<span class='summary-meter-label'>AI 摘要</span>"
@@ -186,6 +195,26 @@ def _render_page_header(parts: list, conn=None):
     parts.append("</div>")
     parts.append("</div>")
     parts.append("</header>")
+
+
+_LAST_CLEARED_PATH = os.path.expanduser("~/Desktop/ai-project/data/last-cleared.txt")
+
+
+def _read_last_cleared() -> str:
+    """读 last-cleared.txt，返回 'MM-DD HH:MM' (始终带月日)."""
+    try:
+        with open(_LAST_CLEARED_PATH) as f:
+            iso = f.read().strip()
+    except (OSError, FileNotFoundError):
+        return ""
+    if not iso:
+        return ""
+    from datetime import datetime, timezone
+    try:
+        dt = datetime.strptime(iso.rstrip("Z"), "%Y-%m-%dT%H:%M:%S").replace(tzinfo=timezone.utc)
+        return dt.astimezone().strftime("%m-%d %H:%M")
+    except Exception:
+        return ""
 
 
 def _render_health_strip(parts: list, conn):
@@ -522,9 +551,6 @@ def render(days: int, owner_filter: str = "",
     owner_dailies = query_owner_dailies(conn, days)
     owner_sessions = query_owner_session_counts(conn, days)
     recent_stream = query_recent_events(conn, days, limit=30)
-    # _collect_owners 已迁到 usage.render, 这里 late import 避免循环依赖
-    from usage.render import _collect_owners
-    ordered_owners = _collect_owners(active_data, cold_data_by_id)
 
     # Phase 3.3：Owner 路由足迹（context tab 重做）
     session_routes = query_session_routing(conn, routing_days, limit=50)
@@ -570,7 +596,6 @@ def render(days: int, owner_filter: str = "",
     parts.append(f"<div class='tab-content{_ac('usage')}' data-tab='usage'>")
     render_usage(parts, days=usage_days, owner_filter=owner_filter,
                  overview_days=days, routing_days=routing_days,
-                 ordered_owners=ordered_owners,
                  active_data=active_data, cold_data_by_id=cold_data_by_id,
                  sessions_maps=sessions_maps, paired_maps=paired_maps,
                  last_seen_maps=last_seen_maps, overridden_user=overridden_user,

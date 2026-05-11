@@ -936,85 +936,198 @@ def count_lint_issues(lint_json) -> dict:
 
 
 # ============================================================
-# 区块: Skill 触发漏斗（Phase 3.2）
+# 区块: 通用 funnel rows（概览表用，覆盖 5 类对象）
 # ============================================================
-SKILL_FUNNEL_READ_ONLY_MIN = 5  # read 次数 >= 这个值才判 read-only 异常
+# 类目元信息：决定数据来源 + 状态判定模型
+# kind: 内部 id；label: 表头展示；read_etype/explicit_etype: 事件类型；
+# cold_section_ids: 在 COLD_SECTIONS 中对应的 id；name_filter 用于 plugin/普通 skill 区分
+CATEGORY_DEFS = [
+    {
+        "kind": "skill",
+        "label": "Skill",
+        "read_etype": "skill_read",
+        "explicit_etype": "skill_explicit",
+        "cold_section_ids": ("cold_skills", "cold_skills_explicit"),
+        "name_filter": lambda n: ":" not in (n or ""),  # 排除 plugin
+        "supports_paired": True,
+        "supports_explicit": True,
+    },
+    {
+        "kind": "subagent",
+        "label": "Subagent",
+        "read_etype": None,
+        "explicit_etype": "subagent",
+        "cold_section_ids": ("cold_subagents",),
+        "name_filter": None,
+        "supports_paired": False,
+        "supports_explicit": True,
+    },
+    {
+        "kind": "docs",
+        "label": ".claude/docs",
+        "read_etype": "clinerule_read",
+        "explicit_etype": None,
+        "cold_section_ids": ("cold_clinerules",),
+        "name_filter": None,
+        "supports_paired": True,
+        "supports_explicit": False,
+    },
+    {
+        "kind": "plugin",
+        "label": "Plugin 命令",
+        "read_etype": None,
+        "explicit_etype": "skill_explicit",
+        "cold_section_ids": ("cold_plugins",),
+        "name_filter": lambda n: ":" in (n or ""),  # 只 plugin
+        "supports_paired": False,
+        "supports_explicit": True,
+    },
+    {
+        "kind": "claude_md",
+        "label": "CLAUDE.md",
+        "read_etype": "claude_md_read",
+        "explicit_etype": None,
+        "cold_section_ids": ("cold_claude_md",),
+        "name_filter": None,
+        "supports_paired": True,
+        "supports_explicit": False,
+    },
+]
 
 
-def build_skill_funnel_rows(active_data, sessions_maps, paired_maps,
-                             cold_data_by_id, last_seen_maps):
-    """聚合所有 skill 的 read + explicit + sessions + paired + last_seen + status
+def query_daily_series_by_etype(conn, etype: str, days: int = 30) -> dict:
+    """返回 {(name, scope): [day_count_30_days]}。day_count[0] 是 30 天前，day_count[-1] 是今天。"""
+    from datetime import date
+    today = datetime.now(timezone.utc).date()
+    cutoff = (today - timedelta(days=days-1)).strftime("%Y-%m-%d")
+    cur = conn.execute(
+        "SELECT name, COALESCE(scope,'') AS scope, "
+        "       substr(ts, 1, 10) AS d, "
+        "       COUNT(*) AS c "
+        "FROM events WHERE type=? AND ts >= ? "
+        "GROUP BY name, scope, d",
+        (etype, cutoff),
+    )
+    # 先收成 {key: {date: count}}
+    raw = {}
+    for name, scope, d, c in cur.fetchall():
+        raw.setdefault((name or "", scope), {})[d] = c
+    # 物化成定长 30 数组
+    out = {}
+    day_keys = [(today - timedelta(days=days-1-i)).strftime("%Y-%m-%d") for i in range(days)]
+    for key, day_map in raw.items():
+        out[key] = [day_map.get(d, 0) for d in day_keys]
+    return out
 
-    复用现有数据，不需要新 SQL。
-    返回 [{name, scope, owner, path, read, explicit, sessions, paired_rate, last_seen, status, disabled}]
-    """
+
+def _merge_series(a: list, b: list) -> list:
+    """对位求和。任一为空补 0。"""
+    if not a and not b:
+        return []
+    if not a:
+        return list(b)
+    if not b:
+        return list(a)
+    n = max(len(a), len(b))
+    return [(a[i] if i < len(a) else 0) + (b[i] if i < len(b) else 0) for i in range(n)]
+
+
+def _build_category_rows(cat: dict, active_data, sessions_maps, paired_maps,
+                          last_seen_maps, cold_data_by_id,
+                          series_maps: dict | None = None):
+    """通用 funnel rows builder：根据 cat 配置从已查好的 maps 里组装。
+
+    返回 [{kind, name, scope, owner, path, read, explicit, sessions,
+           paired, pairable_total, last_seen, status, disabled}]"""
+    name_filter = cat.get("name_filter")
+    read_et = cat.get("read_etype")
+    expl_et = cat.get("explicit_etype")
+
     # active 数据：[(name, scope, count, path, owner)]
-    read_rows = {
-        ((r[0] or ""), (r[1] or "")): (r[2], r[3] or "", r[4] or "other")
-        for r in active_data.get("skill_read", [])
-    }
-    explicit_rows = {
-        ((r[0] or ""), (r[1] or "")): (r[2], r[3] or "", r[4] or "other")
-        for r in active_data.get("skill_explicit", [])
-        if ":" not in (r[0] or "")  # 排除 plugin:cmd
-    }
+    read_rows = {}
+    if read_et:
+        for r in active_data.get(read_et, []) or []:
+            name = r[0] or ""
+            if name_filter and not name_filter(name):
+                continue
+            key = (name, r[1] or "")
+            read_rows[key] = (r[2], r[3] or "", r[4] or "other")
 
+    explicit_rows = {}
+    if expl_et:
+        for r in active_data.get(expl_et, []) or []:
+            name = r[0] or ""
+            if name_filter and not name_filter(name):
+                continue
+            key = (name, r[1] or "")
+            explicit_rows[key] = (r[2], r[3] or "", r[4] or "other")
+
+    # universe = read ∪ explicit ∪ cold
     universe = {}
-    for key, (_count, path, owner) in read_rows.items():
-        universe.setdefault(key, {})
-        universe[key]["path"] = path or universe[key].get("path", "")
-        universe[key]["owner"] = owner or universe[key].get("owner", "other")
-    for key, (_count, path, owner) in explicit_rows.items():
-        universe.setdefault(key, {})
-        universe[key]["path"] = path or universe[key].get("path", "")
-        universe[key]["owner"] = owner or universe[key].get("owner", "other")
+    for key, (_c, p, o) in read_rows.items():
+        universe.setdefault(key, {"path": p, "owner": o})
+    for key, (_c, p, o) in explicit_rows.items():
+        universe.setdefault(key, {"path": p, "owner": o})
+        if not universe[key].get("path"):
+            universe[key]["path"] = p
+        if universe[key].get("owner") in (None, "", "other"):
+            universe[key]["owner"] = o
 
-    # cold 数据并入 universe（用 cold_skills + cold_skills_explicit）
-    for section_id in ("cold_skills", "cold_skills_explicit"):
-        data = cold_data_by_id.get(section_id, {})
+    for sec_id in cat["cold_section_ids"]:
+        data = cold_data_by_id.get(sec_id, {}) or {}
         for item in data.get("cold", []) or []:
             name = item.get("name", "")
-            scope = item.get("scope", "") or ""
-            if ":" in name:  # plugin cmd 排除
+            if name_filter and not name_filter(name):
                 continue
+            scope = item.get("scope", "") or ""
             key = (name, scope)
-            universe.setdefault(key, {})
-            universe[key].setdefault("path", item.get("path", ""))
-            universe[key].setdefault("owner", item.get("owner", "other"))
+            slot = universe.setdefault(key, {})
+            slot.setdefault("path", item.get("path", ""))
+            slot.setdefault("owner", item.get("owner", "other"))
             if item.get("disabled"):
-                universe[key]["disabled"] = True
+                slot["disabled"] = True
 
-    read_sessions = sessions_maps.get("skill_read", {})
-    explicit_sessions = sessions_maps.get("skill_explicit", {})
-    paired_map = paired_maps.get("skill_read", {})
-    last_read = last_seen_maps.get("skill_read", {})
-    last_explicit = last_seen_maps.get("skill_explicit", {})
+    read_sess = sessions_maps.get(read_et, {}) if read_et else {}
+    expl_sess = sessions_maps.get(expl_et, {}) if expl_et else {}
+    paired_map = paired_maps.get(read_et, {}) if (read_et and cat["supports_paired"]) else {}
+    last_read = last_seen_maps.get(read_et, {}) if read_et else {}
+    last_expl = last_seen_maps.get(expl_et, {}) if expl_et else {}
+
+    read_series_map = (series_maps or {}).get(read_et, {}) if read_et else {}
+    expl_series_map = (series_maps or {}).get(expl_et, {}) if expl_et else {}
 
     rows = []
     for key, meta in universe.items():
-        read_count = read_rows.get(key, (0, "", ""))[0]
-        explicit_count = explicit_rows.get(key, (0, "", ""))[0]
-        sessions = max(read_sessions.get(key, 0), explicit_sessions.get(key, 0))
+        read_count = read_rows.get(key, (0,))[0]
+        explicit_count = explicit_rows.get(key, (0,))[0]
+        sessions = max(read_sess.get(key, 0), expl_sess.get(key, 0))
         paired, pairable_total = paired_map.get(key, (0, 0))
-        paired_rate = (paired / pairable_total) if pairable_total else None
-        last_seen = max(
-            last_read.get(key, "") or "",
-            last_explicit.get(key, "") or "",
-        ) or None
+        last_seen = max(last_read.get(key, "") or "", last_expl.get(key, "") or "") or None
+        series = _merge_series(read_series_map.get(key, []), expl_series_map.get(key, []))
 
-        # 状态判定（4 种）
+        # 状态判定：根据 supports_paired / supports_explicit 简化
         if read_count == 0 and explicit_count == 0:
             status = "cold"
-        elif explicit_count >= 1 and read_count == 0:
-            status = "explicit-only"
-        elif read_count >= 1 and explicit_count == 0:
-            # 任何 "读了但没显式调用" 都归 read-only（不再用 N1 阈值）
-            # 让 paired 严格表示 "read>=1 且 explicit>=1"
-            status = "read-only"
+        elif cat["supports_paired"] and cat["supports_explicit"]:
+            # skill: 完整 4 态
+            if explicit_count >= 1 and read_count == 0:
+                status = "explicit-only"
+            elif read_count >= 1 and explicit_count == 0:
+                status = "read-only"
+            else:
+                status = "paired"
+        elif cat["supports_paired"]:
+            # docs / claude_md：只有 read（+ pair 检测）
+            if pairable_total > 0 and paired == 0:
+                status = "read-only"
+            else:
+                status = "paired"
         else:
-            status = "paired"
+            # subagent / plugin：只有 explicit
+            status = "paired"  # 用 paired 表示"在用"，便于统一过滤
 
         rows.append({
+            "kind": cat["kind"],
             "name": key[0],
             "scope": key[1],
             "owner": meta.get("owner", "other"),
@@ -1022,48 +1135,92 @@ def build_skill_funnel_rows(active_data, sessions_maps, paired_maps,
             "read": read_count,
             "explicit": explicit_count,
             "sessions": sessions,
-            "paired_rate": paired_rate,
             "paired": paired,
             "pairable_total": pairable_total,
             "last_seen": last_seen,
             "status": status,
             "disabled": bool(meta.get("disabled", False)),
+            "total": read_count + explicit_count,
+            "series": series,
         })
 
-    # 排序：异常优先 + 同状态按最近触发倒序（用 stable sort 两步）
-    severity = {
-        "explicit-only": 0,
-        "read-only": 1,
-        "cold": 2,
-        "paired": 3,
-    }
-    # 第一步：按 last_seen 字符串倒序（ISO 格式可直接字典序比，最近的在前；空串排最后）
-    # cold 状态希望最久未触发优先，所以正序；其它倒序——分两组处理
-    def _last_seen_key(r):
-        ls = r.get("last_seen") or ""
-        if r["status"] == "cold":
-            # cold 内：从未触发（空串）和最久优先 → 空串映射到 "0"，正序
-            return ls or "0"
-        else:
-            # 其它：最近触发优先 → 字符串本身，配合 reverse 倒序
-            return ls
-    # 先按时间排（活跃组倒序，cold 组正序），再按 severity 稳定排序
-    rows.sort(key=lambda r: _last_seen_key(r), reverse=True)
-    # 把 cold 行重排为正序：先 sort 整体倒序后，cold 子集自然变成"近的在前"，需要单独翻转
+    # 排序：异常优先 + cold 内"最久未触发优先"
+    severity = {"explicit-only": 0, "read-only": 1, "cold": 2, "paired": 3}
+    rows.sort(key=lambda r: (r.get("last_seen") or ""), reverse=True)
     cold_rows = [r for r in rows if r["status"] == "cold"]
     other_rows = [r for r in rows if r["status"] != "cold"]
-    cold_rows.reverse()  # 倒序 → cold 内"最久未触发优先"
+    cold_rows.reverse()
     rows = other_rows + cold_rows
-    rows.sort(key=lambda r: severity.get(r["status"], 9))  # 稳定排序按 severity
+    rows.sort(key=lambda r: severity.get(r["status"], 9))
     return rows
 
 
-def funnel_status_counts(rows: list) -> dict:
-    out = {"paired": 0, "read-only": 0, "explicit-only": 0, "cold": 0}
-    for r in rows:
-        st = r["status"]
-        if st in out:
-            out[st] += 1
+def build_funnel_rows_by_category(active_data, sessions_maps, paired_maps,
+                                    last_seen_maps, cold_data_by_id,
+                                    series_maps=None):
+    """返回 {kind: [rows]} 按 CATEGORY_DEFS 顺序构建所有类别的 funnel rows."""
+    out = {}
+    for cat in CATEGORY_DEFS:
+        out[cat["kind"]] = _build_category_rows(
+            cat, active_data, sessions_maps, paired_maps,
+            last_seen_maps, cold_data_by_id, series_maps,
+        )
+    return out
+
+
+SPARK_DAYS = 30
+SPARK_ETYPES = ("skill_read", "skill_explicit", "subagent",
+                "clinerule_read", "claude_md_read")
+
+
+def query_spark_series_maps(conn, days: int = SPARK_DAYS) -> dict:
+    """一次取齐 5 个 etype 的 30 天日触发序列，返回 {etype: {key: [counts...]}}."""
+    return {et: query_daily_series_by_etype(conn, et, days) for et in SPARK_ETYPES}
+
+
+def build_overview_summary(rows_by_category):
+    """每个类别计算汇总指标，给概览表用。
+
+    返回 [{kind, label, total, used, cold, paired, read_only, explicit_only,
+           pair_rate_str, last_seen, supports_paired, supports_explicit}]
+    顺序与 CATEGORY_DEFS 一致。"""
+    out = []
+    cat_meta = {c["kind"]: c for c in CATEGORY_DEFS}
+    for cat in CATEGORY_DEFS:
+        rows = rows_by_category.get(cat["kind"], []) or []
+        total = len(rows)
+        cold = sum(1 for r in rows if r["status"] == "cold")
+        used = total - cold
+        paired = sum(1 for r in rows if r["status"] == "paired")
+        read_only = sum(1 for r in rows if r["status"] == "read-only")
+        explicit_only = sum(1 for r in rows if r["status"] == "explicit-only")
+
+        # 配对率：只对 supports_paired 的类别计算（用所有 pairable_total > 0 的行）
+        if cat["supports_paired"]:
+            paired_sum = sum(r["paired"] for r in rows if r.get("pairable_total", 0))
+            pairable_sum = sum(r["pairable_total"] for r in rows if r.get("pairable_total", 0))
+            if pairable_sum > 0:
+                pair_rate_str = f"{paired_sum * 100 // pairable_sum}%"
+            else:
+                pair_rate_str = "—"
+        else:
+            pair_rate_str = "—"
+
+        last_seen = max((r.get("last_seen") or "" for r in rows), default="") or None
+        out.append({
+            "kind": cat["kind"],
+            "label": cat["label"],
+            "total": total,
+            "used": used,
+            "cold": cold,
+            "paired": paired,
+            "read_only": read_only,
+            "explicit_only": explicit_only,
+            "pair_rate_str": pair_rate_str,
+            "last_seen": last_seen,
+            "supports_paired": cat["supports_paired"],
+            "supports_explicit": cat["supports_explicit"],
+        })
     return out
 
 

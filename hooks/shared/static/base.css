@@ -1143,6 +1143,33 @@ footer{
 }
 .summary-meter-btn:disabled{opacity:.5;cursor:wait}
 
+/* 上次清零 chip：跟 summary-meter 同款但更紧凑 */
+.last-cleared-meter{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 10px;
+  background:var(--card-bg);
+  border:1px solid var(--card-border);
+  border-radius:var(--radius-sm);
+  box-shadow:var(--shadow-sm);
+  font-family:var(--font-mono);
+  font-size:10px;
+  letter-spacing:.04em;
+  white-space:nowrap;
+}
+.last-cleared-label{
+  color:var(--text-soft);
+  font-weight:500;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+.last-cleared-time{
+  color:var(--text);
+  font-variant-numeric:tabular-nums;
+  font-weight:600;
+}
+
 /* ============================================================
  * Phase 3.1：工作区健康状态条
  * ============================================================ */
