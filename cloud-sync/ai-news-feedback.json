@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-05-09T14:44:38+09:00",
+  "updated_at": "2026-05-11T14:46:08+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -1000,6 +1000,42 @@
     "https://www.threads.com/@cab_late/post/DYFAeIHFNg_": {
       "ts": "2026-05-09T14:44:38+09:00",
       "title": "最近把我的 Claude 工具優化一下，現在能更精確看到當次對話的 token 使用量，然後發現了一件事：Subagent 用小模型並不總是比較省錢。",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://twitter.com/trq212/status/2052809885763747935": {
+      "ts": "2026-05-11T14:42:41+09:00",
+      "title": "Using Claude Code: The unreasonable effectiveness of HTML",
+      "source": "hackernews",
+      "score": "up"
+    },
+    "https://www.threads.com/@silatawtataysi/post/DYJMgbNEsuf": {
+      "ts": "2026-05-11T14:44:53+09:00",
+      "title": "讓 AI 幫你寫 code，你真的放心嗎？",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@wan_hetalia/post/DYKKExBCTlY": {
+      "ts": "2026-05-11T14:45:08+09:00",
+      "title": "英國數學家、1998 年菲爾茲獎（Fields Medal）得主 高爾斯 （Timothy Gowers ）在個人部落格發表了一篇文章",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@charlesperng/post/DYLJKPTAf4I": {
+      "ts": "2026-05-11T14:45:14+09:00",
+      "title": "Hermes Agent 終於支持 Line 了！ 我有幸貢獻了一點點 （1/7 吧！）",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@crazyaitools_/post/DYKWPzKEhXQ": {
+      "ts": "2026-05-11T14:45:41+09:00",
+      "title": "我以前以為 AI 寫 code 只要夠快，重複解釋專案背景是常態。",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@partner_by_closure/post/DYKec6zE4B3": {
+      "ts": "2026-05-11T14:46:08+09:00",
+      "title": "用了 Hermes Agent 一陣子，隨手記一下",
       "source": "threads",
       "score": "up"
     }
