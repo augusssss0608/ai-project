@@ -103,20 +103,30 @@ from ai_news.data.feedback import load_feedback, get_stage
 
 #### 2.3 Feature flags (pipeline 行为开关)
 
-读环境变量决定 #5 / #2 / featured_items 是否启用，默认全开：
+读环境变量决定 #5 / #2 / featured_items 是否启用。**默认走灰度第 1 步（影子模式）**：
 
 ```python
 import os
-ENABLE_BOUNDARY_FETCH = os.environ.get("ENABLE_BOUNDARY_FETCH", "1") != "0"
-ENABLE_MMR = os.environ.get("ENABLE_MMR", "1") != "0"
-ENABLE_FEATURED_ITEMS = os.environ.get("ENABLE_FEATURED_ITEMS", "1") != "0"
+# 灰度默认值：第 1 步影子模式（行为跟旧 pipeline 一致，便于先验证新代码不破坏现有功能）
+ENABLE_BOUNDARY_FETCH = os.environ.get("ENABLE_BOUNDARY_FETCH", "0") != "0"
+ENABLE_MMR = os.environ.get("ENABLE_MMR", "0") != "0"
+ENABLE_FEATURED_ITEMS = os.environ.get("ENABLE_FEATURED_ITEMS", "0") != "0"
 ```
 
 - `ENABLE_BOUNDARY_FETCH=0`: 跳过 §2.3b/§2.3c，scorer 只用标题，所有 item `content_status=not_attempted`
 - `ENABLE_MMR=0`: 跳过 §2.3d，featured 退化为按 `ai_score desc` 取 top10
 - `ENABLE_FEATURED_ITEMS=0`: 完全回旧架构，不写 `featured_items` 字段，前端走源 tab
 
-灰度顺序：先 `ENABLE_FEATURED_ITEMS=0`（影子模式跑通），再 `=1` 但 `ENABLE_BOUNDARY_FETCH=0/ENABLE_MMR=0`，最后全开。
+**灰度顺序（每步跑 1-3 天观察 pipeline_metrics 后进下一步）**：
+
+| 步 | env vars 设置 | 验证什么 |
+|---|---|---|
+| **1. 影子模式（当前默认）** | 全部 `=0`（或不设）| 跟旧 pipeline 完全一致，确认新代码不破坏现有功能 |
+| **2. 启用 featured_items + 简单 top10** | `ENABLE_FEATURED_ITEMS=1` | featured_items 段写入 ai-news.json，前端「今日精选」tab 显示，但无 diversity |
+| **3. 启用 MMR** | `ENABLE_FEATURED_ITEMS=1 ENABLE_MMR=1` | 看 `mmr.max_event_count <= 2`，同事件不再霸屏 |
+| **4. 启用边界正文** | 全部 `=1` | 看 `boundary_fetch.success_rate`、wall_time，确认 Jina 抓取稳定 |
+
+灰度推进方式：改 Anthropic Routine 环境变量；或修改本文件默认值（`"0"` → `"1"`）后 commit + push。
 
 #### 2.3a 一轮 title scorer (mid / hot 源, 输出全候选 scored pool)
 
