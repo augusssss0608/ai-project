@@ -103,14 +103,14 @@ from ai_news.data.feedback import load_feedback, get_stage
 
 #### 2.3 Feature flags (pipeline 行为开关)
 
-读环境变量决定 #5 / #2 / featured_items 是否启用。**默认走灰度第 1 步（影子模式）**：
+读环境变量决定 #5 / #2 / featured_items 是否启用。**默认全开（完整方案）**：
 
 ```python
 import os
-# 灰度默认值：第 1 步影子模式（行为跟旧 pipeline 一致，便于先验证新代码不破坏现有功能）
-ENABLE_BOUNDARY_FETCH = os.environ.get("ENABLE_BOUNDARY_FETCH", "0") != "0"
-ENABLE_MMR = os.environ.get("ENABLE_MMR", "0") != "0"
-ENABLE_FEATURED_ITEMS = os.environ.get("ENABLE_FEATURED_ITEMS", "0") != "0"
+# 完整方案：#5 边界正文 scoring + #2 全局 MMR + featured_items tab 全部启用
+ENABLE_BOUNDARY_FETCH = os.environ.get("ENABLE_BOUNDARY_FETCH", "1") != "0"
+ENABLE_MMR = os.environ.get("ENABLE_MMR", "1") != "0"
+ENABLE_FEATURED_ITEMS = os.environ.get("ENABLE_FEATURED_ITEMS", "1") != "0"
 ```
 
 - `ENABLE_BOUNDARY_FETCH=0`: 跳过 §2.3b/§2.3c，scorer 只用标题，所有 item `content_status=not_attempted`
