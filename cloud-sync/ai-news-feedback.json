@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-05-11T14:46:08+09:00",
+  "updated_at": "2026-05-12T14:41:37+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -1036,6 +1036,42 @@
     "https://www.threads.com/@partner_by_closure/post/DYKec6zE4B3": {
       "ts": "2026-05-11T14:46:08+09:00",
       "title": "用了 Hermes Agent 一陣子，隨手記一下",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.jamesshore.com/v2/blog/2026/you-need-ai-that-reduces-your-maintenance-costs": {
+      "ts": "2026-05-12T14:36:13+09:00",
+      "title": "An AI coding agent, used to write code, needs to reduce your maintenance costs",
+      "source": "hackernews",
+      "score": "up"
+    },
+    "https://simonwillison.net/2026/May/11/gitlab-act-2/#atom-everything": {
+      "ts": "2026-05-12T14:37:07+09:00",
+      "title": "Thoughts on GitLab",
+      "source": "simonw",
+      "score": "down"
+    },
+    "https://www.threads.com/@moth.ai/post/DYOAFU8CjzS": {
+      "ts": "2026-05-12T14:37:51+09:00",
+      "title": "🚨 Claude Code 重大更新：Agent View 上線，一個畫面掌控所有 AI 編碼任務",
+      "source": "threads",
+      "score": "star"
+    },
+    "https://www.threads.com/@moth.ai/post/DYMopZCmY20": {
+      "ts": "2026-05-12T14:37:59+09:00",
+      "title": "Hermes Agent 正式整合 LINE！七大社群 PR 合一，AI 助理直送你的聊天室",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@allenlin316/post/DYL09i4E0Ny": {
+      "ts": "2026-05-12T14:40:28+09:00",
+      "title": "超強的台灣 AI 工具｜Twinkle Hub MCP Server",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@darkseoking/post/DYL-i--lCpq": {
+      "ts": "2026-05-12T14:41:37+09:00",
+      "title": "昨天半夜睡不著，本來只是想滑一下小紅書，結果看到創作者秒秒Guo做了一個私人AI廣播電台的項目，突然更睡不著了。",
       "source": "threads",
       "score": "up"
     }
