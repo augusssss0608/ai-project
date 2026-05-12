@@ -466,21 +466,27 @@ def fetch_atom(params: dict) -> list:
     return kept[:limit]
 
 
-ARTICLE_TIMEOUT = 30
-ARTICLE_MAX_CHARS = 6000
+# 默认参数：边界正文抓取 (#5) 优化值，对应 schemas.ARTICLE_TIMEOUT_SEC / ARTICLE_MAX_CHARS
+# 不再硬编码 30s/6000 字 —— Phase 2 改成更快的 7s/3000 字（边界 cap 10-12 条并发跑）
+ARTICLE_TIMEOUT = 7
+ARTICLE_MAX_CHARS = 3000
 
 
-def fetch_article_text(url: str) -> tuple:
+def fetch_article_text(url: str, timeout: int = None, max_chars: int = None) -> tuple:
     """用 Jina Reader 抓文章正文. 返回 (text, err_str).
-    text 去掉图片 md / 压缩空行, 截取到 ARTICLE_MAX_CHARS."""
+    text 去掉图片 md / 压缩空行, 截取到 max_chars.
+
+    timeout / max_chars 可覆盖默认值，便于调参或测试。"""
     if not url or not url.startswith(("http://", "https://")):
         return "", "invalid url"
+    t = timeout if timeout is not None else ARTICLE_TIMEOUT
+    mc = max_chars if max_chars is not None else ARTICLE_MAX_CHARS
     jina_url = JINA_READER_PREFIX + url
     try:
-        raw = _fetch(jina_url, timeout=ARTICLE_TIMEOUT).decode("utf-8", errors="replace")
+        raw = _fetch(jina_url, timeout=t).decode("utf-8", errors="replace")
         raw = re.sub(r"!\[[^\]]*\]\([^)]+\)", "", raw)
         raw = re.sub(r"\n{3,}", "\n\n", raw)
-        return raw[:ARTICLE_MAX_CHARS].strip(), ""
+        return raw[:mc].strip(), ""
     except urllib.error.HTTPError as e:
         return "", f"jina http {e.code}"
     except Exception as e:

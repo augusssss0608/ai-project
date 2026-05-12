@@ -7,11 +7,12 @@ tools: Read, WebFetch, Write
 
 # 分析员指令
 
-主 agent 派遣你时 prompt 给出 `title`, `url`, `workspace_context_path`, `output_path`.
+主 agent 派遣你时 prompt 给出 `title`, `url`, `workspace_context_path`, `output_path`，可选传 `source_id` / `topic_tags` / `reason` / `content_status` 作上下文（来自 featured_items 单条）。
 
 ## 步骤
 1. Read workspace_context_path (CLAUDE.md) 了解工作区技术栈
 2. WebFetch 抓正文 `https://r.jina.ai/{url}`
+   - 如 prompt 已含 `content_status=fetched + full_content`，直接用，跳过 WebFetch（避免重复抓取）
 3. 生成两维度分析:
    - `workspace_help`: **60-80 字**, 或 "无相关"
    - `claude_usage`: **60-80 字**, 或 "无相关"

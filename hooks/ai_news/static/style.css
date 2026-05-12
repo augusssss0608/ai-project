@@ -695,3 +695,116 @@
   background:rgba(255,51,102,.06);
   border-radius:var(--radius-sm);
 }
+
+/* ============================================================
+   评分线索（reason 浮窗）— 视觉弱化，debug 注脚定位
+   ============================================================ */
+.news-reason-wrap{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+.news-reason-toggle{
+  background:transparent;
+  border:1px solid rgba(120,150,184,.2);
+  color:var(--text-faint);
+  font-family:var(--font-mono);
+  font-size:9px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  padding:1px 6px;
+  border-radius:3px;
+  cursor:pointer;
+  transition:color var(--dur-fast) var(--ease-soft),
+             border-color var(--dur-fast) var(--ease-soft);
+}
+.news-reason-toggle:hover{
+  color:var(--text-soft);
+  border-color:rgba(120,150,184,.4);
+}
+.news-reason-toggle.open{
+  color:var(--text-soft);
+  border-color:rgba(120,150,184,.5);
+  background:rgba(120,150,184,.06);
+}
+
+.news-reason-pop{
+  position:absolute;
+  top:calc(100% + 8px);
+  left:0;
+  z-index:100;
+  width:360px;
+  max-width:90vw;
+  padding:10px 14px 12px;
+  background:#0a0f1a;
+  border:1px solid rgba(120,150,184,.45);
+  border-radius:4px;
+  box-shadow:0 8px 28px rgba(0,0,0,.7),
+             0 0 0 1px rgba(120,150,184,.06);
+}
+/* 顶部小三角 */
+.news-reason-pop::before{
+  content:'';
+  position:absolute;
+  top:-5px;
+  left:14px;
+  width:8px;
+  height:8px;
+  background:#0a0f1a;
+  border-left:1px solid rgba(120,150,184,.45);
+  border-top:1px solid rgba(120,150,184,.45);
+  transform:rotate(45deg);
+}
+.news-reason-pop .news-reason-head{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:6px;
+  padding-bottom:6px;
+  border-bottom:1px solid rgba(120,150,184,.18);
+}
+.news-reason-pop .news-reason-label{
+  font-family:var(--font-mono);
+  font-size:9px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--text-faint);
+  flex:1 1 auto;
+}
+/* 三态 badge：基于 content_status */
+.news-reason-pop .news-reason-badge{
+  flex:0 0 auto;
+  font-family:var(--font-mono);
+  font-size:9px;
+  letter-spacing:.08em;
+  padding:1px 6px;
+  border-radius:2px;
+  border:1px solid currentColor;
+}
+.news-reason-badge.fetched{
+  color:#39ff14;
+  background:rgba(57,255,20,.08);
+}
+.news-reason-badge.failed{
+  color:#ffcc00;
+  background:rgba(255,204,0,.08);
+}
+.news-reason-badge.title-only{
+  color:var(--text-faint);
+  background:rgba(120,150,184,.06);
+}
+.news-reason-pop .news-reason-text{
+  margin:0;
+  font-family:var(--font-mono);
+  font-size:11px;
+  line-height:1.6;
+  color:var(--text-soft);
+  white-space:normal;
+}
+
+/* 「今日精选」虚拟源在左栏的视觉强调 */
+.news-src-item.src-featured{
+  border-left:2px solid var(--accent, #39ff14);
+  font-weight:600;
+}

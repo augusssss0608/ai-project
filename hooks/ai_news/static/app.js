@@ -6,7 +6,19 @@
   if (!dataEl) return;
   let DATA;
   try { DATA = JSON.parse(dataEl.textContent); } catch(e){ console.error('[news] bad data', e); return; }
-  const sources = DATA.sources || [];
+  const rawSources = DATA.sources || [];
+  const featuredItems = Array.isArray(DATA.featured_items) ? DATA.featured_items : [];
+  // featured_items 作为虚拟 source 置顶；存在时默认进入这个 tab
+  const sources = [];
+  if (featuredItems.length) {
+    sources.push({
+      id: 'featured',
+      label: '今日精选',
+      items: featuredItems,
+      _isFeatured: true,
+    });
+  }
+  for (const s of rawSources) sources.push(s);
   if (!sources.length) return;
 
   const STAGE_EMOJI = {cold:'🥶', mid:'🌡️', hot:'🔥'};
@@ -342,6 +354,20 @@
           <span>·</span>
           <span>${fmtTime(it.ts)}</span>
           ${it.ai_score!=null?`<span>·</span><span>💡 AI ${it.ai_score}</span>`:''}
+          ${it.reason?(()=>{
+            const cs = it.content_status || 'not_attempted';
+            const badgeText = cs === 'fetched' ? '正文确认' : cs === 'failed' ? '正文待补' : '仅标题';
+            const badgeCls = cs === 'fetched' ? 'fetched' : cs === 'failed' ? 'failed' : 'title-only';
+            return `<span class='news-reason-wrap'><span>·</span><button class='news-reason-toggle' type='button' title='查看 scorer 评分线索'>线索</button>
+              <div class='news-reason-pop' hidden>
+                <div class='news-reason-head'>
+                  <span class='news-reason-label'>评分线索，不是事实证明</span>
+                  <span class='news-reason-badge ${badgeCls}'>${badgeText}</span>
+                </div>
+                <p class='news-reason-text'>${esc(it.reason)}</p>
+              </div>
+            </span>`;
+          })():''}
           ${badge?`<span class='news-vote-badge'>${badge}</span>`:`<span class='ord'>${String(ordN).padStart(2,'0')} / ${String(total).padStart(2,'0')}</span>`}
         </div>
         <div class='news-art-title-row'>
@@ -438,6 +464,22 @@
       });
     });
     // 收藏按钮
+    trackEl.querySelectorAll('.news-reason-toggle').forEach(b => {
+      b.addEventListener('click', e => {
+        e.stopPropagation();
+        const wrap = b.closest('.news-reason-wrap');
+        const pop = wrap && wrap.querySelector('.news-reason-pop');
+        if (!pop) return;
+        const opening = pop.hasAttribute('hidden');
+        // 关闭其他已打开的 popover
+        document.querySelectorAll('.news-reason-pop:not([hidden])').forEach(p => p.setAttribute('hidden', ''));
+        document.querySelectorAll('.news-reason-toggle.open').forEach(btn => btn.classList.remove('open'));
+        if (opening) {
+          pop.removeAttribute('hidden');
+          b.classList.add('open');
+        }
+      });
+    });
     trackEl.querySelectorAll('.news-fav-btn').forEach(b => {
       b.addEventListener('click', async e => {
         e.stopPropagation();
@@ -709,6 +751,13 @@
   }
   document.addEventListener('app:tabchange', e => {
     if (e && e.detail && e.detail.tabId === 'news') resetOnEnterNews();
+  });
+
+  // 点 reason popover 之外的任何位置关闭已打开的 popover
+  document.addEventListener('click', e => {
+    if (e.target.closest('.news-reason-wrap')) return;
+    document.querySelectorAll('.news-reason-pop:not([hidden])').forEach(p => p.setAttribute('hidden', ''));
+    document.querySelectorAll('.news-reason-toggle.open').forEach(btn => btn.classList.remove('open'));
   });
 
   renderSrcList();
