@@ -101,32 +101,11 @@ from ai_news.data.feedback import load_feedback, get_stage
 
 **例外**: `github_trending` 源永远强制 `stage = 'cold'`, 忽略 `get_stage` 返回值. 原因见 2.3: github 是多维度榜单, scorer 的主观打分会破坏"按 star 真实 top"语义. `stage_by_source` 字典和 `sources[i].stage` 两处都写 'cold'.
 
-#### 2.3 Feature flags (pipeline 行为开关)
+#### 2.3 完整方案：边界正文 scoring + 全局 MMR + featured_items
 
-读环境变量决定 #5 / #2 / featured_items 是否启用。**默认全开（完整方案）**：
+`#5 边界正文 scoring + #2 全局 MMR + featured_items` 三件事**必跑**，无 feature flag 开关。
 
-```python
-import os
-# 完整方案：#5 边界正文 scoring + #2 全局 MMR + featured_items tab 全部启用
-ENABLE_BOUNDARY_FETCH = os.environ.get("ENABLE_BOUNDARY_FETCH", "1") != "0"
-ENABLE_MMR = os.environ.get("ENABLE_MMR", "1") != "0"
-ENABLE_FEATURED_ITEMS = os.environ.get("ENABLE_FEATURED_ITEMS", "1") != "0"
-```
-
-- `ENABLE_BOUNDARY_FETCH=0`: 跳过 §2.3b/§2.3c，scorer 只用标题，所有 item `content_status=not_attempted`
-- `ENABLE_MMR=0`: 跳过 §2.3d，featured 退化为按 `ai_score desc` 取 top10
-- `ENABLE_FEATURED_ITEMS=0`: 完全回旧架构，不写 `featured_items` 字段，前端走源 tab
-
-**灰度顺序（每步跑 1-3 天观察 pipeline_metrics 后进下一步）**：
-
-| 步 | env vars 设置 | 验证什么 |
-|---|---|---|
-| **1. 影子模式（当前默认）** | 全部 `=0`（或不设）| 跟旧 pipeline 完全一致，确认新代码不破坏现有功能 |
-| **2. 启用 featured_items + 简单 top10** | `ENABLE_FEATURED_ITEMS=1` | featured_items 段写入 ai-news.json，前端「今日精选」tab 显示，但无 diversity |
-| **3. 启用 MMR** | `ENABLE_FEATURED_ITEMS=1 ENABLE_MMR=1` | 看 `mmr.max_event_count <= 2`，同事件不再霸屏 |
-| **4. 启用边界正文** | 全部 `=1` | 看 `boundary_fetch.success_rate`、wall_time，确认 Jina 抓取稳定 |
-
-灰度推进方式：改 Anthropic Routine 环境变量；或修改本文件默认值（`"0"` → `"1"`）后 commit + push。
+如果上线后想关掉某一段，**直接 `git revert` 对应 commit**（单一 commit 便于回滚）。
 
 #### 2.3a 一轮 title scorer (mid / hot 源, 输出全候选 scored pool)
 
@@ -161,8 +140,6 @@ ENABLE_FEATURED_ITEMS = os.environ.get("ENABLE_FEATURED_ITEMS", "1") != "0"
 
 #### 2.3b 边界候选选择 + 抓正文 (#5, subprocess Python)
 
-仅当 `ENABLE_BOUNDARY_FETCH=True` 跑此步。
-
 ```python
 import sys; sys.path.insert(0, "hooks")
 from ai_news.data.content_fetcher import select_boundary_candidates, fetch_boundary_contents
@@ -181,7 +158,7 @@ boundary_metrics = fetch_boundary_contents(boundary)
 
 #### 2.3c 二轮 content scorer (按源分组并行, 仅边界候选)
 
-仅当 `ENABLE_BOUNDARY_FETCH=True` 且 boundary 非空跑此步。
+仅当 boundary 非空跑此步（边界候选为零时整步跳过）。
 
 按 source_id 把 boundary 候选分组, 对每组 (仅有 `content_status=fetched` 的):
 1. Write `/tmp/ai-news-scorer-deep-{sid}-{ts}.json`, JSON:
@@ -220,13 +197,7 @@ for it in scored_pool:
     merge_content_score(it)  # 原地更新 ai_score
 
 # 2. 全局 MMR 选 featured_items
-if ENABLE_MMR:
-    featured, suppressed, mmr_metrics = mmr_select(scored_pool, target_n=10)
-else:
-    # flag 关 → 简单按 ai_score desc 取 top 10
-    eligible = [it for it in scored_pool if it.get("source") != "github_trending"]
-    featured = sorted(eligible, key=lambda x: x.get("ai_score", 0), reverse=True)[:10]
-    suppressed, mmr_metrics = [], {"pool_size": len(eligible), "selected_count": len(featured)}
+featured, suppressed, mmr_metrics = mmr_select(scored_pool, target_n=10)
 
 # 3. 质量对照
 raw_top10 = sorted(
@@ -253,8 +224,6 @@ quality_metrics = compute_quality_metrics(featured, raw_top10)
 
 **threads 源 featured item 例外**: threads 的 post 本身是短文, AI 复述损失原汁原味, 不派 summary. 直接把 `it.desc` (已截 300 字符) 拷到 `it.summary`. 前端按源 ID 检测后用 "原文" label 渲染.
 
-**ENABLE_FEATURED_ITEMS=0 时**: 退化为对每源 top items[:10] 跑（旧行为）, 但量级一样.
-
 #### 2.5 分批派 news-analysis × featured_items top 5
 
 **只对 featured_items top 5 跑 analysis**（按 ai_score 取前 5）。Opus 慢 + 成本高, 限制 top 5 控制 wall time。
@@ -275,8 +244,6 @@ workspace_context_path: "/Users/augus/Desktop/开发项目/live_app/CLAUDE.md"
 **云端兼容性提示**: 上面那个 `workspace_context_path` 是 mac 上 live_app 仓库路径, 在 cloud routine 内**不存在**. 子代理读不到时把 `workspace_help` 和 `claude_usage` 字段填 "无相关" 优雅降级.
 
 主 agent 读 output, 合并回 featured_items.
-
-**ENABLE_FEATURED_ITEMS=0 时**: 退化为对每源 top items[:5] 跑（旧行为, ~12 批）.
 
 #### 2.6 写 ai-news.json + history.jsonl
 
@@ -355,7 +322,7 @@ payload = {
 - 不许把 workspace_help + claude_usage 合并成一个 analysis 字段
 - 不许把 github 的 daily/weekly/monthly/total stars 合并成单一字段, 前端要分别读
 
-**新增顶层段** (ENABLE_FEATURED_ITEMS=True 时):
+**新增顶层段**（必写）:
 
 ```python
 payload["featured_items"] = [
@@ -370,11 +337,6 @@ payload["featured_items"] = [
 payload["pipeline_metrics"] = {
     "featured_mode": "normal",       # 'normal' | 'partial' | 'fallback_native'
     "wall_time_sec": 410,
-    "flags": {
-        "boundary_fetch": ENABLE_BOUNDARY_FETCH,
-        "mmr": ENABLE_MMR,
-        "featured_items": ENABLE_FEATURED_ITEMS,
-    },
     "scorer": {
         "source_failures": [],       # 列出 §2.3a 失败的源 id
     },
