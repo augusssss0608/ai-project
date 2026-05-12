@@ -144,6 +144,14 @@ def fetch_boundary_contents(
     }
 
 
+def truncate_reason(reason: str, max_chars: int = schemas.REASON_MAX_CHARS) -> str:
+    """硬截断 reason 到 max_chars（兜底 scorer 不遵守上限的情况）。
+    保留前 max_chars-1 字 + '…'。"""
+    if not reason or len(reason) <= max_chars:
+        return reason or ""
+    return reason[:max_chars - 1].rstrip() + "…"
+
+
 def merge_content_score(item: dict) -> None:
     """根据 content_status 合成最终 ai_score 到 item。
 
@@ -152,8 +160,13 @@ def merge_content_score(item: dict) -> None:
     - failed: content_score = max(0, title_score - PENALTY)，再合成
     - not_attempted: ai_score = title_score（一轮分）
 
-    item 原地修改：可能写 content_score / ai_score 字段。
+    顺带裁剪超长 reason（scorer 偶尔不遵守 40 字上限的兜底）。
+
+    item 原地修改：可能写 content_score / ai_score / reason 字段。
     """
+    # 兜底裁剪 reason
+    if item.get("reason"):
+        item["reason"] = truncate_reason(item["reason"])
     title = item.get("title_score")
     if not isinstance(title, (int, float)):
         # title_score 都没有，无法合成；保持原样

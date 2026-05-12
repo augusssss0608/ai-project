@@ -77,7 +77,37 @@ class TestSelectBoundaryCandidates(unittest.TestCase):
         self.assertEqual(content_fetcher.select_boundary_candidates(pool), [])
 
 
+class TestTruncateReason(unittest.TestCase):
+    def test_short_passthrough(self):
+        self.assertEqual(content_fetcher.truncate_reason("短理由"), "短理由")
+
+    def test_exact_40(self):
+        s = "x" * 40
+        self.assertEqual(content_fetcher.truncate_reason(s), s)
+
+    def test_truncate_with_ellipsis(self):
+        s = "x" * 50
+        result = content_fetcher.truncate_reason(s, max_chars=40)
+        self.assertEqual(len(result), 40)
+        self.assertTrue(result.endswith("…"))
+
+    def test_empty(self):
+        self.assertEqual(content_fetcher.truncate_reason(""), "")
+        self.assertEqual(content_fetcher.truncate_reason(None), "")
+
+
 class TestMergeContentScore(unittest.TestCase):
+    def test_merge_truncates_reason(self):
+        item = {
+            "title_score": 7,
+            "content_status": schemas.CONTENT_STATUS_NOT_ATTEMPTED,
+            "reason": "x" * 60,
+        }
+        content_fetcher.merge_content_score(item)
+        self.assertLessEqual(len(item["reason"]), 40)
+        self.assertTrue(item["reason"].endswith("…"))
+
+
     def test_fetched_合成(self):
         item = {
             "title_score": 7,
