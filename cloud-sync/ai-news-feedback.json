@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-05-14T14:41:41+09:00",
+  "updated_at": "2026-05-14T15:26:22+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -1103,6 +1103,120 @@
       "ts": "2026-05-14T14:41:41+09:00",
       "title": "▋我用 AI 在半小時內畫了 100 個營運圖表",
       "source": "featured",
+      "score": "down"
+    },
+    "https://www.threads.com/@oneday0013/post/DYReUhdkvrU": {
+      "ts": "2026-05-14T15:21:58+09:00",
+      "title": "你過去 12 個月寫的 agent harness",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@jackypan1989/post/DYR0MI8nYSP": {
+      "ts": "2026-05-14T15:22:04+09:00",
+      "title": "Agent Engineering 講白了就是 Software Engineering 的一種變形，但大多數人轉不過來。",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@cab_late/post/DYTKrmPmHbb": {
+      "ts": "2026-05-14T15:22:30+09:00",
+      "title": "天塌了，如果我英文沒有理解錯，Claude Agent SDK 的用法將不再吃訂閱額度，而是使用你當月訂閱費用對等的 Credit，等於是用 API Call 的額度在計費了。",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@hao0321_studio/post/DYTZXwTE_VF": {
+      "ts": "2026-05-14T15:22:34+09:00",
+      "title": "就在今天凌晨 Anthropic 官方直接宣布!!Claude Code 週上限增加 50%!!現在到 7/13 為止 Pro / Max / Team / Enterprise 全部自動套用!!不用 opt in 太誇張了",
+      "source": "threads",
+      "score": "star"
+    },
+    "https://www.threads.com/@0xspeter/post/DYTX1sZk7KH": {
+      "ts": "2026-05-14T15:22:38+09:00",
+      "title": "最近 GitHub 上有一個很有意思的開源專案：",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@iamraven.tw/post/DYRSoSlD1E9": {
+      "ts": "2026-05-14T15:22:42+09:00",
+      "title": "levelsio 分享了他的 Claude Code 工作方式。",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@vincent.chanw/post/DYTIU0yD8QG": {
+      "ts": "2026-05-14T15:22:53+09:00",
+      "title": "Claude Code 連續放寬 limit，真正訊號不是「Anthropic 變佛心」，而是 AI coding tool 已經進入 usage ceiling 競爭。",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@brew.agent/post/DYRR6V_kzmB": {
+      "ts": "2026-05-14T15:23:57+09:00",
+      "title": "✨ Claude Code 2.1.140 正式發佈，包含 13 項 CLI 變更。",
+      "source": "threads",
+      "score": "star"
+    },
+    "https://www.threads.com/@shareuhack/post/DYTiSXfE42G": {
+      "ts": "2026-05-14T15:25:10+09:00",
+      "title": "Claude 又下殺招了！",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@thomas92tw/post/DYTtyh9gTba": {
+      "ts": "2026-05-14T15:25:24+09:00",
+      "title": "❄️ Vibe Coding",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@moth.ai/post/DYThWHRmdWx": {
+      "ts": "2026-05-14T15:25:39+09:00",
+      "title": "🔔 Google DeepMind 出手！用了 50 年的滑鼠即將徹底改變 游標將真正「看懂」螢幕 迎來 AI 革命",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@blueeyes.lab/post/DYSUJ8ME-TN": {
+      "ts": "2026-05-14T15:25:43+09:00",
+      "title": "我發現 ChatGPT 有個超靠北的地方。",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@ray.realms/post/DYTtV9IAR3F": {
+      "ts": "2026-05-14T15:25:53+09:00",
+      "title": "好消息：Claude 週用量增加 50％",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@klkh.dj.ai/post/DYTc83_mlS2": {
+      "ts": "2026-05-14T15:25:58+09:00",
+      "title": "【Claude Code 第二波福利大放送】",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@cleo_chuang/post/DYR_5jrgSuk": {
+      "ts": "2026-05-14T15:26:02+09:00",
+      "title": "# 電腦白痴的第一步：我用 Claude Code 做到了一件大事",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@fu_liren.ai/post/DYRkDWdE6tr": {
+      "ts": "2026-05-14T15:26:15+09:00",
+      "title": "當Claude Code解決一個問題繞了一大圈，花了很久的時間才解決。",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@crypturewu999/post/DYTemv9EUkq": {
+      "ts": "2026-05-14T15:26:16+09:00",
+      "title": "Claude code -p有額度可以領啊",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@walking1153/post/DYRL3MeEV0H": {
+      "ts": "2026-05-14T15:26:18+09:00",
+      "title": "今日claude和chatgpt plus和pro20×的价格，pro 10多个人够用吗？有没有用过的大佬聊聊",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@mkt_girleat/post/DYR8V9lkYwv": {
+      "ts": "2026-05-14T15:26:22+09:00",
+      "title": "你可以不太會用AI",
+      "source": "threads",
       "score": "down"
     }
   },
