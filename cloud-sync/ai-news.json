@@ -4,7 +4,6 @@
   "stage_by_source": {
     "hackernews": "mid",
     "github_trending": "cold",
-    "simonw": "mid",
     "threads": "hot"
   },
   "sources": [
@@ -836,56 +835,6 @@
       "error": null
     },
     {
-      "id": "simonw",
-      "label": "Simon Willison",
-      "source_url": "https://simonwillison.net/",
-      "updated_at": "2026-05-14T11:08:47+09:00",
-      "stage": "mid",
-      "items": [
-        {
-          "title": "Welcome to the Datasette blog",
-          "url": "https://simonwillison.net/2026/May/13/welcome-to-the-datasette-blog/#atom-everything",
-          "desc": "Welcome to the Datasette blog We have a bunch of neat Datasette announcements in the pipeline so we decided it was time the project grew an official blog. I built this using OpenAI Codex desktop, whic",
-          "score": null,
-          "comments": null,
-          "ts": "2026-05-13T23:59:39+00:00",
-          "ai_score": null,
-          "reason": null,
-          "title_score": null,
-          "content_score": null,
-          "content_status": "not_attempted",
-          "event_key": null,
-          "topic_tags": [],
-          "summary": "",
-          "workspace_help": "无相关",
-          "claude_usage": "无相关",
-          "hn_url": "",
-          "summary_error": ""
-        },
-        {
-          "title": "Quoting Boris Mann",
-          "url": "https://simonwillison.net/2026/May/13/boris-mann/#atom-everything",
-          "desc": "“11 AI agents” is meaningless as a phrase. If I said “I have 11 spreadsheets” or “I have 11 browser tabs” to do my work, it means about the same thing. &mdash; Boris Mann Tags: ai-agents, ai, agent-de",
-          "score": null,
-          "comments": null,
-          "ts": "2026-05-13T16:15:50+00:00",
-          "ai_score": null,
-          "reason": null,
-          "title_score": null,
-          "content_score": null,
-          "content_status": "not_attempted",
-          "event_key": null,
-          "topic_tags": [],
-          "summary": "",
-          "workspace_help": "无相关",
-          "claude_usage": "无相关",
-          "hn_url": "",
-          "summary_error": ""
-        }
-      ],
-      "error": null
-    },
-    {
       "id": "threads",
       "label": "Threads",
       "source_url": "https://www.threads.com/",
@@ -1542,113 +1491,10 @@
       "error": null
     }
   ],
-  "featured_items": [
-    {
-      "url": "https://www.threads.com/@moth.ai/post/DYS8yO1Ap-V",
-      "title": "🚨 Claude Code 週用量限制暴漲 50%！",
-      "title_score": 9,
-      "ai_score": 9,
-      "content_score": null,
-      "event_key": "anthropic-spacex-colossus-claude-code-capacity",
-      "topic_tags": [
-        "business",
-        "product_update",
-        "infra"
-      ],
-      "reason": "SpaceX Colossus 算力上線。220K GPU、週額 +50%，商…",
-      "content_status": "not_attempted",
-      "source": "threads",
-      "summary": "🚨 Claude Code 週用量限制暴漲 50%！\n\nAnthropic 拿下 SpaceX Colossus 1 全部算力 220,000 顆 GPU 終於上線 \n\nAnthropic 宣布即日起至 7 月 13 日，Claude Code 週用量限制全面調高 50%，已自動套用至所有 Pro、Max、Team 及席次制 Enterprise 用戶帳號，無需任何操作 。此次擴容的真正背景，是Anthropic 與 SpaceX 簽下的算力協議，取得位於田納西州 Memphis 的 Colossus 1 資料中心全部運算容量 ，正式為 Claude 生態系釋出大規模新算力",
-      "workspace_help": "週用量上限 +50% 意味着在直播 App 的 Flutter 端重构、Go Kratos 微服务联调、Lua 网关脚本调试这类长会话场景下，",
-      "claude_usage": "週限額提升 50% 直接放寬 Claude Code 長會話預算，可以更激進地用 Plan Mode + subagent 並行、",
-      "summary_error": ""
-    },
-    {
-      "url": "https://www.threads.com/@aiondaily/post/DYRs9mQkrju",
-      "title": "【 Claude Code Goal：設定終點條件，Claude 自動跑到完成為止 】",
-      "title_score": 9,
-      "ai_score": 9,
-      "content_score": null,
-      "event_key": "claude-code-goal-autonomous-execution-feature",
-      "topic_tags": [
-        "tool_release",
-        "agent_workflow"
-      ],
-      "reason": "重大功能發布。/goal 設定完成條件，自主多輪執行 + 獨立評估器避免自欺。",
-      "content_status": "not_attempted",
-      "source": "threads",
-      "summary": "【 Claude Code Goal：設定終點條件，Claude 自動跑到完成為止 】\n\n不再需要每輪手動催進度，你說「什麼叫做完成」，Claude 就一直跑到真的完成。\n\n■ 核心概念\n\n/goal 讓你設定一個可驗證的完成條件，Claude 會在沒有你逐步提示的情況下持續執行多個回合，每輪結束後由一個獨立的小型快速模型（預設 Haiku）評估條件是否已達成，不是由執行工作的 Claude 自己判斷，而是由新鮮的評估器(evaluator)判斷，避免自我欺騙。條件達成後自動清除。\n\n■ 實際使用範例\n\n# 設定目標（立即開始執行）\n/goal all tests in test/auth p",
-      "workspace_help": "直播 app 的 Flutter widget 重构、Go Kratos 服务批量改造、Lua OpenResty 网关排错这类多步骤长跑任务，",
-      "claude_usage": "/goal 把完成条件交给 Claude 自主多轮执行，独立评估器防止自欺式宣告完成。建议把 hooks 校验脚本或单测当评估锚点，",
-      "summary_error": ""
-    },
-    {
-      "url": "https://www.threads.com/@krumjahn/post/DYTMMmbArSf",
-      "title": "Anthropic 剛為 Claude Code 加入了「代理視角」（Agent View），解決了每位開發者一直以來選擇性忽略的難題。",
-      "title_score": 9,
-      "ai_score": 9,
-      "content_score": null,
-      "event_key": "anthropic-claude-code-agent-view-multiagent-ui",
-      "topic_tags": [
-        "tool_release",
-        "product_update"
-      ],
-      "reason": "Agent View 發布。多代理並行監控、背景執行、快速切換，多工開發痛點解…",
-      "content_status": "not_attempted",
-      "source": "threads",
-      "summary": "Anthropic 剛為 Claude Code 加入了「代理視角」（Agent View），解決了每位開發者一直以來選擇性忽略的難題。\n\n過去同時執行多個 AI 程式碼代理（Coding Agents）意味著必須在終端機分頁與 tmux 視窗格之間切換，還得死記硬背哪個代理正在處理哪項任務。\n\n即時掌握所有動態\n- 查看所有執行中的對話、其狀態以及最新的回覆內容。\n- 隨時查看任一對話，並直接在目前視圖中內聯回覆，無需切換畫面。\n- 使用 /bg 將任何對話轉入背景執行，或直接以 claude --bg 指令啟動背景任務。\n- 按下左箭頭退出、開始新任務，再按右箭頭即可隨時切換回來。\n\n實用",
-      "workspace_help": "无相关",
-      "claude_usage": "Claude Code 新增 Agent View 代理视角，支持多 agent 并行监控、后台执行与快速切换，缓解多任务上下文丢失痛点。",
-      "summary_error": ""
-    },
-    {
-      "url": "https://www.threads.com/@the.oceanic.official/post/DYTEO8Kj2b7",
-      "title": "▋我用 AI 在半小時內畫了 100 個營運圖表 ",
-      "title_score": 7,
-      "ai_score": 8.2,
-      "content_score": 9,
-      "event_key": "ai-dashboard-superset-automation-workflow",
-      "topic_tags": [
-        "agent_workflow",
-        "tutorial"
-      ],
-      "reason": "端到端閉環實踐示範。Zeabur+MCP+Superset無文件自動部署，10…",
-      "content_status": "fetched",
-      "source": "threads",
-      "fetch_latency_sec": 4.54,
-      "summary": "▋我用 AI 在半小時內畫了 100 個營運圖表 \n\n前陣子手癢，想把公司一些數據視覺化。 \n\n第一個直覺就是上 @zeabur.app 找 template 安裝 Apache Superset，但問題來了，Zeabur 的內建模板只有支援 PostgreSQL，沒有我需要的 MySQL 和 BigQuery。 \n\n過去碰到這種狀況，就是得開始看文件，自己試著部署，然後開始一連串的試錯、等待的過程。\n\n但我突發奇想,乾脆請 Zeabur 的 Skills 幫我裝一個客製化的 Superset。沒想到跟 AI 來回幾次,真的就裝起來了。整個過程我沒打開任何一份文件。\n接著更荒謬的事情發生了。\n",
-      "workspace_help": "直播 App 运营常需要 DAU/留存/付费看板,可借鉴这套 Superset + MCP 闭环:让 Claude 直连 Go Kratos 后端的 MySQL",
-      "claude_usage": "亮点是让 Claude 自己写 MCP server 接入 Superset,再用 Zeabur Skills 一键部署,形成想法→开发→部署→接数→出图闭环。",
-      "summary_error": ""
-    },
-    {
-      "url": "https://github.com/cactus-compute/needle",
-      "title": "Show HN: Needle: We Distilled Gemini Tool Calling into a 26M Model",
-      "title_score": 8,
-      "ai_score": 8,
-      "content_score": null,
-      "event_key": "needle-gemini-tool-calling-distillation",
-      "topic_tags": [
-        "tool_release",
-        "agent_workflow",
-        "github_project"
-      ],
-      "reason": "26M 蒸馏模型支持 tool calling，184 评论高热度，完整开源项目",
-      "content_status": "not_attempted",
-      "source": "hackernews",
-      "summary": "将 Gemini 工具调用蒸馏到 2600 万参数的 Needle 模型，16 TPU v6e 训练 200 亿 tokens 完成，编解码架构实现 6000 tokens/秒预填充。完整支持函数调用流程，可在手机等消费设备运行，完全开源并提供权重，为端侧 AI 工具调用设定新基准。",
-      "summary_error": "",
-      "workspace_help": "直播 App 若想加端侧 AI 助手 (弹幕指令解析、礼物触发动作、主播快捷工具), 26M 蒸馏模型可嵌 Flutter 端做本地 tool calling,",
-      "claude_usage": "Needle 是端侧小模型, 不直接改 Claude Code 工作流, 但其 tool calling 蒸馏思路值得借鉴: 若做本地 skill 路由或离线 "
-    }
-  ],
   "pipeline_metrics": {
-    "featured_mode": "normal",
     "wall_time_sec": 563,
     "scorer": {
-      "source_failures": [
-        "simonw"
-      ]
+      "source_failures": []
     },
     "boundary_fetch": {
       "attempted": 10,
@@ -1668,37 +1514,6 @@
         6.39,
         7.04
       ]
-    },
-    "mmr": {
-      "pool_size": 29,
-      "selected_count": 5,
-      "suppressed_duplicate_count": 0,
-      "max_event_count": 1,
-      "max_topic_count": 3,
-      "max_source_count": 4,
-      "source_counts": {
-        "hackernews": 1,
-        "threads": 4
-      },
-      "topic_counts": {
-        "tool_release": 3,
-        "agent_workflow": 3,
-        "github_project": 1,
-        "tutorial": 1,
-        "product_update": 2,
-        "business": 1,
-        "coding_tool": 0,
-        "infra": 1,
-        "community_discourse": 0,
-        "model_release": 0,
-        "policy": 0
-      }
-    },
-    "quality": {
-      "featured_avg_ai_score": 8.64,
-      "raw_top10_avg_ai_score": 8.32,
-      "reason_over_40_count": 0,
-      "missing_event_key_count": 0
     }
   }
 }

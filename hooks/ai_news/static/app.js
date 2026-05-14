@@ -6,19 +6,7 @@
   if (!dataEl) return;
   let DATA;
   try { DATA = JSON.parse(dataEl.textContent); } catch(e){ console.error('[news] bad data', e); return; }
-  const rawSources = DATA.sources || [];
-  const featuredItems = Array.isArray(DATA.featured_items) ? DATA.featured_items : [];
-  // featured_items 作为虚拟 source 置顶；存在时默认进入这个 tab
-  const sources = [];
-  if (featuredItems.length) {
-    sources.push({
-      id: 'featured',
-      label: '今日精选',
-      items: featuredItems,
-      _isFeatured: true,
-    });
-  }
-  for (const s of rawSources) sources.push(s);
+  const sources = DATA.sources || [];
   if (!sources.length) return;
 
   const STAGE_EMOJI = {cold:'🥶', mid:'🌡️', hot:'🔥'};

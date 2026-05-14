@@ -9,7 +9,7 @@
 - utility = ai_score + source_bonus + language_bonus - duplicate_penalty - topic_penalty - source_penalty
 - 三层硬上限：同 event_key ≤ 2、同 topic ≤ 4、同 source ≤ 4
 - 三层软惩罚：event 第 2 条 -2.0、topic 第 3 条起 -0.8、source 第 4 条 -0.6
-- 加分：simonw +0.3、中文 +0.2
+- 加分：中文 +0.2
 - 兜底：池子选不够 target_n 时放宽 MIN_SCORE
 """
 from collections import defaultdict
@@ -82,10 +82,9 @@ def _utility(item: dict, event_count, topic_count, source_count) -> float:
     )
 
     # 加分
-    source_bonus = schemas.SIMONW_SOURCE_BONUS if src == "simonw" else 0.0
     language_bonus = schemas.CHINESE_LANGUAGE_BONUS if is_chinese_item(item) else 0.0
 
-    return ai_score + source_bonus + language_bonus - duplicate_penalty - topic_penalty - source_penalty
+    return ai_score + language_bonus - duplicate_penalty - topic_penalty - source_penalty
 
 
 def mmr_select(

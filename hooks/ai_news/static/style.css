@@ -139,9 +139,6 @@
 .news-src-item.src-github_trending,
 .news-fav-group.src-github_trending{--src:#8cff65}
 
-.news-src-item.src-simonw,
-.news-fav-group.src-simonw{--src:#4da6ff}
-
 .news-src-item.src-qbitai,
 .news-fav-group.src-qbitai{--src:#39ff14}
 
@@ -803,8 +800,3 @@
   white-space:normal;
 }
 
-/* 「今日精选」虚拟源在左栏的视觉强调 */
-.news-src-item.src-featured{
-  border-left:2px solid var(--accent, #39ff14);
-  font-weight:600;
-}

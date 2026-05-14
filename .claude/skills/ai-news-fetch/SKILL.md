@@ -58,7 +58,7 @@ from ai_news.data.history import load_all_urls
 from pathlib import Path
 import yaml
 
-SOURCES = ['hackernews', 'github_trending', 'simonw', 'threads']
+SOURCES = ['hackernews', 'github_trending', 'threads']
 BASE = Path('.claude/skills/ai-news-filter/sources')
 known = load_all_urls()  # 本次 pipeline 写 history 之前加载, 天然不会把本次内容当重复
 DEDUP_EXEMPT = {'github_trending'}  # 不走 URL 去重的源
@@ -101,9 +101,9 @@ from ai_news.data.feedback import load_feedback, get_stage
 
 **例外**: `github_trending` 源永远强制 `stage = 'cold'`, 忽略 `get_stage` 返回值. 原因见 2.3: github 是多维度榜单, scorer 的主观打分会破坏"按 star 真实 top"语义. `stage_by_source` 字典和 `sources[i].stage` 两处都写 'cold'.
 
-#### 2.3 完整方案：边界正文 scoring + 全局 MMR + featured_items
+#### 2.3 评分方案：title scorer + 边界正文 scoring
 
-`#5 边界正文 scoring + #2 全局 MMR + featured_items` 三件事**必跑**，无 feature flag 开关。
+mid/hot 源跑 title scorer → 边界候选抓正文重评 → 合并 content_score 到 ai_score, 用于各源 tab 内排序 (高分在前).
 
 如果上线后想关掉某一段，**直接 `git revert` 对应 commit**（单一 commit 便于回滚）。
 
@@ -111,7 +111,7 @@ from ai_news.data.feedback import load_feedback, get_stage
 
 **Cold 源跳过 scorer**, 直接 items[:10] 作为该源 tab 展示 (按原生排序).
 
-**github_trending 源永远按 cold 行为处理, 但不截 items[:10]**: github 是多维度榜单 (日/周/月/总), 每条 item 带 `dimension` 字段, filter 后的全部 items 都要保留, 否则前端切到 "总" 维度会看到空. scorer 对 github 的"按 star 真实 top"语义没意义, 所以无论反馈多少也不走 scorer. **github 也永远不进 featured_items / MMR**.
+**github_trending 源永远按 cold 行为处理, 但不截 items[:10]**: github 是多维度榜单 (日/周/月/总), 每条 item 带 `dimension` 字段, filter 后的全部 items 都要保留, 否则前端切到 "总" 维度会看到空. scorer 对 github 的"按 star 真实 top"语义没意义, 所以无论反馈多少也不走 scorer.
 
 对每个 mid/hot 源:
 1. Write `/tmp/ai-news-scorer-{sid}-{ts}.json`, 内容 JSON:
@@ -129,14 +129,13 @@ from ai_news.data.feedback import load_feedback, get_stage
    - `subagent_type: news-scorer`
    - `model: claude-haiku-4-5`
    - `prompt: "你是 news-scorer. 读 /tmp/ai-news-scorer-{sid}-{ts}.json, 模式 title, 打分后写 /tmp/ai-news-scored-{sid}-{ts}.json"`
-3. 主 agent 等所有 scorer 返回, 读每个 output 文件, **保留所有候选**（不再截 Top N，给后续 #2 MMR 选择空间）。
+3. 主 agent 等所有 scorer 返回, 读每个 output 文件, **保留所有候选**（不截 Top N, 让各源 tab 完整展示）。
 
 每条 scored item 含: `title_score / ai_score(一轮等同 title_score) / event_key / topic_tags / reason / content_status="not_attempted"`. 见 `.claude/agents/news-scorer.md` 与 `hooks/ai_news/data/schemas.py` 字段定义.
 
 **失败处理**:
-- 单源 scorer 失败: 该源退化为 cold (items[:10] 原生排序), 该源不进 MMR
-- 多源失败: MMR 池缩小，可能选不到 10 条 → §2.3d 兜底
-- 全部失败: featured_mode 标记 `fallback_native`, MMR 跳过，featured = 各源 round-robin 拼凑
+- 单源 scorer 失败: 该源退化为 cold (items[:10] 原生排序)
+- 全部失败: 所有 mid/hot 源都退化为 cold, pipeline 继续
 
 #### 2.3b 边界候选选择 + 抓正文 (#5, subprocess Python)
 
@@ -154,7 +153,7 @@ boundary_metrics = fetch_boundary_contents(boundary)
 
 抓取: Jina Reader 优先, `ThreadPoolExecutor(max_workers=4)`, timeout 7s, max 3000 字。失败项 `content_status=failed` + `content_score = title_score - 1`。
 
-**失败处理**: Jina 全部失败 → 所有边界项走 penalty 路径, §2.3c 仍跑 (输入空 full_content 时降级)。
+**失败处理**: Jina 全部失败 → 所有边界项走 penalty 路径, §2.3c 仍跑 (输入空 full_content 时降级), 各源 tab 仍能按 title_score 排序。
 
 #### 2.3c 二轮 content scorer (按源分组并行, 仅边界候选)
 
@@ -186,56 +185,51 @@ boundary_metrics = fetch_boundary_contents(boundary)
 
 **失败处理**: 某源二轮失败 → 该源边界项保留一轮 reason, `content_status` 改 `failed`, content_score = title_score - 1。
 
-#### 2.3d Python 合并 + 全局 MMR (#2)
+#### 2.3d Python 合并 content_score 到 ai_score
 
 ```python
 from ai_news.data.content_fetcher import merge_content_score
-from ai_news.data.diversity import mmr_select, compute_quality_metrics
 
-# 1. 合并 content_score 到 ai_score (per item)
+# 合并 content_score 到 ai_score (per item), 后续 §2.4/§2.5 派发 + 各源 tab 排序都用 ai_score
 for it in scored_pool:
     merge_content_score(it)  # 原地更新 ai_score
-
-# 2. 全局 MMR 选 featured_items
-featured, suppressed, mmr_metrics = mmr_select(scored_pool, target_n=10)
-
-# 3. 质量对照
-raw_top10 = sorted(
-    [it for it in scored_pool if it.get("source") != "github_trending"],
-    key=lambda x: x.get("ai_score", 0), reverse=True
-)[:10]
-quality_metrics = compute_quality_metrics(featured, raw_top10)
 ```
 
-**失败处理**: 池子选不够 10 → mmr_select 自动放宽 MIN_SCORE; 仍不够允许 < 10 条, 不 abort。
+**为什么没有 MMR / featured_items**: 已下线 (历史曾用 MMR 选 ≤10 条精选, 前端置顶 "今日精选" 虚拟 tab, 后用户表示不需要). `hooks/ai_news/data/diversity.py` 保留可逆, 若想恢复重写本节即可.
 
-#### 2.4 分批派 news-summary × featured_items
+#### 2.4 分批派 news-summary × 所有最终入库 items (非 github / 非 threads)
 
-**只对 featured_items（≤10 条）跑 summary**。各源 tab 内的非 featured 条目用原 `desc` 兜底（或为空），不再每条跑 summary，**省 ~30 次 haiku 调用**。
+**对每个非 github_trending / 非 threads 源的所有最终入库 items 跑 summary**:
+- mid/hot 源: 所有 scored items 都跑
+- cold 源: items[:10] 都跑
+- **github_trending 源**: 永远跳过, 仓库 `desc` 已是简介, 不需要 AI 摘要
+- **threads 源**: 永远跳过, 直接把 `it.desc[:300]` 拷到 `it.summary` (post 是短文, AI 复述损失原汁原味). 前端按源 ID 检测后用 "原文" label 渲染.
 
-每批 **10 个并行** (一次 message 发 10 个 Agent tool call), 通常 1 批跑完.
+每批 **10 个并行** (一次 message 发 10 个 Agent tool call), 通常跑 ~1-2 批.
 
 每个 prompt:
 ```
 你是 news-summary. title: "..." url: "..." 把摘要写到 /tmp/ai-news-summary-{idx}-{ts}.json
 ```
 
-主 agent 读 output, 把 summary 合并回 featured_items 主列表.
+主 agent 读 output, 把 summary 合并回 `sources[].items` 对应条目 (按 url 匹配).
 
-**threads 源 featured item 例外**: threads 的 post 本身是短文, AI 复述损失原汁原味, 不派 summary. 直接把 `it.desc` (已截 300 字符) 拷到 `it.summary`. 前端按源 ID 检测后用 "原文" label 渲染.
+#### 2.5 分批派 news-analysis × 所有最终入库 items (非 github)
 
-#### 2.5 分批派 news-analysis × featured_items top 5
+**对每个非 github_trending 源的所有最终入库 items 跑 analysis**, 用 Opus 跑准确度:
+- mid/hot 源: 所有 scored items 都跑
+- cold 源: items[:10] 都跑
+- **github_trending 源**: 永远跳过, `workspace_help` / `claude_usage` 留空字符串 ""（前端检测空串退化显示）
+- threads 也要跑 (不像 §2.4 跳过), threads 的相关度判断对用户有价值
 
-**只对 featured_items top 5 跑 analysis**（按 ai_score 取前 5）。Opus 慢 + 成本高, 限制 top 5 控制 wall time。
-
-每批 **3 个并行**, 跑 ~2 批.
+每批 **3 个并行** (Opus 慢 + 控制主 context 累积, 防止长 loop 空 turn), 跑 ~10-15 批.
 
 每个 prompt:
 ```
 你是 news-analysis. title: "..." url: "..."
-source_id: "<featured item 的源>"
+source_id: "<item 的源>"
 topic_tags: [...]
-reason: "<scorer 一/二轮 reason>"
+reason: "<scorer 一/二轮 reason, 若 cold 源则 null>"
 content_status: "<fetched|failed|not_attempted>"
 workspace_context_path: "/Users/augus/Desktop/开发项目/live_app/CLAUDE.md"
 把分析写到 /tmp/ai-news-analysis-{idx}-{ts}.json
@@ -243,7 +237,9 @@ workspace_context_path: "/Users/augus/Desktop/开发项目/live_app/CLAUDE.md"
 
 **云端兼容性提示**: 上面那个 `workspace_context_path` 是 mac 上 live_app 仓库路径, 在 cloud routine 内**不存在**. 子代理读不到时把 `workspace_help` 和 `claude_usage` 字段填 "无相关" 优雅降级.
 
-主 agent 读 output, 合并回 featured_items.
+**wall_time 预期**: ~15 分钟 (受总条数影响, 通常 30-40 条 × Opus). 若 routine 多次中段空 turn / 超时, 把 analysis subagent model 临时改 `claude-sonnet-4-6` 救场.
+
+主 agent 读 output, 把 analysis 合并回 `sources[].items` 对应条目 (按 url 匹配).
 
 #### 2.6 写 ai-news.json + history.jsonl
 
@@ -256,10 +252,9 @@ payload = {
     "stage_by_source": {
         "hackernews": "cold",        # 'cold' | 'mid' | 'hot' 三值之一
         "github_trending": "cold",   # github 永远强制 cold, 见 §2.2
-        "simonw": "cold",            # Simon Willison 博客, 走 get_stage 正常判定
         "threads": "cold",           # Threads For You, 冷启动, 走 get_stage 正常判定
     },
-    "sources": [                     # list, 不是 dict! 顺序: HN / GitHub / Simon / Threads
+    "sources": [                     # list, 不是 dict! 顺序: HN / GitHub / Threads
         {
             "id": "hackernews",
             "label": "Hacker News",
@@ -315,38 +310,37 @@ payload = {
 
 组装时从 fetcher 的 item 直接透传这 7 个字段, 不要遗漏 / 改名 / 合并.
 
+**字段保留规则 (防止 fetcher raw 字段中途丢失)**:
+
+`sources[].items` 必须从 **fetcher 原始 raw 输出** 基础上 merge scored / summary / analysis 字段, **不许只用 scored_pool 当数据源** (会丢 `desc / ts / score / comments / like_count` 等 fetcher 原始字段, 前端会看到 "原文" 全空). 推荐组装顺序:
+1. fetcher items raw → 给每条加 `ai_score=null, reason=null, summary="", workspace_help="", claude_usage="", title_score=null, content_score=null, content_status="not_attempted", event_key=null, topic_tags=[]` 等占位
+2. scored_pool 按 url 写回 `ai_score / reason / title_score / content_score / content_status / event_key / topic_tags`
+3. summary_outputs 按 url 写回 `summary` (threads 源直接拷 desc[:300])
+4. analysis_outputs 按 url 写回 `workspace_help / claude_usage`
+5. 每源 items 按 `ai_score desc` 排序 (cold 源没有 ai_score 时保留原生顺序)
+
 **禁止项 (reviewer 反馈, 防止 schema 偏离)**:
 - 不许用 `generated_at` 代替 `updated_at`
 - 不许把 `sources` 写成 dict (必须 list, items 嵌套在 source 内)
 - 不许把 `items` 放顶层 (必须嵌套在 `sources[].items`)
 - 不许把 workspace_help + claude_usage 合并成一个 analysis 字段
 - 不许把 github 的 daily/weekly/monthly/total stars 合并成单一字段, 前端要分别读
+- 不许引入 featured_items 顶层段 (MMR 精选已下线, 见 §2.3d)
+- 不许只给某些源跑 summary / analysis (除 §2.4 / §2.5 明示的 github / threads 例外)
 
-**新增顶层段**（必写）:
+**顶层 pipeline_metrics**（必写）:
 
 ```python
-payload["featured_items"] = [
-    # 来自 §2.3d mmr_select 输出, 不含 github
-    # 每项字段同 sources[].items[], 额外加:
-    {
-        # ...原 item 字段...
-        "source": "hackernews",    # 标明来源, 前端 featured tab 按源分组用
-    }
-]
-
 payload["pipeline_metrics"] = {
-    "featured_mode": "normal",       # 'normal' | 'partial' | 'fallback_native'
     "wall_time_sec": 410,
     "scorer": {
         "source_failures": [],       # 列出 §2.3a 失败的源 id
     },
     "boundary_fetch": boundary_metrics,  # 来自 fetch_boundary_contents()
-    "mmr": mmr_metrics,                  # 来自 mmr_select()
-    "quality": quality_metrics,          # 来自 compute_quality_metrics()
 }
 ```
 
-写入前可选清掉 featured_items 内部巨大的 `full_content` 字段（前端不需要）。
+写入前清掉 items 内部巨大的 `full_content` 字段（前端不需要, 仅 §2.3c content scorer 用过即可丢）。
 
 **组装后, 按以下顺序写入**:
 
@@ -411,8 +405,8 @@ git diff --cached --quiet && echo "no changes to commit" || (
 ```bash
 cd /home/user/ai-project && python3 hooks/tg_notify.py --stdin <<EOF
 [ai-news] 已刷新 {total} 则
-HN {n1} · GitHub {n2} · Simon {n3} · Threads {n4}
-阶段: HN {s1} · GitHub {s2} · Simon {s3} · Threads {s4}
+HN {n1} · GitHub {n2} · Threads {n3}
+阶段: HN {s1} · GitHub {s2} · Threads {s3}
 dashboard: http://localhost:38080/#news
 EOF
 ```
@@ -469,30 +463,27 @@ fi
 
 ## 错误降级 / 失败矩阵
 
-| 失败点 | 兜底策略 | `featured_items` 能出吗 |
-|---|---|---|
-| §2.1 某源 fetcher 失败 | 该源 `error` 写入 source; 其他源继续 | 能（来自其他源） |
-| §2.1 全部 fetcher 失败 | 不覆盖旧 ai-news.json, 发 TG 错误 | 不能, 本轮 abort |
-| §2.3a 某源一轮 scorer 失败 | 该源退化为 cold (items[:10] 原生排序); 该源不进 MMR | 能, 用其他 scored 源 |
-| §2.3a 多源 scorer 失败 | MMR 只用成功源; 池子可能不足 10 → §2.3d 放宽 | 能, 可能 < 10 |
-| §2.3a 全部 scorer 失败 | `featured_mode="fallback_native"`; featured 用非 github 源各取 top items[:3] round-robin | 能 (但不是 AI 精选) |
-| §2.3b Jina 部分失败 | 失败项 `content_status=failed`, content_score = title_score - 1 | 能 |
-| §2.3b Jina 全部失败 | 所有边界项走 penalty; §2.3c 跳过, 直接合并到 MMR | 能 |
-| §2.3c 某源二轮 scorer 失败 | 该源边界项 `content_status=failed` + penalty; 保留一轮 reason | 能 |
-| §2.3c 全部二轮失败 | #5 退化为 penalty-only, MMR 照常跑 | 能 |
-| §2.3d MMR 选不够 10 | 自动放宽 MIN_SCORE; 仍不够允许 < 10 条 | 能, 可能 < 10 |
-| §2.4 summary 单条失败 | 该条 `summary_error` 写原因; summary 用 desc 兜底 | 能 |
-| §2.4 summary 全部失败 | featured 仍写出, 前端用 desc 渲染 | 能 |
-| §2.5 analysis 单条失败 | 该条 `workspace_help/claude_usage` 填 "无相关" | 能 |
-| §2.5 analysis 全部失败 | featured 仍写出, analysis 字段统一 "无相关" | 能 |
-| §2.6 写 ai-news.json schema 自检失败 | 不覆盖旧文件, 发 TG 错误 | 不能, 本轮 abort |
-| §2.7 git push 失败 | 本地已写但云端不可见; 发 TG 错误 | 本地能, 发布失败 |
-| §2.8 TG 断连 | 不阻塞主流程, 写 log | 能 |
+| 失败点 | 兜底策略 |
+|---|---|
+| §2.1 某源 fetcher 失败 | 该源 `error` 写入 source; 其他源继续 |
+| §2.1 全部 fetcher 失败 | 不覆盖旧 ai-news.json, 发 TG 错误, abort |
+| §2.3a 某源一轮 scorer 失败 | 该源退化为 cold (items[:10] 原生排序) |
+| §2.3a 全部 scorer 失败 | 所有 mid/hot 源都退化为 cold, pipeline 继续 |
+| §2.3b Jina 部分失败 | 失败项 `content_status=failed`, content_score = title_score - 1 |
+| §2.3b Jina 全部失败 | 所有边界项走 penalty; §2.3c 跳过, 直接合并 ai_score |
+| §2.3c 某源二轮 scorer 失败 | 该源边界项 `content_status=failed` + penalty; 保留一轮 reason |
+| §2.3c 全部二轮失败 | #5 退化为 penalty-only, pipeline 继续 |
+| §2.4 summary 单条失败 | 该条 `summary_error` 写原因; `summary` 用 `desc` 兜底 |
+| §2.4 summary 全部失败 | 所有 items 仍写出, `summary` 字段统一空串, 前端用 desc 渲染 |
+| §2.5 analysis 单条失败 | 该条 `workspace_help/claude_usage` 填 "无相关" |
+| §2.5 analysis 全部失败 | 所有 items 仍写出, `workspace_help/claude_usage` 统一 "无相关" |
+| §2.6 写 ai-news.json schema 自检失败 | 不覆盖旧文件, 发 TG 错误, abort |
+| §2.7 git push 失败 | 本地已写但云端不可见; 发 TG 错误 |
+| §2.8 TG 断连 | 不阻塞主流程, 写 log |
 
 **关键原则**:
-- scorer / content / MMR 失败不应该导致整轮 abort
+- scorer / content / summary / analysis 单点失败不应该导致整轮 abort
 - 只有 fetcher 全挂 / schema 自检失败 / 写 atomic 失败 才 abort（不覆盖旧 ai-news.json）
-- `featured_mode` 三态明确标识本轮质量: `normal / partial / fallback_native`
 
 ## 模型分工强制
 

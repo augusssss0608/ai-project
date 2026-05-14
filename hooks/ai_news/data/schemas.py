@@ -69,7 +69,6 @@ SOFT_TOPIC_PENALTY = 0.8           # 同 topic 第 3 条起扣分
 SOFT_SOURCE_PENALTY = 0.6          # 同 source 第 4 条扣分
 
 # 加分
-SIMONW_SOURCE_BONUS = 0.3          # simonw 是一手作者，加分
 CHINESE_LANGUAGE_BONUS = 0.2       # 中文内容（用户偏好快读）加分
 CHINESE_CJK_THRESHOLD = 0.3        # 标题+desc 中 CJK 字符占字母+CJK 比例 ≥ 0.3 视为中文
 

@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-05-12T14:41:37+09:00",
+  "updated_at": "2026-05-14T14:41:41+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -1074,6 +1074,36 @@
       "title": "昨天半夜睡不著，本來只是想滑一下小紅書，結果看到創作者秒秒Guo做了一個私人AI廣播電台的項目，突然更睡不著了。",
       "source": "threads",
       "score": "up"
+    },
+    "https://www.threads.com/@moth.ai/post/DYS8yO1Ap-V": {
+      "ts": "2026-05-14T14:12:27+09:00",
+      "title": "🚨 Claude Code 週用量限制暴漲 50%！",
+      "source": "featured",
+      "score": "star"
+    },
+    "https://github.com/cactus-compute/needle": {
+      "ts": "2026-05-14T14:13:17+09:00",
+      "title": "Show HN: Needle: We Distilled Gemini Tool Calling into a 26M Model",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://www.threads.com/@aiondaily/post/DYRs9mQkrju": {
+      "ts": "2026-05-14T14:41:34+09:00",
+      "title": "【 Claude Code Goal：設定終點條件，Claude 自動跑到完成為止 】",
+      "source": "featured",
+      "score": "star"
+    },
+    "https://www.threads.com/@krumjahn/post/DYTMMmbArSf": {
+      "ts": "2026-05-14T14:41:37+09:00",
+      "title": "Anthropic 剛為 Claude Code 加入了「代理視角」（Agent View），解決了每位開發者一直以來選擇性忽略的難題。",
+      "source": "featured",
+      "score": "star"
+    },
+    "https://www.threads.com/@the.oceanic.official/post/DYTEO8Kj2b7": {
+      "ts": "2026-05-14T14:41:41+09:00",
+      "title": "▋我用 AI 在半小時內畫了 100 個營運圖表",
+      "source": "featured",
+      "score": "down"
     }
   },
   "favorites": {

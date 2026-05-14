@@ -1,5 +1,0 @@
-type: atom
-params:
-  url: https://simonwillison.net/atom/everything/
-  time_window_hours: 48
-  limit: 15

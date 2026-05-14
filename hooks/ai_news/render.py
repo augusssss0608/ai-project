@@ -122,8 +122,6 @@ def render_news(parts: list):
         "stage_by_source": data.get("stage_by_source", {}),
         "votes": votes_by_url,
         "favorites": favorites_by_url,
-        # 新增 #2/#5 输出（向后兼容：旧数据无这两段时前端走 fallback）
-        "featured_items": data.get("featured_items", []),
         "pipeline_metrics": data.get("pipeline_metrics", {}),
     }
     payload_json = json.dumps(payload, ensure_ascii=False)

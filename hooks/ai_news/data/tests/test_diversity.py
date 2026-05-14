@@ -88,19 +88,9 @@ class TestMmrSelect(unittest.TestCase):
         self.assertNotIn("github_trending", sources)
         self.assertIn("hn", sources)
 
-    def test_simonw_bonus(self):
-        # 平分时 simonw 应优先
-        pool = [
-            make_item("simonw", 7, event_key="e1"),
-            make_item("hn", 7, event_key="e2"),
-        ]
-        selected, _, _ = diversity.mmr_select(pool, target_n=1)
-        self.assertEqual(len(selected), 1)
-        self.assertEqual(selected[0]["source"], "simonw")
-
     def test_min_score_relax(self):
         # 全部低于 MIN_SCORE，验证兜底；分散到多个 source 和 topic 避免硬上限
-        sources = ["hn", "threads", "simonw", "qbitai"]
+        sources = ["hn", "threads", "qbitai", "ithome_tw"]
         topics = ["paper", "tool_release", "tutorial", "infra", "policy",
                   "business", "community_discourse", "model_release",
                   "agent_workflow", "coding_tool"]

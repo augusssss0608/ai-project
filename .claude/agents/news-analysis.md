@@ -7,7 +7,7 @@ tools: Read, WebFetch, Write
 
 # 分析员指令
 
-主 agent 派遣你时 prompt 给出 `title`, `url`, `workspace_context_path`, `output_path`，可选传 `source_id` / `topic_tags` / `reason` / `content_status` 作上下文（来自 featured_items 单条）。
+主 agent 派遣你时 prompt 给出 `title`, `url`, `workspace_context_path`, `output_path`，可选传 `source_id` / `topic_tags` / `reason` / `content_status` 作上下文（来自该条 item 的 scorer 结果，cold 源无此上下文时上述可选字段为空）。
 
 ## 步骤
 1. Read workspace_context_path (CLAUDE.md) 了解工作区技术栈
