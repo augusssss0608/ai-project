@@ -204,3 +204,132 @@ def compute_quality_metrics(featured: list, raw_top10: list) -> dict:
         "reason_over_40_count": reason_over_40,
         "missing_event_key_count": missing_event_key,
     }
+
+
+# =========================================================================
+# 跨源去重 (与 MMR 独立, 在 §2.3d merge_content_score 后调用)
+#
+# 规则:
+# 1. 不参与去重的源 (github_trending) 完全 pass through
+# 2. 非空 event_key 视为同事件凭证, 同 event_key 保留 ai_score 最高的 max_per_event 条
+# 3. 空 event_key 直接保留 (本版本不做 hash/相似度兜底, 依赖 scorer prompt 强化)
+# 4. tie-break: ai_score desc → source_order (schemas.DEDUPE_SOURCE_ORDER) → original_index → url
+# 5. history.jsonl 自然只 append 留下来的 items (调用方按 dedupe 后 sources 写 history)
+# =========================================================================
+
+def _source_order_index(source_id: str) -> int:
+    """返回该源在 DEDUPE_SOURCE_ORDER 中的位置, 未列出的源排到最后."""
+    order = schemas.DEDUPE_SOURCE_ORDER
+    try:
+        return order.index(source_id)
+    except ValueError:
+        return len(order)
+
+
+def dedupe_global_items(
+    sources: list,
+    *,
+    max_per_event: int = schemas.DEDUPE_MAX_PER_EVENT_DEFAULT,
+    excluded_sources=schemas.DEDUPE_EXCLUDED_SOURCES,
+) -> tuple:
+    """跨源按 event_key 去重 sources[].items, 直接移除重复项.
+
+    Args:
+        sources: ai-news.json 的 sources list, 每项是 dict {id, items: [...], ...}
+        max_per_event: 同 event_key 最多保留几条; 1 = 同事件只留最高分
+        excluded_sources: 不参与去重的源 id 集合, pass through
+
+    Returns:
+        (rebuilt_sources, metrics) — rebuilt_sources 顺序保留, 排除源不动;
+        metrics 含 eligible_count / kept_count / suppressed_event_count 等观测字段.
+    """
+    # 1. flatten 非排除源的 items + 记录原 (src_idx, item_idx) 和全局 original_index
+    eligible_records = []
+    for src_idx, src in enumerate(sources):
+        sid = src.get("id", "")
+        if sid in excluded_sources:
+            continue
+        for item_idx, item in enumerate(src.get("items", []) or []):
+            eligible_records.append({
+                "original_index": len(eligible_records),  # 全局 flatten 后序号, tie-break 用
+                "src_idx": src_idx,
+                "item_idx": item_idx,
+                "source_id": sid,
+                "item": item,
+            })
+
+    # 2. 按 event_key 分组 (非空才进 group, 空 key 单独保留)
+    groups = {}
+    no_key_records = []
+    for rec in eligible_records:
+        ek = (rec["item"].get("event_key") or "").strip()
+        if not ek:
+            no_key_records.append(rec)
+            continue
+        groups.setdefault(ek, []).append(rec)
+
+    # 3. 每个 group 按 tie-break 排序, 留前 max_per_event
+    kept_records = list(no_key_records)
+    suppressed_records = []
+    suppressed_event_count = 0
+    multi_groups = 0
+
+    def _sort_key(rec):
+        item = rec["item"]
+        score = item.get("ai_score")
+        # 鲁棒处理: scorer LLM 偶尔输出 quoted number ("9" 而非 9), 用 float() 兜底
+        try:
+            score_val = -float(score)
+        except (TypeError, ValueError):
+            score_val = 0.0
+        return (
+            score_val,
+            _source_order_index(rec["source_id"]),
+            rec["original_index"],
+            item.get("url", "") or "",
+        )
+
+    for ek, group in groups.items():
+        group_sorted = sorted(group, key=_sort_key)
+        if len(group_sorted) > 1:
+            multi_groups += 1
+        kept_records.extend(group_sorted[:max_per_event])
+        for rec in group_sorted[max_per_event:]:
+            suppressed_records.append({
+                "url": rec["item"].get("url", ""),
+                "title": (rec["item"].get("title", "") or "")[:80],
+                "source": rec["source_id"],
+                "event_key": ek,
+                "reason": "duplicate_event",
+            })
+            suppressed_event_count += 1
+
+    # 4. 按原 (src_idx, item_idx) 顺序重建 sources[].items
+    kept_by_src = {}
+    for rec in kept_records:
+        kept_by_src.setdefault(rec["src_idx"], []).append(rec)
+
+    rebuilt = []
+    for src_idx, src in enumerate(sources):
+        sid = src.get("id", "")
+        new_src = dict(src)
+        if sid in excluded_sources:
+            rebuilt.append(new_src)
+            continue
+        recs = sorted(kept_by_src.get(src_idx, []), key=lambda r: r["item_idx"])
+        new_src["items"] = [r["item"] for r in recs]
+        rebuilt.append(new_src)
+
+    # 5. metrics
+    eligible_count = len(eligible_records)
+    kept_count = len(kept_records)
+    metrics = {
+        "eligible_count": eligible_count,
+        "kept_count": kept_count,
+        "suppressed_total": eligible_count - kept_count,
+        "suppressed_event_count": suppressed_event_count,
+        "event_groups_multi_count": multi_groups,
+        "missing_event_key_count": len(no_key_records),
+        "suppressed_samples": suppressed_records[:10],  # 截前 10 条做 debug
+    }
+    return rebuilt, metrics

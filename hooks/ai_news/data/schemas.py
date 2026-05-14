@@ -76,6 +76,14 @@ CHINESE_CJK_THRESHOLD = 0.3        # 标题+desc 中 CJK 字符占字母+CJK 比
 # github_trending 永远 stage=cold，不走 scorer 也不进 featured
 EXCLUDED_FROM_MMR = frozenset(("github_trending",))
 
+# ---- 跨源去重参数（dedupe_global_items 用，与 MMR 无关）----
+# 同 event_key 最多保留几条；1 = 同事件只留最高分那条
+DEDUPE_MAX_PER_EVENT_DEFAULT = 1
+# 跨源去重排除的源（沿用 MMR 排除集，github_trending 维度榜单不走事件去重）
+DEDUPE_EXCLUDED_SOURCES = EXCLUDED_FROM_MMR
+# 各源在 tie-break 时的优先顺序（ai_score 相同时按此排序，靠前优先）
+DEDUPE_SOURCE_ORDER = ("hackernews", "github_trending", "threads")
+
 # ---- scorer reason 长度上限 ----
 REASON_MAX_CHARS = 40
 
@@ -139,19 +147,14 @@ def normalize_topic_tags(tags) -> list:
 #   "version": "...",
 #   "stage_by_source": {...},
 #   "sources": [...],
-#   "featured_items": [          # 新增：跨源全局精选 10 条
-#     {item 同 sources[].items[] 字段 + source 字段}
-#   ],
-#   "pipeline_metrics": {        # 新增：本轮 pipeline 观测指标
-#     "featured_mode": "normal",
+#   "pipeline_metrics": {        # 本轮 pipeline 观测指标
 #     "wall_time_sec": 410,
-#     "flags": {"boundary_fetch": true, "mmr": true},
 #     "scorer": {"source_failures": []},
 #     "boundary_fetch": {"attempted": 10, "succeeded": 7, "failed": 3, "success_rate": 0.7, "avg_latency_sec": 5.8},
-#     "mmr": {"pool_size": 34, "selected_count": 10, "suppressed_duplicate_count": 5,
-#             "max_event_count": 2, "max_topic_count": 4, "max_source_count": 4,
-#             "source_counts": {}, "topic_counts": {}},
-#     "quality": {"featured_avg_ai_score": 7.1, "raw_top10_avg_ai_score": 7.4,
-#                 "reason_over_40_count": 0, "missing_event_key_count": 0}
+#     "dedupe": {"eligible_count": 38, "kept_count": 35, "suppressed_total": 3,
+#                "suppressed_event_count": 3, "event_groups_multi_count": 1,
+#                "missing_event_key_count": 15, "suppressed_samples": [...]}
 #   }
 # }
+# 注: featured_items / mmr 顶层段已下线 (用户不要"今日精选"). diversity.py 中
+#     mmr_select / compute_quality_metrics 保留可逆, 但 pipeline 不再调用.

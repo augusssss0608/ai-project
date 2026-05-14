@@ -54,9 +54,23 @@ tools: Read, Write
 
 - **`title_score`**: 0-10，按 source_md 偏好 + examples few-shot 评分
 - **`ai_score`**: 一轮等同 `title_score`，二轮会被 Python 合成覆盖
-- **`event_key`**: kebab-case slug，**公司/产品 + 动作 + 核心对象**
-  - 例：`openai-gpt-5-5-release`、`anthropic-claude-code-plugin-update`、`hermes-agent-line-integration`
-  - 同一事件不同候选必须收敛到同一 slug（去掉媒体名、日期、营销词）
+- **`event_key`**: 必填 kebab-case slug，**不能为空字符串/null**。Python 后续会按 event_key 做跨源去重，留空 = 永远不会跟其他条目合并。
+  - 格式：公司/产品 + 动作 + 核心对象，去掉媒体名、作者名、日期、营销词、感叹词。
+  - **重要：先整体扫描这一批 candidates 所有标题**，再开始填 event_key。在讲同一事实/公告/发布/政策变化的多条，即使标题角度不同、用词不同，必须分配**完全相同**的 slug。
+  - 同事件 vs 不同事件示例：
+    - 同事件（4 条都应该是 `anthropic-claude-code-weekly-limit-50-percent`）：
+      - `就在今天凌晨 Anthropic 官方直接宣布!!Claude Code 週上限增加 50%`
+      - `Claude Code 連續放寬 limit，真正訊號不是「Anthropic 變佛心」`
+      - `好消息：Claude 週用量增加 50％`
+      - `【Claude Code 第二波福利大放送】`
+    - 同事件（都是 `anthropic-claude-p-phase-out`）：
+      - `才剛發布正式版，結果 claude -p 就要被砍了`
+      - `Claude code -p有額度可以領啊`
+    - 不同事件（slug 必须不同）：
+      - `Claude Code 2.1.140 发布 13 项 CLI 变更` → `anthropic-claude-code-2-1-140-release`
+      - `Claude Agent SDK 改用 credit/API 计费` → `anthropic-claude-agent-sdk-credit-billing`
+      - `Anthropic 新增 Agent View 视角` → `anthropic-claude-code-agent-view`
+  - 判断规则：只要是讲**同一具体事实**（同一发布会/同一政策变更/同一 PR/同一爆料），即使标题观点不同也用同一 slug。同一大主题但讲不同事实点的，必须用不同 slug。
 - **`topic_tags`**: 从下面**封闭枚举**挑 1-3 个：
   - `model_release`（大模型新版本）
   - `tool_release`（工具/SDK/框架发布）
@@ -112,7 +126,7 @@ tools: Read, Write
 - **reason 上限 40 中文字符（含标点）**。写完一定**自检 len(reason) ≤ 40**，超出立即截短或重写。这是硬约束，超长会被 Python 检测并告警。
 - 不要试图把所有信息塞进 reason —— 选最关键 1-2 个事实即可
 - reason 用中文，直接说事实
-- 一轮输出全部候选，**不要截 Top N**（Python 后续做 #2 diversity）
+- 一轮输出全部候选，**不要截 Top N**。Python 后续会按 event_key 做跨源去重，去重质量高度依赖 event_key —— 同一事件 slug 不一致会导致重复展示。
 - 二轮只输出边界候选，不要补全
 - topic_tags 只能从封闭枚举里选，未知归 `"other"`
 - 候选为空 → items 返回空 list，不报错

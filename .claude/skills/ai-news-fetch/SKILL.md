@@ -129,7 +129,7 @@ mid/hot 源跑 title scorer → 边界候选抓正文重评 → 合并 content_s
    - `subagent_type: news-scorer`
    - `model: claude-haiku-4-5`
    - `prompt: "你是 news-scorer. 读 /tmp/ai-news-scorer-{sid}-{ts}.json, 模式 title, 打分后写 /tmp/ai-news-scored-{sid}-{ts}.json"`
-3. 主 agent 等所有 scorer 返回, 读每个 output 文件, **保留所有候选**（不截 Top N, 让各源 tab 完整展示）。
+3. 主 agent 等所有 scorer 返回, 读每个 output 文件, **保留所有候选**, 跨源去重交给 §2.3e。scorer 输出含 event_key, 后续按 event_key 跨源压缩重复事件, 不在这里截 Top N。
 
 每条 scored item 含: `title_score / ai_score(一轮等同 title_score) / event_key / topic_tags / reason / content_status="not_attempted"`. 见 `.claude/agents/news-scorer.md` 与 `hooks/ai_news/data/schemas.py` 字段定义.
 
@@ -195,17 +195,71 @@ for it in scored_pool:
     merge_content_score(it)  # 原地更新 ai_score
 ```
 
-**为什么没有 MMR / featured_items**: 已下线 (历史曾用 MMR 选 ≤10 条精选, 前端置顶 "今日精选" 虚拟 tab, 后用户表示不需要). `hooks/ai_news/data/diversity.py` 保留可逆, 若想恢复重写本节即可.
+**为什么没有 MMR / featured_items**: 已下线 (历史曾用 MMR 选 ≤10 条精选, 前端置顶 "今日精选" 虚拟 tab, 后用户表示不需要). `hooks/ai_news/data/diversity.py` 中的 `mmr_select` 保留可逆, 若想恢复重写本节即可.
 
-#### 2.4 分批派 news-summary × 所有最终入库 items (非 github / 非 threads)
+#### 2.3e 跨源去重 (按 event_key 压缩重复事件)
 
-**对每个非 github_trending / 非 threads 源的所有最终入库 items 跑 summary**:
-- mid/hot 源: 所有 scored items 都跑
-- cold 源: items[:10] 都跑
-- **github_trending 源**: 永远跳过, 仓库 `desc` 已是简介, 不需要 AI 摘要
+`merge_content_score` 之后, `summary / analysis` 之前, 调用 `dedupe_global_items` 跨源去重.
+
+**时序**: 此时 scored_pool 已合并 content_score, 但 §2.6 最终组装还没跑. 需要先把数据结构整成 sources 形态供 dedupe 用:
+
+```python
+from ai_news.data import schemas
+from ai_news.data.diversity import dedupe_global_items
+
+# 1. 先做 "中间态 sources" — fetcher raw items 按源分组 + 把 scored_pool 的字段
+#    (ai_score / event_key / topic_tags / title_score / content_score / content_status / reason)
+#    按 url 写回各源 items, 但**还不要**写 summary / workspace_help / claude_usage
+sources_pre_dedupe = build_intermediate_sources(fetcher_raw_items_by_source, scored_pool)
+
+# 2. 跨源 dedupe (github_trending 自动 pass through), 失败时 fall through 保留原 sources
+try:
+    sources_post_dedupe, dedupe_metrics = dedupe_global_items(sources_pre_dedupe)
+except Exception as e:
+    print(f"[ai-news] dedupe_global_items failed: {type(e).__name__}: {e}")
+    sources_post_dedupe = sources_pre_dedupe
+    eligible_n = sum(
+        len(src.get("items", []) or [])
+        for src in sources_pre_dedupe
+        if src.get("id") not in schemas.DEDUPE_EXCLUDED_SOURCES
+    )
+    dedupe_metrics = {
+        "eligible_count": eligible_n,
+        "kept_count": eligible_n,        # fall through 不删任何条
+        "suppressed_total": 0,
+        "suppressed_event_count": 0,
+        "event_groups_multi_count": 0,
+        "missing_event_key_count": 0,
+        "suppressed_samples": [],
+        "error": f"{type(e).__name__}: {e}",
+    }
+
+# 3. 此后所有 summary / analysis / 最终 §2.6 组装都基于 sources_post_dedupe,
+#    被砍掉的条目不再 派发 subagent, 也不进 ai-news.json / history.jsonl
+```
+
+**规则**:
+- 非空 `event_key` 视为同事件凭证, 同 event_key 跨源压缩, 默认 `max_per_event=1` (同事件只留最高分)
+- 空 `event_key` 不参与去重, 直接保留 (依赖 scorer prompt 强化提升 event_key 覆盖率)
+- tie-break: `ai_score desc → schemas.DEDUPE_SOURCE_ORDER → original_index → url 字典序`
+- `github_trending` 在 `DEDUPE_EXCLUDED_SOURCES` 中, 完全 pass through
+
+**为什么放这里 (不放 §2.4 之后)**: summary / analysis 是昂贵的 subagent 调用, 先 dedupe 能直接省掉 suppressed items 的派发, 避免给"用户看不到的条目"花 haiku/opus 调用.
+
+**失败处理**: dedupe 不会失败 (纯 Python 计算), 实在异常就 catch 后 fall through 保留原 sources, 写 log.
+
+**metrics** 写入 `pipeline_metrics.dedupe`, 详见 §2.6.
+
+#### 2.4 分批派 news-summary × 所有最终入库 items (非 threads)
+
+**对每个非 threads 源 §2.3e 去重后的最终入库 items 跑 summary**:
+- mid/hot 源: dedupe 后剩下的 scored items 全跑（含 github_trending）
+- cold 源: items[:10] 都跑（含 github_trending）
 - **threads 源**: 永远跳过, 直接把 `it.desc[:300]` 拷到 `it.summary` (post 是短文, AI 复述损失原汁原味). 前端按源 ID 检测后用 "原文" label 渲染.
 
-每批 **10 个并行** (一次 message 发 10 个 Agent tool call), 通常跑 ~1-2 批.
+注: github 源跑 summary 是历史行为, 让用户看中文摘要而不是英文仓库简介. 别误以为 "github desc 已是简介就不用跑 summary" —— 重构前 27/27 github items 都有 haiku 中文摘要, 是有意保留的.
+
+每批 **10 个并行** (一次 message 发 10 个 Agent tool call), 通常跑 ~3-4 批.
 
 每个 prompt:
 ```
@@ -214,15 +268,15 @@ for it in scored_pool:
 
 主 agent 读 output, 把 summary 合并回 `sources[].items` 对应条目 (按 url 匹配).
 
-#### 2.5 分批派 news-analysis × 所有最终入库 items (非 github)
+#### 2.5 分批派 news-analysis × 所有最终入库 items
 
-**对每个非 github_trending 源的所有最终入库 items 跑 analysis**, 用 Opus 跑准确度:
-- mid/hot 源: 所有 scored items 都跑
-- cold 源: items[:10] 都跑
-- **github_trending 源**: 永远跳过, `workspace_help` / `claude_usage` 留空字符串 ""（前端检测空串退化显示）
-- threads 也要跑 (不像 §2.4 跳过), threads 的相关度判断对用户有价值
+**对 §2.3e 去重后的最终入库 items 跑 analysis**, 用 Opus 跑准确度:
+- mid/hot 源: dedupe 后剩下的 scored items 全跑（含 github_trending / threads）
+- cold 源: items[:10] 都跑（含 github_trending）
+- threads 也要跑 (虽然 §2.4 跳过 summary), threads 的相关度判断对用户有价值
+- github_trending 必须跑: 用户想知道每个仓库对 workspace / Claude 工作流的具体帮助
 
-每批 **3 个并行** (Opus 慢 + 控制主 context 累积, 防止长 loop 空 turn), 跑 ~10-15 批.
+每批 **3 个并行** (Opus 慢 + 控制主 context 累积, 防止长 loop 空 turn), 跑 ~13-15 批.
 
 每个 prompt:
 ```
@@ -312,12 +366,17 @@ payload = {
 
 **字段保留规则 (防止 fetcher raw 字段中途丢失)**:
 
-`sources[].items` 必须从 **fetcher 原始 raw 输出** 基础上 merge scored / summary / analysis 字段, **不许只用 scored_pool 当数据源** (会丢 `desc / ts / score / comments / like_count` 等 fetcher 原始字段, 前端会看到 "原文" 全空). 推荐组装顺序:
+`sources[].items` 必须从 **fetcher 原始 raw 输出** 基础上 merge scored / summary / analysis 字段, **不许只用 scored_pool 当数据源** (会丢 `desc / ts / score / comments / like_count` 等 fetcher 原始字段, 前端会看到 "原文" 全空).
+
+**注意时序**: 下面 step 1-3 实际在 §2.3e 之前完成 (dedupe 需要中间态 sources 输入), step 4-6 在 §2.4/§2.5 之后. 本节是组装 spec, 不是 pipeline 编排顺序.
+
+组装步骤:
 1. fetcher items raw → 给每条加 `ai_score=null, reason=null, summary="", workspace_help="", claude_usage="", title_score=null, content_score=null, content_status="not_attempted", event_key=null, topic_tags=[]` 等占位
 2. scored_pool 按 url 写回 `ai_score / reason / title_score / content_score / content_status / event_key / topic_tags`
-3. summary_outputs 按 url 写回 `summary` (threads 源直接拷 desc[:300])
-4. analysis_outputs 按 url 写回 `workspace_help / claude_usage`
-5. 每源 items 按 `ai_score desc` 排序 (cold 源没有 ai_score 时保留原生顺序)
+3. **§2.3e dedupe_global_items 跨源去重**, 删 sources[].items 中重复 event_key 的低分条目 (此步在 summary / analysis 之前执行)
+4. summary_outputs 按 url 写回 `summary` (threads 源直接拷 desc[:300]); 仅对 dedupe 后存活的 items
+5. analysis_outputs 按 url 写回 `workspace_help / claude_usage`; 仅对 dedupe 后存活的 items
+6. 每源 items 按 `ai_score desc` 排序 (cold 源没有 ai_score 时保留原生顺序)
 
 **禁止项 (reviewer 反馈, 防止 schema 偏离)**:
 - 不许用 `generated_at` 代替 `updated_at`
@@ -327,6 +386,7 @@ payload = {
 - 不许把 github 的 daily/weekly/monthly/total stars 合并成单一字段, 前端要分别读
 - 不许引入 featured_items 顶层段 (MMR 精选已下线, 见 §2.3d)
 - 不许只给某些源跑 summary / analysis (除 §2.4 / §2.5 明示的 github / threads 例外)
+- 不许跳过 §2.3e 跨源去重 (会让重复 event_key 的条目同时展示, 用户已明确不要)
 
 **顶层 pipeline_metrics**（必写）:
 
@@ -337,8 +397,16 @@ payload["pipeline_metrics"] = {
         "source_failures": [],       # 列出 §2.3a 失败的源 id
     },
     "boundary_fetch": boundary_metrics,  # 来自 fetch_boundary_contents()
+    "dedupe": dedupe_metrics,            # 来自 §2.3e dedupe_global_items()
 }
 ```
+
+`dedupe_metrics` 字段:
+- `eligible_count` / `kept_count` / `suppressed_total`
+- `suppressed_event_count`: 因同 event_key 被压掉的条数
+- `event_groups_multi_count`: 出现过重复的 event 数
+- `missing_event_key_count`: 空 event_key 条数 (越多说明 scorer prompt 强化越无效)
+- `suppressed_samples`: 前 10 条压制样本, 用于上线后判断是否误杀
 
 写入前清掉 items 内部巨大的 `full_content` 字段（前端不需要, 仅 §2.3c content scorer 用过即可丢）。
 
@@ -375,6 +443,19 @@ for src in data["sources"]:
                 assert k in it, f"github item 缺字段 {k}: {it.get('title', '')[:40]}"
             assert it["dimension"] in ("daily", "weekly", "monthly", "total"), \
                 f"github item dimension 非法值: {it.get('dimension')}"
+
+# §2.3e 跨源去重必须跑过, 防止 cloud agent 跳过 dedupe
+assert "pipeline_metrics" in data and isinstance(data["pipeline_metrics"], dict), "缺 pipeline_metrics"
+assert "dedupe" in data["pipeline_metrics"], "pipeline_metrics 缺 dedupe (§2.3e 未跑?)"
+dedupe = data["pipeline_metrics"]["dedupe"]
+for k in ("eligible_count", "kept_count", "suppressed_total",
+          "suppressed_event_count", "event_groups_multi_count",
+          "missing_event_key_count", "suppressed_samples"):
+    assert k in dedupe, f"dedupe_metrics 缺字段 {k}"
+assert isinstance(dedupe["suppressed_samples"], list), "dedupe.suppressed_samples 必须是 list"
+assert dedupe["suppressed_total"] == dedupe["eligible_count"] - dedupe["kept_count"], \
+    "dedupe.suppressed_total 口径错误 (应 = eligible_count - kept_count)"
+
 print("schema 自检通过")
 ```
 自检失败就不要发 TG, 写 log 后停止 pipeline (不覆盖旧 ai-news.json 已由 write_atomic 保证, 也不要 git push, 让云端工作树自动随 session 销毁).
@@ -404,12 +485,14 @@ git diff --cached --quiet && echo "no changes to commit" || (
 
 ```bash
 cd /home/user/ai-project && python3 hooks/tg_notify.py --stdin <<EOF
-[ai-news] 已刷新 {total} 则
+[ai-news] 已刷新 {total} 则 · 去重 {dedupe_total} 条
 HN {n1} · GitHub {n2} · Threads {n3}
 阶段: HN {s1} · GitHub {s2} · Threads {s3}
 dashboard: http://localhost:38080/#news
 EOF
 ```
+
+`dedupe_total = pipeline_metrics.dedupe.suppressed_total`，始终显示（即使为 0），方便上线初期判断 dedupe 是否生效。
 
 `tg_notify.py` 优先读 `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` env vars, 没有则回退本地 `.env` 文件 (mac 路径). 脚本失败时退出码非 0, 打印错误到 stderr (不含 token). 失败 graceful skip (写 log 不阻塞主流程).
 
@@ -473,6 +556,7 @@ fi
 | §2.3b Jina 全部失败 | 所有边界项走 penalty; §2.3c 跳过, 直接合并 ai_score |
 | §2.3c 某源二轮 scorer 失败 | 该源边界项 `content_status=failed` + penalty; 保留一轮 reason |
 | §2.3c 全部二轮失败 | #5 退化为 penalty-only, pipeline 继续 |
+| §2.3e dedupe 异常 | catch + log, 保留原 sources fall through; dedupe_metrics 写 error 字段 |
 | §2.4 summary 单条失败 | 该条 `summary_error` 写原因; `summary` 用 `desc` 兜底 |
 | §2.4 summary 全部失败 | 所有 items 仍写出, `summary` 字段统一空串, 前端用 desc 渲染 |
 | §2.5 analysis 单条失败 | 该条 `workspace_help/claude_usage` 填 "无相关" |

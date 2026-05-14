@@ -157,5 +157,159 @@ class TestComputeQualityMetrics(unittest.TestCase):
         self.assertEqual(m["missing_event_key_count"], 1)
 
 
+def make_source(sid, items):
+    return {"id": sid, "items": items}
+
+
+class TestDedupeGlobalItems(unittest.TestCase):
+    def test_basic_event_dedup(self):
+        # 同 event_key 跨 HN/threads, 留 ai_score 高的
+        srcs = [
+            make_source("hackernews", [make_item("hackernews", 8, event_key="e1", title="HN-a")]),
+            make_source("threads", [make_item("threads", 9, event_key="e1", title="TH-a")]),
+        ]
+        rebuilt, m = diversity.dedupe_global_items(srcs)
+        kept_titles = [it["title"] for s in rebuilt for it in s["items"]]
+        self.assertEqual(kept_titles, ["TH-a"])
+        self.assertEqual(m["suppressed_event_count"], 1)
+        self.assertEqual(m["event_groups_multi_count"], 1)
+
+    def test_max_per_event_one_keeps_highest_score(self):
+        # 4 条同 event, max_per_event=1 留最高分
+        srcs = [
+            make_source("threads", [
+                make_item("threads", 5, event_key="e1", title="low1"),
+                make_item("threads", 9, event_key="e1", title="high"),
+                make_item("threads", 6, event_key="e1", title="low2"),
+                make_item("threads", 8, event_key="e1", title="mid"),
+            ]),
+        ]
+        rebuilt, m = diversity.dedupe_global_items(srcs, max_per_event=1)
+        titles = [it["title"] for s in rebuilt for it in s["items"]]
+        self.assertEqual(titles, ["high"])
+        self.assertEqual(m["suppressed_event_count"], 3)
+
+    def test_tie_break_source_order(self):
+        # ai_score 相同, hackernews 在 threads 前 (DEDUPE_SOURCE_ORDER 顺序)
+        srcs = [
+            make_source("hackernews", [make_item("hackernews", 8, event_key="e1", title="HN", url="http://a")]),
+            make_source("threads", [make_item("threads", 8, event_key="e1", title="TH", url="http://b")]),
+        ]
+        rebuilt, _ = diversity.dedupe_global_items(srcs)
+        kept = [it["title"] for s in rebuilt for it in s["items"]]
+        self.assertEqual(kept, ["HN"])
+
+    def test_empty_event_key_passes_through(self):
+        # 空 event_key 直接保留, 不参与去重
+        srcs = [
+            make_source("threads", [
+                make_item("threads", 8, event_key="", title="a", url="http://a"),
+                make_item("threads", 7, event_key="", title="b", url="http://b"),
+                make_item("threads", 6, event_key="", title="c", url="http://c"),
+            ]),
+        ]
+        rebuilt, m = diversity.dedupe_global_items(srcs)
+        kept = [it["title"] for s in rebuilt for it in s["items"]]
+        self.assertEqual(sorted(kept), ["a", "b", "c"])
+        self.assertEqual(m["suppressed_event_count"], 0)
+        self.assertEqual(m["missing_event_key_count"], 3)
+
+    def test_github_trending_pass_through(self):
+        # github_trending 完全不参与去重, 即使有重复 event_key
+        srcs = [
+            make_source("github_trending", [
+                make_item("github_trending", 5, event_key="e1", title="repo-a"),
+                make_item("github_trending", 4, event_key="e1", title="repo-b"),
+                make_item("github_trending", 3, event_key="e1", title="repo-c"),
+            ]),
+            make_source("threads", [
+                make_item("threads", 9, event_key="e1", title="thread-x"),
+                make_item("threads", 8, event_key="e1", title="thread-y"),
+            ]),
+        ]
+        rebuilt, _ = diversity.dedupe_global_items(srcs)
+        gh_items = next(s for s in rebuilt if s["id"] == "github_trending")["items"]
+        th_items = next(s for s in rebuilt if s["id"] == "threads")["items"]
+        # github 3 条全保留
+        self.assertEqual(len(gh_items), 3)
+        # threads 同 event 留 1 条最高
+        self.assertEqual([it["title"] for it in th_items], ["thread-x"])
+
+    def test_metrics_fields_complete(self):
+        srcs = [
+            make_source("hackernews", [make_item("hackernews", 8, event_key="e1")]),
+            make_source("threads", [make_item("threads", 7, event_key="e1")]),
+        ]
+        _, m = diversity.dedupe_global_items(srcs)
+        for k in ("eligible_count", "kept_count", "suppressed_total",
+                  "suppressed_event_count", "event_groups_multi_count",
+                  "missing_event_key_count", "suppressed_samples"):
+            self.assertIn(k, m)
+
+    def test_preserve_original_item_order_in_source(self):
+        # 同源内多条不同 event, 保留原顺序
+        srcs = [
+            make_source("threads", [
+                make_item("threads", 8, event_key="e1", title="first"),
+                make_item("threads", 9, event_key="e2", title="second"),
+                make_item("threads", 7, event_key="e3", title="third"),
+            ]),
+        ]
+        rebuilt, _ = diversity.dedupe_global_items(srcs)
+        titles = [it["title"] for it in rebuilt[0]["items"]]
+        self.assertEqual(titles, ["first", "second", "third"])
+
+    def test_max_per_event_exceeds_group_size(self):
+        # max_per_event > group size 时全保留, suppressed=0
+        srcs = [
+            make_source("threads", [
+                make_item("threads", 8, event_key="e1", title="a"),
+                make_item("threads", 7, event_key="e1", title="b"),
+            ]),
+        ]
+        rebuilt, m = diversity.dedupe_global_items(srcs, max_per_event=5)
+        titles = [it["title"] for s in rebuilt for it in s["items"]]
+        self.assertEqual(set(titles), {"a", "b"})
+        self.assertEqual(m["suppressed_event_count"], 0)
+        self.assertEqual(m["event_groups_multi_count"], 1)
+
+    def test_ai_score_as_string_handled(self):
+        # scorer LLM 偶尔输出 quoted number ("9" 而非 9), tie-break 应仍能识别数值大小
+        srcs = [
+            make_source("threads", [
+                make_item("threads", "9", event_key="e1", title="quoted-high"),
+                make_item("threads", 7, event_key="e1", title="num-mid"),
+                make_item("threads", "bad", event_key="e1", title="invalid"),
+            ]),
+        ]
+        rebuilt, _ = diversity.dedupe_global_items(srcs, max_per_event=1)
+        titles = [it["title"] for s in rebuilt for it in s["items"]]
+        # "9" 应被识别为 9, 高于数值 7 和无效 "bad", 留 quoted-high
+        self.assertEqual(titles, ["quoted-high"])
+
+    def test_tie_break_uses_global_original_index(self):
+        # 回归测试: 两个相同 source_id 的 source block, 验证 sort key 用全局
+        # original_index 而非单源 item_idx。设计让旧实现 (item_idx) 会选错:
+        # - block1 的目标重复项 item_idx=1 (前面有 filler)
+        # - block2 的目标重复项 item_idx=0 + url 字典序更小
+        # 旧实现 sort key (score, src_order, item_idx, url) 会选 block2 (item_idx=0)
+        # 新实现 sort key (score, src_order, original_index, url) 会选 block1 (先出现)
+        srcs = [
+            make_source("threads", [
+                make_item("threads", 1, event_key="other", title="filler", url="http://0"),
+                make_item("threads", 8, event_key="e1", title="block1-target", url="http://z"),
+            ]),
+            make_source("threads", [
+                make_item("threads", 8, event_key="e1", title="block2-target", url="http://a"),
+            ]),
+        ]
+        rebuilt, _ = diversity.dedupe_global_items(srcs, max_per_event=1)
+        titles = [it["title"] for s in rebuilt for it in s["items"]]
+        # filler 保留 (event=other 唯一), 同 event=e1 留 block1-target (original_index 小)
+        self.assertIn("filler", titles)
+        self.assertIn("block1-target", titles)
+        self.assertNotIn("block2-target", titles)
+
+
 if __name__ == "__main__":
     unittest.main()
