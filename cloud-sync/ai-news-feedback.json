@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-05-18T15:39:39+09:00",
+  "updated_at": "2026-05-19T15:32:42+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -1332,6 +1332,126 @@
       "title": "🚀【iPAS應用規劃師每日挑戰】Day 333",
       "source": "threads",
       "score": "down"
+    },
+    "https://techcrunch.com/2026/05/18/elon-musk-has-lost-his-lawsuit-against-sam-altman-and-openai/": {
+      "ts": "2026-05-19T15:18:06+09:00",
+      "title": "Elon Musk has lost his lawsuit against Sam Altman and OpenAI",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://www.nbcnews.com/tech/tech-news/former-google-ceo-booed-graduation-speech-ai-rcna345585": {
+      "ts": "2026-05-19T15:18:38+09:00",
+      "title": "Eric Schmidt speech about AI booed during graduation",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://github.com/colbymchenry/codegraph": {
+      "ts": "2026-05-19T15:19:10+09:00",
+      "title": "colbymchenry/codegraph",
+      "source": "github_trending",
+      "score": "up"
+    },
+    "https://www.threads.com/@hei_ai.automation/post/DYdxJJJkw-O": {
+      "ts": "2026-05-19T15:22:16+09:00",
+      "title": "做 Claude 的那家公司 Anthropic,最近出了一份 36 頁的官方創始人手冊",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@cooljerrett/post/DYf62y-jzyf": {
+      "ts": "2026-05-19T15:25:42+09:00",
+      "title": "Claude工程師 Thariq 分享他近期常用的一個prompt，讓 Claude Code 邊寫 code 邊寫施工日誌，這樣你不用盯著它做，回來翻日誌就知道哪裡它自己做了決定、哪裡需要你調整決策",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@rex.ai.lab.2026/post/DYfDXGDk1QK": {
+      "ts": "2026-05-19T15:26:02+09:00",
+      "title": "🦖",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@__njzneverdie/post/DYebJlREzTl": {
+      "ts": "2026-05-19T15:28:00+09:00",
+      "title": "Google I/O 2026 將於 5/19-20 招開，幾點 preview:",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@hanamizuki/post/DYedOBbim10": {
+      "ts": "2026-05-19T15:30:29+09:00",
+      "title": "【AI 團隊筆記 No.46 - 用 html 審批提案】",
+      "source": "threads",
+      "score": "star"
+    },
+    "https://www.threads.com/@denniswei1310/post/DYgC44ZmYb0": {
+      "ts": "2026-05-19T15:30:47+09:00",
+      "title": "🚀【一篇整理了 120+ 篇文章、30+ 篇論文的 Claude Code 中文神文，最該看的人卻看不下去。】",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@kikitataysi/post/DYd7hdaESMm": {
+      "ts": "2026-05-19T15:31:03+09:00",
+      "title": "Anthropic 官方推出的前端設計開源Skills",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@prompt_case/post/DYf-0IKmr7v": {
+      "ts": "2026-05-19T15:31:08+09:00",
+      "title": "Cursor 最新編程模型 Composer 2.5 來了！評分表現接近 Claude Opus 4.7，性價比卻高出 10 倍！",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@danielwchen0/post/DYd5lJkEV1o": {
+      "ts": "2026-05-19T15:31:35+09:00",
+      "title": "分享一個 Vibe Marketing 的實際案例（連結放一樓）。",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@ericleung.hk/post/DYeqQBHGhOV": {
+      "ts": "2026-05-19T15:31:40+09:00",
+      "title": "最近成日見到人講：",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@sparkroom22/post/DYgGiITkxgk": {
+      "ts": "2026-05-19T15:31:53+09:00",
+      "title": "昨天打開交接同事的資料夾真的差點沒昏倒",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@scps_jia/post/DYeXDHdAFv8": {
+      "ts": "2026-05-19T15:32:08+09:00",
+      "title": "1分鐘帶你看完｜本週 AI 大事(5/18)",
+      "source": "threads",
+      "score": "star"
+    },
+    "https://www.threads.com/@chens.corn/post/DYe4nTbiUPp": {
+      "ts": "2026-05-19T15:32:29+09:00",
+      "title": "誰敢信⋯⋯我一個毫無資工背景的人",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@goodbruce1/post/DYfAj7yiZgs": {
+      "ts": "2026-05-19T15:32:35+09:00",
+      "title": "裝好後推薦先安裝這幾個Skill, 需要做量化的推薦裝freqtrade",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@magicmonx/post/DYduoprD3Sw": {
+      "ts": "2026-05-19T15:32:38+09:00",
+      "title": "有人製作了一系列小型物件的超寫實 3D 模型 🫐🪰",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@x.801059/post/DYgJAi4CUvg": {
+      "ts": "2026-05-19T15:32:40+09:00",
+      "title": "這是我用Claude Code開發的第一個專案，希望你們會喜歡",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@ddmmbb45/post/DYgDWwzkzjt": {
+      "ts": "2026-05-19T15:32:42+09:00",
+      "title": "念書念到 ca3 神經元",
+      "source": "threads",
+      "score": "down"
     }
   },
   "favorites": {
@@ -1394,6 +1514,11 @@
       "ts": "2026-05-18T15:17:39+09:00",
       "title": "最近 Vibe coding 圈出現一個新趨勢:",
       "source": "threads"
+    },
+    "https://github.com/MinishLab/semble": {
+      "ts": "2026-05-19T15:17:37+09:00",
+      "title": "Show HN: Semble – Code search for agents that uses 98% fewer tokens than grep",
+      "source": "hackernews"
     }
   }
 }
