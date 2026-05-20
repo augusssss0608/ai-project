@@ -259,14 +259,16 @@ except Exception as e:
 
 注: github 源跑 summary 是历史行为, 让用户看中文摘要而不是英文仓库简介. 别误以为 "github desc 已是简介就不用跑 summary" —— 重构前 27/27 github items 都有 haiku 中文摘要, 是有意保留的.
 
-每批 **10 个并行** (一次 message 发 10 个 Agent tool call), 通常跑 ~3-4 批.
+**派单前必须按 url 去重** (github 4 维度榜单同一仓库会出现 2-4 行, 同 url 共享 desc/title/score, 摘要内容相同, 重复派单浪费 token 且会出现"只回写第一行, 其它行空白"的 bug). 派单单位 = 每个唯一 url 一次, 不是每条 item 一次.
+
+每批 **10 个并行** (一次 message 发 10 个 Agent tool call), 通常跑 ~3 批 (~25-30 个唯一 url).
 
 每个 prompt:
 ```
 你是 news-summary. title: "..." url: "..." 把摘要写到 /tmp/ai-news-summary-{idx}-{ts}.json
 ```
 
-主 agent 读 output, 把 summary 合并回 `sources[].items` 对应条目 (按 url 匹配).
+主 agent 读 output, 把 summary **广播回所有同 url 的 items** (不是只写第一个匹配行). github 多维度场景下同一仓库的 daily/weekly/monthly/total 行都要拿到同一份摘要.
 
 #### 2.5 分批派 news-analysis × 所有最终入库 items
 
@@ -276,7 +278,9 @@ except Exception as e:
 - threads 也要跑 (虽然 §2.4 跳过 summary), threads 的相关度判断对用户有价值
 - github_trending 必须跑: 用户想知道每个仓库对 workspace / Claude 工作流的具体帮助
 
-每批 **3 个并行** (Opus 慢 + 控制主 context 累积, 防止长 loop 空 turn), 跑 ~13-15 批.
+**派单前必须按 url 去重** (理由同 §2.4: github 多维度榜单同 url 共享分析素材, 跑一份就够). 派单单位 = 每个唯一 url 一次.
+
+每批 **3 个并行** (Opus 慢 + 控制主 context 累积, 防止长 loop 空 turn), 跑 ~10 批 (~25-30 个唯一 url).
 
 每个 prompt:
 ```
@@ -291,9 +295,9 @@ workspace_context_path: "/Users/augus/Desktop/开发项目/live_app/CLAUDE.md"
 
 **云端兼容性提示**: 上面那个 `workspace_context_path` 是 mac 上 live_app 仓库路径, 在 cloud routine 内**不存在**. 子代理读不到时把 `workspace_help` 和 `claude_usage` 字段填 "无相关" 优雅降级.
 
-**wall_time 预期**: ~15 分钟 (受总条数影响, 通常 30-40 条 × Opus). 若 routine 多次中段空 turn / 超时, 把 analysis subagent model 临时改 `claude-sonnet-4-6` 救场.
+**wall_time 预期**: ~10-12 分钟 (按 url 去重后通常 25-30 个 url × Opus). 若 routine 多次中段空 turn / 超时, 把 analysis subagent model 临时改 `claude-sonnet-4-6` 救场.
 
-主 agent 读 output, 把 analysis 合并回 `sources[].items` 对应条目 (按 url 匹配).
+主 agent 读 output, 把 analysis **广播回所有同 url 的 items** (workspace_help / claude_usage 两个字段都广播). github 多维度场景下同一仓库的 daily/weekly/monthly/total 行都要拿到同一份分析.
 
 #### 2.6 写 ai-news.json + history.jsonl
 
@@ -374,8 +378,8 @@ payload = {
 1. fetcher items raw → 给每条加 `ai_score=null, reason=null, summary="", workspace_help="", claude_usage="", title_score=null, content_score=null, content_status="not_attempted", event_key=null, topic_tags=[]` 等占位
 2. scored_pool 按 url 写回 `ai_score / reason / title_score / content_score / content_status / event_key / topic_tags`
 3. **§2.3e dedupe_global_items 跨源去重**, 删 sources[].items 中重复 event_key 的低分条目 (此步在 summary / analysis 之前执行)
-4. summary_outputs 按 url 写回 `summary` (threads 源直接拷 desc[:300]); 仅对 dedupe 后存活的 items
-5. analysis_outputs 按 url 写回 `workspace_help / claude_usage`; 仅对 dedupe 后存活的 items
+4. summary_outputs 按 url 写回 `summary`, **匹配同 url 的所有 items 都要写** (github 多维度榜单同 url 多行场景必须广播, 不能只写第一个匹配行); threads 源直接拷 desc[:300]; 仅对 dedupe 后存活的 items
+5. analysis_outputs 按 url 写回 `workspace_help / claude_usage`, **匹配同 url 的所有 items 都要写** (理由同 step 4); 仅对 dedupe 后存活的 items
 6. 每源 items 按 `ai_score desc` 排序 (cold 源没有 ai_score 时保留原生顺序)
 
 **禁止项 (reviewer 反馈, 防止 schema 偏离)**:
@@ -387,6 +391,7 @@ payload = {
 - 不许引入 featured_items 顶层段 (MMR 精选已下线, 见 §2.3d)
 - 不许只给某些源跑 summary / analysis (除 §2.4 / §2.5 明示的 github / threads 例外)
 - 不许跳过 §2.3e 跨源去重 (会让重复 event_key 的条目同时展示, 用户已明确不要)
+- 不许把 summary / workspace_help / claude_usage 只写回同 url 的第一行 (github 多维度榜单同 url 多行场景必须全广播, 否则 daily / weekly / monthly 切到没回写的维度就是空摘要 + "工作区: 无相关 / Claude: 无相关")
 
 **顶层 pipeline_metrics**（必写）:
 
@@ -455,6 +460,23 @@ for k in ("eligible_count", "kept_count", "suppressed_total",
 assert isinstance(dedupe["suppressed_samples"], list), "dedupe.suppressed_samples 必须是 list"
 assert dedupe["suppressed_total"] == dedupe["eligible_count"] - dedupe["kept_count"], \
     "dedupe.suppressed_total 口径错误 (应 = eligible_count - kept_count)"
+
+# §2.4 / §2.5 广播回写检查: github 源同 url 的所有行必须共享同一份 summary / workspace_help / claude_usage
+# 触发原因: 历史 bug — 主 agent 只写回第一个匹配行, 导致 daily/weekly/monthly 切到没回写的维度看到空摘要
+from collections import defaultdict
+for src in data["sources"]:
+    if src["id"] != "github_trending":
+        continue
+    by_url = defaultdict(list)
+    for it in src["items"]:
+        by_url[it["url"]].append(it)
+    for url, group in by_url.items():
+        if len(group) < 2:
+            continue
+        for k in ("summary", "workspace_help", "claude_usage"):
+            vals = {g.get(k, "") for g in group}
+            assert len(vals) == 1, \
+                f"github 同 url 多行 {k} 不一致 (回写漏广播): url={url[-40:]} dims={[g.get('dimension') for g in group]} vals={vals}"
 
 print("schema 自检通过")
 ```

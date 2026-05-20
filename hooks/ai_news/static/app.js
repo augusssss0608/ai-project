@@ -35,6 +35,16 @@
   function isFav(url){ return !!state.favorites[url]; }
   function getScore(url){ return (state.votes[url]||{}).score || ''; }
 
+  // threads 源: 低分条目过滤 (ai_score <= THREADS_MIN_SCORE 不展示)
+  const THREADS_MIN_SCORE = 4;
+  function isThreadsSource(srcId){ return srcId === 'threads'; }
+  function filterThreadsByScore(items){
+    return items.filter(it => {
+      const s = it && it.ai_score;
+      return typeof s === 'number' ? s > THREADS_MIN_SCORE : true;
+    });
+  }
+
   // github 源相关
   function isGithubSource(srcId){ return srcId === 'github_trending'; }
   function hasGithubStars(it){
@@ -135,6 +145,7 @@
       // 老数据 fallback: 同一池子按字段排序
       return sortGithubItems(items, state.githubSortBy);
     }
+    if (isThreadsSource(src.id)) return filterThreadsByScore(items);
     return items;
   }
 
@@ -220,6 +231,8 @@
         } else {
           cnt = Math.min(cnt, GITHUB_PER_DIM_DISPLAY);
         }
+      } else if (isThreadsSource(s.id)) {
+        cnt = filterThreadsByScore(s.items || []).length;
       }
       return `<button class='news-src-item src-${esc(s.id)} ${active}' data-idx='${i}' title='${isGh?"再次点击循环切换 日→周→月→总":""}'>
         <div class='label'>

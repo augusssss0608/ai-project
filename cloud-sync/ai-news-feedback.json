@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-05-19T15:32:42+09:00",
+  "updated_at": "2026-05-20T14:41:58+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -1452,6 +1452,84 @@
       "title": "念書念到 ca3 神經元",
       "source": "threads",
       "score": "down"
+    },
+    "https://twitter.com/karpathy/status/2056753169888334312": {
+      "ts": "2026-05-20T14:01:50+09:00",
+      "title": "I’ve joined Anthropic",
+      "source": "hackernews",
+      "score": "up"
+    },
+    "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-5/": {
+      "ts": "2026-05-20T14:01:59+09:00",
+      "title": "Gemini 3.5 Flash",
+      "source": "hackernews",
+      "score": "up"
+    },
+    "https://www.threads.com/@aiposthub/post/DYgy11gEUzt": {
+      "ts": "2026-05-20T14:36:00+09:00",
+      "title": "Claude Code + MCP 這條工作流，",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@futurecommerce_official/post/DYiUZa_iO3m": {
+      "ts": "2026-05-20T14:36:34+09:00",
+      "title": "Anthropic 正式宣告：Claude 計費方式要變了。",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@ray.realms/post/DYhf2imgejq": {
+      "ts": "2026-05-20T14:37:17+09:00",
+      "title": "Garry Tan 剛放出的這個工具，可能把個人 AI 的天花板捅破了",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@cooljerrett/post/DYij2l_EwdB": {
+      "ts": "2026-05-20T14:37:22+09:00",
+      "title": "Google I/O 2026 新產品與更新完整整理持續更新中，其中新模型3.5 Flash, 新的影像模型Gemini Omni, 和Gemini Saprk (可以編輯處理電腦檔案了），還有Antigravity 2.0(新介面超像Co",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@danielwchen0/post/DYgdaz9kaKv": {
+      "ts": "2026-05-20T14:39:53+09:00",
+      "title": "分享最近為自己 vibe code 的大量閱讀工具：Long Drive / 長途駕駛。",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@royjjkuo/post/DYiMZC8k0nd": {
+      "ts": "2026-05-20T14:40:52+09:00",
+      "title": "近一週 GitHub 星星增加前 10 名",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@webbrrlo/post/DYhgjKeFG5H": {
+      "ts": "2026-05-20T14:40:59+09:00",
+      "title": "用 AI 做簡報，真的會改到懷疑人生。",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@a5555555678/post/DYhKF1_j_uC": {
+      "ts": "2026-05-20T14:41:16+09:00",
+      "title": "​🚀 今日 Hacker News 爆紅：開發者正在發動一場「拒絕財務刺客」的本地獨立革命！",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@dsif2017/post/DYg0N27DcJ9": {
+      "ts": "2026-05-20T14:41:32+09:00",
+      "title": "現在 AI 真的越來越強了。",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@walkccc/post/DYhaJgbAGGi": {
+      "ts": "2026-05-20T14:41:35+09:00",
+      "title": "因為 vibe coding 太方便，想到什麼點子就馬上開了新 repo，每次要 cd 或用 VS Code 打開時，感覺一直在做重複的動作，就順手加速了一下自己的開發 workflow，用 Claude 做了一個「快速打開 repo」的小",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@mileschen1217/post/DYhnd5ZmUyO": {
+      "ts": "2026-05-20T14:41:58+09:00",
+      "title": "前一兩個月 Anthropic bug 加上 opus 4.7 體感上整個 token 消耗速度直線起飛啊...原本上 Max 100 後幾乎沒在 token 焦慮的,結果上個月隨便跑 5 分鐘 5h limit 就直接吃掉 20%,實在有",
+      "source": "threads",
+      "score": "up"
     }
   },
   "favorites": {
