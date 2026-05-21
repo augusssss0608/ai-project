@@ -347,12 +347,15 @@
     const bodyLabel = isThreads ? '原文' : '摘要';
     const safeTitle = esc(title.slice(0, 160));  // vote 按钮 data-title 不截, 后端原样收
     const starsHtml = isGithubSource(srcId) ? renderGithubStars(it, state.githubSortBy) : '';
+    // github 源: 本次首次出现的仓库 (后端 render.py 基于 history.jsonl 标 is_new) 显示 NEW 徽标
+    const newBadge = (isGithubSource(srcId) && it.is_new) ? `<span class='news-new-badge'>NEW</span><span>·</span>` : '';
     return `
     <div class='news-slide src-${esc(srcId)} ${score?'voted-'+score:''} ${fav?'is-fav':''}'>
       <article>
         <div class='news-art-meta'>
           <span class='src'>${esc(srcLabelFull)}</span>
           <span>·</span>
+          ${newBadge}
           <span>${fmtTime(it.ts)}</span>
           ${it.ai_score!=null?`<span>·</span><span>💡 AI ${it.ai_score}</span>`:''}
           ${it.reason?(()=>{
@@ -549,15 +552,25 @@
       return;
     }
     const parts = [];
+    // github 源的当前维度 items 在 curItems() 里已按 is_new 字段透传; 该页对应 item.is_new 时给页码挂 --new
+    const pageItems = curItems();
+    const isGh = isGithubSource(curSource().id);
     for (let i = 0; i < total; i++){
       const active = i === state.pageIdx ? 'active' : '';
-      parts.push(`<button class='news-page-btn ${active}' data-go='${i}' aria-label='第 ${i+1} 篇'>${String(i+1).padStart(2,'0')}</button>`);
+      const newCls = (isGh && pageItems[i] && pageItems[i].is_new) ? 'news-page-btn--new' : '';
+      parts.push(`<button class='news-page-btn ${active} ${newCls}' data-go='${i}' aria-label='第 ${i+1} 篇${newCls?' (NEW)':''}'>${String(i+1).padStart(2,'0')}</button>`);
       if (i < total - 1) parts.push(`<span class='news-page-sep'>·</span>`);
     }
     pagEl.innerHTML = parts.join('');
     pagEl.querySelectorAll('.news-page-btn').forEach(b => {
       b.addEventListener('click', () => gotoPage(parseInt(b.dataset.go, 10)));
     });
+    // 数字多到横向滚动时, 把 active 数字滚到可视区中间
+    const activeBtn = pagEl.querySelector('.news-page-btn.active');
+    if (activeBtn && pagEl.scrollWidth > pagEl.clientWidth){
+      const target = activeBtn.offsetLeft - (pagEl.clientWidth / 2) + (activeBtn.offsetWidth / 2);
+      pagEl.scrollTo({left: Math.max(0, target), behavior: 'smooth'});
+    }
   }
 
   function gotoPage(i){

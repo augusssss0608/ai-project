@@ -211,6 +211,20 @@
 
 .news-art-meta .ord b{color:var(--accent);font-weight:400}
 
+/* github 源首次出现条目的 NEW 徽标 (本次 fetch 之前 history 没记录过) */
+.news-art-meta .news-new-badge{
+  display:inline-flex;align-items:center;
+  padding:2px 7px;
+  font-family:var(--font-mono);
+  font-size:10px;letter-spacing:.18em;font-weight:700;
+  color:#0b0f14;
+  background:var(--accent-bright,#39ff14);
+  border-radius:3px;
+  box-shadow:0 0 8px rgba(57,255,20,0.5);
+  text-transform:uppercase;
+  line-height:1;
+}
+
 /* github 源在左栏激活时的时间维度标签 (日/周/月/总): 贴在 stage 行前面, 不加框以免撑高按钮 */
 .gh-sort-tag{
   display:inline;
@@ -372,9 +386,11 @@
 
 
 /* 底部 pagination (简洁无箭头, 终端风: 数字列 + 下划线 active 条) */
+/* 单行显示, 数量多时横向滚动 (鼠标滚轮 / 触摸板横滑), 不显示滚动条 */
+/* safe center: 内容不溢出时居中, 溢出时退化为 flex-start 不会让首项被剪掉 */
 .news-pagination{
   position:relative;
-  display:flex;align-items:center;justify-content:center;gap:4px;
+  display:flex;align-items:center;justify-content:safe center;gap:4px;
   padding:18px 28px 16px;
   min-height:64px;        /* 保证空 pagination (单条源) 也占位, reader 总高一致 */
   box-sizing:border-box;
@@ -382,8 +398,21 @@
   background:
     radial-gradient(ellipse at 50% 120%, rgba(57,255,20,0.06), transparent 55%),
     linear-gradient(0deg,var(--card-solid),transparent);
-  flex-wrap:wrap;
+  flex-wrap:nowrap;
+  overflow-x:auto;
+  overflow-y:hidden;
+  scroll-behavior:smooth;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:contain;
+  /* 隐藏滚动条 (Firefox / IE) */
+  scrollbar-width:none;
+  -ms-overflow-style:none;
 }
+/* 隐藏滚动条 (WebKit / Blink) */
+.news-pagination::-webkit-scrollbar{display:none;width:0;height:0}
+/* 数字本身不参与 shrink, 保证每个都占满, 由 overflow-x 接管溢出 */
+.news-pagination .news-page-btn,
+.news-pagination .news-page-sep{flex:0 0 auto}
 
 .news-page-btn{
   position:relative;
@@ -427,6 +456,17 @@
 .news-page-sep{
   color:var(--text-faint);opacity:0.3;
   font-family:var(--font-mono);font-size:10px;align-self:center;
+}
+
+/* NEW 页码标记: 仅改文字颜色为橙黄 (跟 ⭐ STAR 同色系), 不加任何装饰物 */
+/* 跟 active 的绿、普通的灰天然区分; active+new 叠加时保留 active 的绿色优先 */
+.news-page-btn--new:not(.active){
+  color:var(--accent-warning,#ffb800);
+  text-shadow:0 0 6px rgba(255,184,0,0.3);
+}
+.news-page-btn--new:not(.active):hover{
+  color:var(--accent-warning,#ffb800);
+  text-shadow:0 0 10px rgba(255,184,0,0.55);
 }
 
 .news-pagination[hidden]{display:none}
