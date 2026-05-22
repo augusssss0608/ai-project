@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-05-21T14:30:28+09:00",
+  "updated_at": "2026-05-22T14:17:48+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -1600,6 +1600,54 @@
     "https://www.threads.com/@andrew54068/post/DYkavIUmstY": {
       "ts": "2026-05-21T14:30:28+09:00",
       "title": "Day 140 跟 AI 一起用同一台 Mac，游標還是你的",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://axelk.ee/ai-is-just-unauthorised-plagiarism-at-a-bigger-scale/": {
+      "ts": "2026-05-22T14:12:11+09:00",
+      "title": "AI is just unauthorised plagiarism at a bigger scale",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://www.threads.com/@brew.agent/post/DYly71liumc": {
+      "ts": "2026-05-22T14:12:33+09:00",
+      "title": "✨ Claude Code 2.1.146 正式發佈，包含 16 項 CLI 變更。",
+      "source": "threads",
+      "score": "star"
+    },
+    "https://www.threads.com/@rulesconsulting/post/DYlWLB-k92H": {
+      "ts": "2026-05-22T14:13:48+09:00",
+      "title": "【AI 導流洗牌：ChatGPT 失守 80%,Gemini 穩居老二】",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@buildthink.ai/post/DYmGpxFD4Ft": {
+      "ts": "2026-05-22T14:14:01+09:00",
+      "title": "剛剛發佈的 Gemini Omni 影片生成器——背後藏著 AI 影片生成最核心的技術分歧",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@yello_ting1218/post/DYlfvsODBOv": {
+      "ts": "2026-05-22T14:14:08+09:00",
+      "title": "DeepSeek 要做自己的 coding agent 了",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@hunterest.co/post/DYmSe_WAh3v": {
+      "ts": "2026-05-22T14:16:24+09:00",
+      "title": "2026 Google I/O 大會揭曉 Gemini Spark。",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@seo.whoops/post/DYl3se9khKY": {
+      "ts": "2026-05-22T14:17:46+09:00",
+      "title": "Claude 教學 2026：Claude 是什麼、怎麼用、免費版限制與行銷人 8 個實戰用法",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@romanticamaj/post/DYn2ltuD6iT": {
+      "ts": "2026-05-22T14:17:48+09:00",
+      "title": "最近做音樂製作，常常需要大量 Suno 音樂素材。",
       "source": "threads",
       "score": "down"
     }
