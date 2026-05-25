@@ -12,9 +12,20 @@
   const STAGE_EMOJI = {cold:'🥶', mid:'🌡️', hot:'🔥'};
   const STAGE_LABEL = {cold:'COLD', mid:'MID', hot:'HOT'};
 
+  // 已看过的 URL 集合: 后端 ai-news-feedback.json 的 seen 段裁剪到当前榜单后, item.is_new 透传.
+  // 前端启动时把 is_new === false (服务端确认已 seen) 反推回 seenUrls.
+  // 用 `=== false` 而非 `!it.is_new`: 老 payload 里 undefined 不进 initSeen, 与 markSeen 守卫呼应.
+  const initSeen = new Set();
+  for (const s of (DATA.sources||[])) {
+    for (const it of (s.items||[])) {
+      if (it && it.url && it.is_new === false) initSeen.add(it.url);
+    }
+  }
+
   const state = {
     votes: DATA.votes || {},
     favorites: DATA.favorites || {},   // {url: {title, source, ts}}
+    seenUrls: initSeen,                 // 已看过的 URL Set (前端本地缓存, 与后端 seen 同步)
     viewMode: 'sources',                // 'sources' | 'favorites'
     srcIdx: 0,
     pageIdx: 0,
@@ -34,6 +45,42 @@
   function esc(s){return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
   function isFav(url){ return !!state.favorites[url]; }
   function getScore(url){ return (state.votes[url]||{}).score || ''; }
+
+  // 把"已看过"标记 POST 到后端 + 更新本地 set + 抹掉对应 NEW 徽标/页码橙.
+  // 失败静默 (不影响阅读), 下次 render 时 is_new 仍为 true 会再次尝试.
+  // 守卫 `it.is_new !== true`: 跳过已知非 new 条目 (含老 payload undefined / 收藏 stub / 服务端已 seen).
+  function markSeen(it, srcId){
+    if (!it || !it.url || state.seenUrls.has(it.url) || it.is_new !== true) return;
+    state.seenUrls.add(it.url);
+    // 抹当前 slide 的 NEW 徽标 (currentSlide 在 renderSlides 后是 track 的第 pageIdx+1 个子)
+    const slide = trackEl.children[state.pageIdx + 1];
+    if (slide){
+      slide.querySelectorAll('.news-new-badge').forEach(b => {
+        // 同时把紧跟其后的分隔点 (·) 也移掉
+        const next = b.nextElementSibling;
+        if (next && next.tagName === 'SPAN' && next.textContent.trim() === '·') next.remove();
+        b.remove();
+      });
+    }
+    // 抹页码橙
+    const pageBtn = pagEl.querySelector(`.news-page-btn[data-go='${state.pageIdx}']`);
+    if (pageBtn) pageBtn.classList.remove('news-page-btn--new');
+
+    fetch('/news/seen', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({url: it.url, source: srcId || ''}),
+    }).catch(err => console.error('[news seen]', err));
+  }
+
+  function markCurrentSeen(){
+    const items = curItems();
+    if (!items.length || state.pageIdx < 0) return;
+    const it = items[state.pageIdx];
+    if (!it) return;
+    const srcId = (it._sourceId) || curSource().id;
+    markSeen(it, srcId);
+  }
 
   // threads 源: 低分条目过滤 (ai_score <= THREADS_MIN_SCORE 不展示)
   const THREADS_MIN_SCORE = 4;
@@ -347,8 +394,9 @@
     const bodyLabel = isThreads ? '原文' : '摘要';
     const safeTitle = esc(title.slice(0, 160));  // vote 按钮 data-title 不截, 后端原样收
     const starsHtml = isGithubSource(srcId) ? renderGithubStars(it, state.githubSortBy) : '';
-    // github 源: 本次首次出现的仓库 (后端 render.py 基于 history.jsonl 标 is_new) 显示 NEW 徽标
-    const newBadge = (isGithubSource(srcId) && it.is_new) ? `<span class='news-new-badge'>NEW</span><span>·</span>` : '';
+    // 所有源: 用户未在 dashboard 滑到过该 url 时显示 NEW 徽标 (后端 seen 段标 is_new)
+    const isNewNow = it.is_new && !state.seenUrls.has(it.url);
+    const newBadge = isNewNow ? `<span class='news-new-badge'>NEW</span><span>·</span>` : '';
     return `
     <div class='news-slide src-${esc(srcId)} ${score?'voted-'+score:''} ${fav?'is-fav':''}'>
       <article>
@@ -428,6 +476,8 @@
     vpEl.style.cursor = (state.viewMode === 'favorites' || items.length <= 1 || state.pageIdx < 0) ? 'default' : '';
     bindVoteButtons();
     updateViewportHeight();
+    // 当前 slide 进入视野 → 标已看过 (初次加载 / 切源 / 收藏模式选条)
+    markCurrentSeen();
   }
 
   function bindVoteButtons(){
@@ -552,12 +602,13 @@
       return;
     }
     const parts = [];
-    // github 源的当前维度 items 在 curItems() 里已按 is_new 字段透传; 该页对应 item.is_new 时给页码挂 --new
+    // 所有源: 未看过 (is_new && !seenUrls) 的页码挂 --new (橙色)
     const pageItems = curItems();
-    const isGh = isGithubSource(curSource().id);
     for (let i = 0; i < total; i++){
       const active = i === state.pageIdx ? 'active' : '';
-      const newCls = (isGh && pageItems[i] && pageItems[i].is_new) ? 'news-page-btn--new' : '';
+      const it = pageItems[i];
+      const isNewNow = it && it.is_new && it.url && !state.seenUrls.has(it.url);
+      const newCls = isNewNow ? 'news-page-btn--new' : '';
       parts.push(`<button class='news-page-btn ${active} ${newCls}' data-go='${i}' aria-label='第 ${i+1} 篇${newCls?' (NEW)':''}'>${String(i+1).padStart(2,'0')}</button>`);
       if (i < total - 1) parts.push(`<span class='news-page-sep'>·</span>`);
     }
@@ -629,6 +680,8 @@
     // 高度在源切换时已锁定为该源最长 slide 的高度, 翻页不动
     // 收藏模式: 翻页后同步左栏 active
     if (state.viewMode === 'favorites') renderFavList();
+    // 翻到新页 → 标已看过 (键盘 / 点页码 / 拖拽 / wrap 均经此入口)
+    markCurrentSeen();
   }
 
   document.addEventListener('keydown', e => {

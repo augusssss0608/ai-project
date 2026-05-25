@@ -9,63 +9,31 @@ import os
 from datetime import datetime, timezone
 
 from shared.infra.core import LABELS, NEWS_JSON_PATH, NEWS_VOTES_PATH
-
-# history.jsonl 与 ai-news.json 同目录 (cloud-sync/),
-# 与 ai_news.data.history.HISTORY_PATH 路径定义一致
-_HISTORY_PATH = os.path.join(os.path.dirname(NEWS_JSON_PATH), "ai-news-history.jsonl")
+from shared.infra.news_feedback import load_news_seen, prune_news_seen
 
 
-def _load_github_first_ts() -> dict:
-    """读 history.jsonl, 返回 {url: first_ts} (仅 github_trending 源).
-
-    用于判断 github 条目是否首次出现 (本次 fetch 之前未在 history 里出现过).
-    文件不存在或读失败时返回空 dict, 此时所有 github 条目都会被标 is_new.
-    """
-    if not os.path.isfile(_HISTORY_PATH):
-        return {}
-    first_ts = {}
-    try:
-        with open(_HISTORY_PATH, "r", encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    row = json.loads(line)
-                except Exception:
-                    continue
-                if row.get("source") != "github_trending":
-                    continue
-                url = row.get("url", "")
-                ts = row.get("ts", "")
-                if not url or not ts:
-                    continue
-                cur = first_ts.get(url)
-                if cur is None or ts < cur:
-                    first_ts[url] = ts
-    except Exception:
-        return {}
-    return first_ts
-
-
-def _annotate_github_is_new(sources: list, updated_at: str):
-    """给 github_trending 源的每个 item 标 is_new:
-    history 里没记录过, 或 first_ts >= 本次 updated_at -> True.
+def _annotate_is_new_by_seen(sources: list, seen_urls: set):
+    """给所有源的每个 item 标 is_new = url not in seen_urls.
 
     直接 in-place 改写 sources 里的 dict (随后会序列化进 payload_json).
     """
-    if not updated_at:
-        return
-    first_ts_by_url = _load_github_first_ts()
     for src in sources:
-        if src.get("id") != "github_trending":
-            continue
         for it in src.get("items", []) or []:
             url = it.get("url", "")
             if not url:
                 continue
-            ft = first_ts_by_url.get(url)
-            it["is_new"] = (ft is None) or (ft >= updated_at)
+            it["is_new"] = url not in seen_urls
+
+
+def _collect_current_urls(sources: list) -> set:
+    """收集当前 ai-news.json 所有源的全部 item URL, 用于 seen prune."""
+    urls = set()
+    for src in sources:
+        for it in src.get("items", []) or []:
+            u = it.get("url", "")
+            if u:
+                urls.add(u)
+    return urls
 
 
 def _load_news_data() -> dict:
@@ -173,7 +141,11 @@ def render_news(parts: list):
         return
 
     sources = data.get("sources", [])
-    _annotate_github_is_new(sources, data.get("updated_at", ""))
+    # seen 自愈式裁剪: 当前榜单 URL 之外的条目剔除 (大小 ~= 榜单大小, 不会膨胀)
+    current_urls = _collect_current_urls(sources)
+    prune_news_seen(current_urls)
+    seen_urls = set(load_news_seen().keys())
+    _annotate_is_new_by_seen(sources, seen_urls)
     favorites_by_url = _load_news_favorites()
     payload = {
         "sources": sources,

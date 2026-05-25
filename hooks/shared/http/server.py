@@ -19,6 +19,7 @@ if _HOOKS_ROOT not in sys.path:
     sys.path.insert(0, _HOOKS_ROOT)
 from shared.infra import summary as summary_mod
 from shared.infra.core import *
+from shared.infra.news_feedback import load_news_seen, save_news_seen, feedback_lock, _tmp_path
 from shared.data.queries import *
 from shared.http.render import *
 from http.server import BaseHTTPRequestHandler
@@ -79,13 +80,16 @@ def load_news_votes() -> dict:
     try:
         with open(NEWS_VOTES_PATH, "r", encoding="utf-8") as f:
             data = json.load(f)
-        return data.get("votes", {}) if isinstance(data, dict) else {}
+        if not isinstance(data, dict):
+            return {}
+        votes = data.get("votes", {})
+        return votes if isinstance(votes, dict) else {}
     except Exception:
         return {}
 
 
 def save_news_votes(votes: dict):
-    """原子写入: tmp + rename. 保留既有 favorites 不覆盖."""
+    """原子写入: tmp + rename. 保留既有 favorites / seen 不覆盖. 必须在 feedback_lock 内."""
     import json
     os.makedirs(os.path.dirname(NEWS_VOTES_PATH), exist_ok=True)
     existing = {}
@@ -99,8 +103,9 @@ def save_news_votes(votes: dict):
         "updated_at": datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds"),
         "votes": votes,
         "favorites": existing.get("favorites", {}),
+        "seen": existing.get("seen", {}),
     }
-    tmp = NEWS_VOTES_PATH + ".tmp"
+    tmp = _tmp_path()
     with open(tmp, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
     os.replace(tmp, NEWS_VOTES_PATH)
@@ -124,16 +129,19 @@ def load_news_favorites() -> dict:
     try:
         with open(NEWS_VOTES_PATH, "r", encoding="utf-8") as f:
             data = json.load(f)
-        return data.get("favorites", {}) if isinstance(data, dict) else {}
+        if not isinstance(data, dict):
+            return {}
+        favs = data.get("favorites", {})
+        return favs if isinstance(favs, dict) else {}
     except Exception:
         return {}
 
 
 def save_news_favorites(favs: dict):
-    """写回 favorites, 保留既有 votes. 原子 rename."""
+    """写回 favorites, 保留既有 votes / seen. 原子 rename. 必须在 feedback_lock 内."""
     import json
     os.makedirs(os.path.dirname(NEWS_VOTES_PATH), exist_ok=True)
-    # 读回来合并, 避免覆盖 votes
+    # 读回来合并, 避免覆盖 votes / seen
     existing = {}
     if os.path.isfile(NEWS_VOTES_PATH):
         try:
@@ -145,11 +153,14 @@ def save_news_favorites(favs: dict):
         "updated_at": datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds"),
         "votes": existing.get("votes", {}),
         "favorites": favs,
+        "seen": existing.get("seen", {}),
     }
-    tmp = NEWS_VOTES_PATH + ".tmp"
+    tmp = _tmp_path()
     with open(tmp, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
     os.replace(tmp, NEWS_VOTES_PATH)
+
+
 # Summary 相關邏輯已搬到 usage_web_summary.py 模組, 見 import summary_mod as summary
 # 向下相容 aliases (減少下面代碼改動)
 _get_summary_status = summary_mod.get_status
@@ -291,7 +302,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         u = urlparse(self.path)
         if u.path not in ("/archive", "/restore", "/clear-summary-cache",
-                          "/news/vote", "/news/favorite"):
+                          "/news/vote", "/news/favorite", "/news/seen"):
             self.send_response(404); self.end_headers(); return
         # 中等安全: 拒绝 cloudflare tunnel 转发的写操作
         if not is_direct_local(self.headers):
@@ -325,26 +336,64 @@ class Handler(BaseHTTPRequestHandler):
             if not url:
                 self._send_json(400, {"ok": False, "error": "missing url"})
                 return
-            votes = load_news_votes()
-            if score:
-                votes[url] = {
-                    "ts": datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds"),
-                    "title": title,
-                    "source": source,
-                    "score": score,
-                }
-            else:
-                votes.pop(url, None)
+            with feedback_lock:
+                votes = load_news_votes()
+                if score:
+                    votes[url] = {
+                        "ts": datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds"),
+                        "title": title,
+                        "source": source,
+                        "score": score,
+                    }
+                else:
+                    votes.pop(url, None)
+                try:
+                    save_news_votes(votes)
+                    self._send_json(200, {
+                        "ok": True,
+                        "score": score,
+                        "total": len(votes),
+                        "totals_by_score": _counts_by_score(votes),
+                    })
+                except Exception as e:
+                    self._send_json(500, {"ok": False, "error": str(e)})
+            return
+
+        if u.path == "/news/seen":
+            import json as _j
+            length = int(self.headers.get("Content-Length", "0"))
+            raw = self.rfile.read(length).decode("utf-8") if length > 0 else ""
             try:
-                save_news_votes(votes)
-                self._send_json(200, {
-                    "ok": True,
-                    "score": score,
-                    "total": len(votes),
-                    "totals_by_score": _counts_by_score(votes),
-                })
-            except Exception as e:
-                self._send_json(500, {"ok": False, "error": str(e)})
+                payload = _j.loads(raw) if raw else {}
+            except Exception:
+                self._send_json(400, {"ok": False, "error": "invalid json body"})
+                return
+            url = (payload.get("url") or "").strip()
+            source = (payload.get("source") or "").strip()[:60]
+            # 输入校验: 防本地恶意脚本/扩展往 seen 里塞垃圾
+            if not url:
+                self._send_json(400, {"ok": False, "error": "missing url"})
+                return
+            if len(url) > 2048:
+                self._send_json(400, {"ok": False, "error": "url too long"})
+                return
+            if not (url.startswith("http://") or url.startswith("https://")):
+                self._send_json(400, {"ok": False, "error": "url must be http(s)"})
+                return
+            with feedback_lock:
+                seen = load_news_seen()
+                # 已存在不覆盖时间戳, 保留首次标记时间
+                if url not in seen:
+                    seen[url] = {
+                        "ts": datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds"),
+                        "source": source,
+                    }
+                    try:
+                        save_news_seen(seen)
+                    except Exception as e:
+                        self._send_json(500, {"ok": False, "error": str(e)})
+                        return
+                self._send_json(200, {"ok": True, "total": len(seen)})
             return
 
         if u.path == "/news/favorite":
@@ -363,20 +412,21 @@ class Handler(BaseHTTPRequestHandler):
             if not url:
                 self._send_json(400, {"ok": False, "error": "missing url"})
                 return
-            favs = load_news_favorites()
-            if fav:
-                favs[url] = {
-                    "ts": datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds"),
-                    "title": title,
-                    "source": source,
-                }
-            else:
-                favs.pop(url, None)
-            try:
-                save_news_favorites(favs)
-                self._send_json(200, {"ok": True, "fav": fav, "total": len(favs)})
-            except Exception as e:
-                self._send_json(500, {"ok": False, "error": str(e)})
+            with feedback_lock:
+                favs = load_news_favorites()
+                if fav:
+                    favs[url] = {
+                        "ts": datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds"),
+                        "title": title,
+                        "source": source,
+                    }
+                else:
+                    favs.pop(url, None)
+                try:
+                    save_news_favorites(favs)
+                    self._send_json(200, {"ok": True, "fav": fav, "total": len(favs)})
+                except Exception as e:
+                    self._send_json(500, {"ok": False, "error": str(e)})
             return
 
         # 解析 form body

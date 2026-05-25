@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-05-25T10:58:24+09:00",
+  "updated_at": "2026-05-25T12:08:00+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -1698,6 +1698,36 @@
       "title": "https://youtu.be/BhHMGRcbPkQ?si=1aVsbjzstctjTqZB",
       "source": "threads",
       "score": "down"
+    },
+    "https://isaiprofitable.com/": {
+      "ts": "2026-05-25T11:41:30+09:00",
+      "title": "Is AI Profitable Yet?",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://epoch.ai/data-insights/ai-chip-component-cost-shares": {
+      "ts": "2026-05-25T11:41:31+09:00",
+      "title": "Memory has grown to nearly two-thirds of AI chip component costs",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://www.threads.com/@krumjahn/post/DYuOorkmj_v": {
+      "ts": "2026-05-25T11:41:41+09:00",
+      "title": "一個 CLAUDE.md 檔案登上 GitHub Trending 第一名。",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@cooljerrett/post/DYvcrTZmZNH": {
+      "ts": "2026-05-25T12:00:34+09:00",
+      "title": "Vaibhav Srivastav (VB) ，OpenAI 開發者體驗與社群主管提供了一段讓 Codex可以自我提升的prompt提示詞，這組提示詞的重點，是讓 Codex 回看過去30天 session 與任務摘要，找出你反覆手動執行的",
+      "source": "threads",
+      "score": "star"
+    },
+    "https://www.threads.com/@polyglot.tw_terry/post/DYtptXuic9_": {
+      "ts": "2026-05-25T12:01:54+09:00",
+      "title": "APP 的好日子不多了",
+      "source": "threads",
+      "score": "down"
     }
   },
   "favorites": {
@@ -1769,6 +1799,125 @@
     "https://github.com/Lum1104/Understand-Anything": {
       "ts": "2026-05-25T10:57:53+09:00",
       "title": "Lum1104/Understand-Anything",
+      "source": "github_trending"
+    },
+    "https://www.threads.com/@cooljerrett/post/DYvcrTZmZNH": {
+      "ts": "2026-05-25T12:00:35+09:00",
+      "title": "Vaibhav Srivastav (VB) ，OpenAI 開發者體驗與社群主管提供了一段讓 Codex可以自我提升的prompt提示詞，這組提示詞的重點，是讓 Codex 回看過去30天 session 與任務摘要，找出你反覆手動執行的",
+      "source": "threads"
+    }
+  },
+  "seen": {
+    "https://esengine.github.io/DeepSeek-Reasonix/": {
+      "ts": "2026-05-25T12:07:47+09:00",
+      "source": "hackernews"
+    },
+    "https://github.com/Lum1104/Understand-Anything": {
+      "ts": "2026-05-25T12:07:48+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/colbymchenry/codegraph": {
+      "ts": "2026-05-25T12:07:50+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/multica-ai/andrej-karpathy-skills": {
+      "ts": "2026-05-25T12:07:51+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/anthropics/claude-plugins-official": {
+      "ts": "2026-05-25T12:07:51+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/mukul975/Anthropic-Cybersecurity-Skills": {
+      "ts": "2026-05-25T12:07:51+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/Alishahryar1/free-claude-code": {
+      "ts": "2026-05-25T12:07:51+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/anthropics/knowledge-work-plugins": {
+      "ts": "2026-05-25T12:07:51+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/Imbad0202/academic-research-skills": {
+      "ts": "2026-05-25T12:07:53+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/K-Dense-AI/scientific-agent-skills": {
+      "ts": "2026-05-25T12:07:53+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/mattpocock/skills": {
+      "ts": "2026-05-25T12:07:54+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/addyosmani/agent-skills": {
+      "ts": "2026-05-25T12:07:54+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/ruvnet/ruflo": {
+      "ts": "2026-05-25T12:07:55+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/anthropics/financial-services": {
+      "ts": "2026-05-25T12:07:55+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/decolua/9router": {
+      "ts": "2026-05-25T12:07:56+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/affaan-m/ECC": {
+      "ts": "2026-05-25T12:07:57+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/anthropics/skills": {
+      "ts": "2026-05-25T12:07:57+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/x1xhlol/system-prompts-and-models-of-ai-tools": {
+      "ts": "2026-05-25T12:07:58+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/anthropics/claude-code": {
+      "ts": "2026-05-25T12:07:58+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/garrytan/gstack": {
+      "ts": "2026-05-25T12:07:58+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/punkpeye/awesome-mcp-servers": {
+      "ts": "2026-05-25T12:07:58+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/farion1231/cc-switch": {
+      "ts": "2026-05-25T12:07:59+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/ComposioHQ/awesome-claude-skills": {
+      "ts": "2026-05-25T12:07:59+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/sansan0/TrendRadar": {
+      "ts": "2026-05-25T12:07:59+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/ChromeDevTools/chrome-devtools-mcp": {
+      "ts": "2026-05-25T12:07:59+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/sickn33/antigravity-awesome-skills": {
+      "ts": "2026-05-25T12:08:00+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/danny-avila/LibreChat": {
+      "ts": "2026-05-25T12:08:00+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/wshobson/agents": {
+      "ts": "2026-05-25T12:08:00+09:00",
       "source": "github_trending"
     }
   }
