@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-05-22T14:17:48+09:00",
+  "updated_at": "2026-05-25T10:58:24+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -1650,6 +1650,54 @@
       "title": "最近做音樂製作，常常需要大量 Suno 音樂素材。",
       "source": "threads",
       "score": "down"
+    },
+    "https://www.theverge.com/tech/930447/microsoft-claude-code-discontinued-notepad": {
+      "ts": "2026-05-25T10:31:36+09:00",
+      "title": "Microsoft starts canceling Claude Code licenses",
+      "source": "hackernews",
+      "score": "up"
+    },
+    "https://www.threads.com/@ryanchou0210/post/DYqiiAkElm2": {
+      "ts": "2026-05-25T10:48:58+09:00",
+      "title": "微軟給員工試用 Claude Code 六個月，經過這段時間後，工程師大多選了 Claude Code；但是，微軟卻決定把它砍了。大多數報導抓的角度是公司政治和商業套利，但我認為這則消息最重要的訊號不在那裡，而是在成本。",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@ray.realms/post/DYrvHlxASqS": {
+      "ts": "2026-05-25T10:51:05+09:00",
+      "title": "你有在開發一個中大型的軟體專案嗎？",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@0xspeter/post/DYrxwHzk0aR": {
+      "ts": "2026-05-25T10:51:34+09:00",
+      "title": "今天GitHub又瘋了",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@bing_sunzhi/post/DYq7K_SmWCU": {
+      "ts": "2026-05-25T10:53:38+09:00",
+      "title": "最近在寫自動化測試與網頁腳本時，發現一個非常猛的開源 AI 網頁自動化工具 Midscene",
+      "source": "threads",
+      "score": "star"
+    },
+    "https://www.threads.com/@kai_ch_chen/post/DYrnV4UGXYu": {
+      "ts": "2026-05-25T10:57:34+09:00",
+      "title": "你入職一個月了，codebase 有 20 萬行，還在靠全局搜尋和問前輩摸索。",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://github.com/Lum1104/Understand-Anything": {
+      "ts": "2026-05-25T10:57:52+09:00",
+      "title": "Lum1104/Understand-Anything",
+      "source": "github_trending",
+      "score": "star"
+    },
+    "https://www.threads.com/@chengcheng_tag/post/DYsF4ujEjYi": {
+      "ts": "2026-05-25T10:58:24+09:00",
+      "title": "https://youtu.be/BhHMGRcbPkQ?si=1aVsbjzstctjTqZB",
+      "source": "threads",
+      "score": "down"
     }
   },
   "favorites": {
@@ -1717,6 +1765,11 @@
       "ts": "2026-05-19T15:17:37+09:00",
       "title": "Show HN: Semble – Code search for agents that uses 98% fewer tokens than grep",
       "source": "hackernews"
+    },
+    "https://github.com/Lum1104/Understand-Anything": {
+      "ts": "2026-05-25T10:57:53+09:00",
+      "title": "Lum1104/Understand-Anything",
+      "source": "github_trending"
     }
   }
 }
