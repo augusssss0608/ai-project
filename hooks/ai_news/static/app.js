@@ -83,7 +83,7 @@
   }
 
   // threads 源: 低分条目过滤 (ai_score <= THREADS_MIN_SCORE 不展示)
-  const THREADS_MIN_SCORE = 4;
+  const THREADS_MIN_SCORE = 5;
   function isThreadsSource(srcId){ return srcId === 'threads'; }
   function filterThreadsByScore(items){
     return items.filter(it => {
