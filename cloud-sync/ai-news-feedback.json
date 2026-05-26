@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-05-25T12:08:00+09:00",
+  "updated_at": "2026-05-26T14:28:51+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -1728,6 +1728,72 @@
       "title": "APP 的好日子不多了",
       "source": "threads",
       "score": "down"
+    },
+    "https://arxiv.org/abs/2605.06445": {
+      "ts": "2026-05-26T14:07:16+09:00",
+      "title": "Constraint Decay: The Fragility of LLM Agents in Back End Code Generation",
+      "source": "hackernews",
+      "score": "up"
+    },
+    "https://religionnews.com/2026/05/25/in-his-first-encyclical-pope-leo-xiv-says-ai-must-serve-humanity-not-the-powerful-few/": {
+      "ts": "2026-05-26T14:07:39+09:00",
+      "title": "Pope Leo XIV says AI must serve humanity, not the powerful few",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://www.hollandtech.net/claude-is-not-your-architect/": {
+      "ts": "2026-05-26T14:07:40+09:00",
+      "title": "Claude is not your architect. Stop letting it pretend",
+      "source": "hackernews",
+      "score": "up"
+    },
+    "https://www.threads.com/@journal_of_digital_narrative/post/DYwyHjniXzj": {
+      "ts": "2026-05-26T14:09:34+09:00",
+      "title": "用Agent前你真正該做的事情：Harness Engineering",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@yrzheee/post/DYvs2elDP0Z": {
+      "ts": "2026-05-26T14:24:30+09:00",
+      "title": "Anthropic 正在测试 Claude 全新的「双模记忆系统」，这是记忆功能上线以来最大的一次架构翻新。",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@wilsonhuangxyz/post/DYyMhVvlejw": {
+      "ts": "2026-05-26T14:25:56+09:00",
+      "title": "1/4",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@andrew54068/post/DYxE8NjGjdu": {
+      "ts": "2026-05-26T14:27:46+09:00",
+      "title": "Day 145 逐字稿不要直接拿來用",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@hanlinhans/post/DYyCLazE0V0": {
+      "ts": "2026-05-26T14:28:39+09:00",
+      "title": "AI 新手不要再從「我要學哪個工具」開始了。",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@answer00125/post/DYw1QpeErMJ": {
+      "ts": "2026-05-26T14:28:42+09:00",
+      "title": "【Day 47/100】",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@kojenchieh/post/DYyCTqTkjlj": {
+      "ts": "2026-05-26T14:28:47+09:00",
+      "title": "Meta 最近發了一篇好文：《Capacity Efficiency at Meta》。",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@dorgon.chang/post/DYyLOZPCdkE": {
+      "ts": "2026-05-26T14:28:51+09:00",
+      "title": "接續上一篇：跟 agent 協作第5個月的心得  https://www.threads.com/@dorgon.chang/post/DYqwX2piaIh?xmt=AQG0yxkYlc7oVRIdrHPJiS4tr05WJUiC-kCa",
+      "source": "threads",
+      "score": "down"
     }
   },
   "favorites": {
@@ -1808,10 +1874,6 @@
     }
   },
   "seen": {
-    "https://esengine.github.io/DeepSeek-Reasonix/": {
-      "ts": "2026-05-25T12:07:47+09:00",
-      "source": "hackernews"
-    },
     "https://github.com/Lum1104/Understand-Anything": {
       "ts": "2026-05-25T12:07:48+09:00",
       "source": "github_trending"
@@ -1821,10 +1883,6 @@
       "source": "github_trending"
     },
     "https://github.com/multica-ai/andrej-karpathy-skills": {
-      "ts": "2026-05-25T12:07:51+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/anthropics/claude-plugins-official": {
       "ts": "2026-05-25T12:07:51+09:00",
       "source": "github_trending"
     },
@@ -1841,10 +1899,6 @@
       "source": "github_trending"
     },
     "https://github.com/Imbad0202/academic-research-skills": {
-      "ts": "2026-05-25T12:07:53+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/K-Dense-AI/scientific-agent-skills": {
       "ts": "2026-05-25T12:07:53+09:00",
       "source": "github_trending"
     },
@@ -1919,6 +1973,126 @@
     "https://github.com/wshobson/agents": {
       "ts": "2026-05-25T12:08:00+09:00",
       "source": "github_trending"
+    },
+    "https://arxiv.org/abs/2605.06445": {
+      "ts": "2026-05-26T14:03:30+09:00",
+      "source": "hackernews"
+    },
+    "https://www.hollandtech.net/claude-is-not-your-architect/": {
+      "ts": "2026-05-26T14:07:16+09:00",
+      "source": "hackernews"
+    },
+    "https://religionnews.com/2026/05/25/in-his-first-encyclical-pope-leo-xiv-says-ai-must-serve-humanity-not-the-powerful-few/": {
+      "ts": "2026-05-26T14:07:37+09:00",
+      "source": "hackernews"
+    },
+    "https://github.com/anthropics/claude-cookbooks": {
+      "ts": "2026-05-26T14:07:45+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/phodal/routa": {
+      "ts": "2026-05-26T14:07:53+09:00",
+      "source": "github_trending"
+    },
+    "https://www.threads.com/@krumjahn/post/DYwzUQNGhCT": {
+      "ts": "2026-05-26T14:07:59+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@journal_of_digital_narrative/post/DYwyHjniXzj": {
+      "ts": "2026-05-26T14:09:23+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@brainness.ai/post/DYwdOGCGu3s": {
+      "ts": "2026-05-26T14:09:34+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@yrzheee/post/DYvs2elDP0Z": {
+      "ts": "2026-05-26T14:09:49+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@xiaoxiunique/post/DYyGJNogaJe": {
+      "ts": "2026-05-26T14:24:30+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@robert.deallaunch/post/DYxFNv9gZaF": {
+      "ts": "2026-05-26T14:24:38+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@kikitataysi/post/DYx9qqcEhUe": {
+      "ts": "2026-05-26T14:24:41+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@klkh.dj.ai/post/DYvpZ9tARZO": {
+      "ts": "2026-05-26T14:25:14+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@eugeneliu1027/post/DYwQPSyEXVh": {
+      "ts": "2026-05-26T14:25:32+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@tech.ai_tw/post/DYwjP8vktGJ": {
+      "ts": "2026-05-26T14:25:37+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@crazyaitools_/post/DYyKMT3kk2t": {
+      "ts": "2026-05-26T14:25:40+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@0xspeter/post/DYv5RTuE8ir": {
+      "ts": "2026-05-26T14:25:46+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@wilsonhuangxyz/post/DYyMhVvlejw": {
+      "ts": "2026-05-26T14:25:50+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@cab_late/post/DYwyPz7FNLa": {
+      "ts": "2026-05-26T14:25:56+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@cai.chengkai/post/DYvxrv9klON": {
+      "ts": "2026-05-26T14:26:05+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@andrew54068/post/DYxE8NjGjdu": {
+      "ts": "2026-05-26T14:27:41+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@m24927605/post/DYxFQrCGYo9": {
+      "ts": "2026-05-26T14:27:47+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@kikitataysi/post/DYx_t58EvOz": {
+      "ts": "2026-05-26T14:28:11+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@jackshenaiadvisor/post/DYvvY-nEUyw": {
+      "ts": "2026-05-26T14:28:29+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@hanjourney/post/DYwcnsPkyuE": {
+      "ts": "2026-05-26T14:28:32+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@pukpuklouis/post/DYxSqUlEuc-": {
+      "ts": "2026-05-26T14:28:34+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@hanlinhans/post/DYyCLazE0V0": {
+      "ts": "2026-05-26T14:28:36+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@answer00125/post/DYw1QpeErMJ": {
+      "ts": "2026-05-26T14:28:39+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@kojenchieh/post/DYyCTqTkjlj": {
+      "ts": "2026-05-26T14:28:43+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@dorgon.chang/post/DYyLOZPCdkE": {
+      "ts": "2026-05-26T14:28:47+09:00",
+      "source": "threads"
     }
   }
 }
