@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-06-10T14:14:43+09:00",
+  "updated_at": "2026-06-11T14:02:00+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -1926,6 +1926,36 @@
       "title": "Claude Code 6 月新版三個錢字招：auto mode、/usage 拆解、/code-review。",
       "source": "threads",
       "score": "up"
+    },
+    "https://the-decoder.com/landmark-german-ruling-declares-googles-ai-overviews-are-googles-own-words-and-makes-it-liable-for-false-answers/": {
+      "ts": "2026-06-11T14:00:36+09:00",
+      "title": "German ruling declares Google liable for false answers in AI Overviews",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://www.techdirt.com/2026/06/09/ceos-who-think-ai-replaces-their-employees-are-just-bad-ceos/": {
+      "ts": "2026-06-11T14:00:38+09:00",
+      "title": "CEOs who think AI replaces their employees are just bad CEOs",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://www.threads.com/@brew.agent/post/DZbHj_xEgj4": {
+      "ts": "2026-06-11T14:01:33+09:00",
+      "title": "✨ Claude Code 2.1.172 發佈，涵蓋 30 項 CLI 變更",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@p3nchan/post/DZZnpZfG2eR": {
+      "ts": "2026-06-11T14:01:34+09:00",
+      "title": "《當頂尖 AI 正在變成奢侈品》",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@sliven0722/post/DZbZVEMCXqP": {
+      "ts": "2026-06-11T14:01:41+09:00",
+      "title": "如果你還在研究怎麼寫 Prompt，可能已經落後下一個階段了。",
+      "source": "threads",
+      "score": "up"
     }
   },
   "favorites": {
@@ -2082,21 +2112,9 @@
       "ts": "2026-06-08T14:50:14+09:00",
       "source": "github_trending"
     },
-    "https://github.com/santifer/career-ops": {
-      "ts": "2026-06-09T14:11:33+09:00",
-      "source": "github_trending"
-    },
     "https://github.com/Egonex-AI/Understand-Anything": {
       "ts": "2026-06-09T14:11:38+09:00",
       "source": "github_trending"
-    },
-    "https://www.anthropic.com/news/claude-fable-5-mythos-5": {
-      "ts": "2026-06-10T14:12:32+09:00",
-      "source": "hackernews"
-    },
-    "https://jonready.com/blog/posts/claude-fable5-is-allowed-to-sabotage-your-app-if-youre-a-competitor.html": {
-      "ts": "2026-06-10T14:12:48+09:00",
-      "source": "hackernews"
     },
     "https://github.com/addyosmani/agent-skills": {
       "ts": "2026-06-10T14:12:59+09:00",
@@ -2110,28 +2128,60 @@
       "ts": "2026-06-10T14:13:37+09:00",
       "source": "github_trending"
     },
-    "https://www.threads.com/@brew.agent/post/DZXQXsziE2J": {
-      "ts": "2026-06-10T14:13:40+09:00",
+    "https://news.ycombinator.com/item?id=48473166": {
+      "ts": "2026-06-11T14:00:22+09:00",
+      "source": "hackernews"
+    },
+    "https://the-decoder.com/landmark-german-ruling-declares-googles-ai-overviews-are-googles-own-words-and-makes-it-liable-for-false-answers/": {
+      "ts": "2026-06-11T14:00:34+09:00",
+      "source": "hackernews"
+    },
+    "https://www.techdirt.com/2026/06/09/ceos-who-think-ai-replaces-their-employees-are-just-bad-ceos/": {
+      "ts": "2026-06-11T14:00:37+09:00",
+      "source": "hackernews"
+    },
+    "https://github.com/luongnv89/claude-howto": {
+      "ts": "2026-06-11T14:00:41+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/google/skills": {
+      "ts": "2026-06-11T14:00:47+09:00",
+      "source": "github_trending"
+    },
+    "https://www.threads.com/@yv.ictor/post/DZaK7o4E8pw": {
+      "ts": "2026-06-11T14:00:51+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@ekcheungai/post/DZX_lPTDKRd": {
-      "ts": "2026-06-10T14:14:01+09:00",
+    "https://www.threads.com/@barry.chiu.359/post/DZZBLKaEWZm": {
+      "ts": "2026-06-11T14:00:57+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@kojenchieh/post/DZYsBSpEoMK": {
-      "ts": "2026-06-10T14:14:26+09:00",
+    "https://www.threads.com/@brew.agent/post/DZbHj_xEgj4": {
+      "ts": "2026-06-11T14:01:10+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@vincent.chanw/post/DZYmiRKCKaJ": {
-      "ts": "2026-06-10T14:14:37+09:00",
+    "https://www.threads.com/@p3nchan/post/DZZnpZfG2eR": {
+      "ts": "2026-06-11T14:01:20+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@lawrenceteh_/post/DZWgbvgiFiI": {
-      "ts": "2026-06-10T14:14:40+09:00",
+    "https://www.threads.com/@sliven0722/post/DZbZVEMCXqP": {
+      "ts": "2026-06-11T14:01:30+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@aiposthub/post/DZYf6YrjjLY": {
-      "ts": "2026-06-10T14:14:43+09:00",
+    "https://www.threads.com/@samsmindbrew/post/DZZIT0Emo1h": {
+      "ts": "2026-06-11T14:01:43+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@moth.ai/post/DZaHxDSmY3Y": {
+      "ts": "2026-06-11T14:01:46+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@kamonegi.mystic/post/DZZ22ZJGdR_": {
+      "ts": "2026-06-11T14:01:54+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@freeshiuan/post/DZZ3hvcjwd6": {
+      "ts": "2026-06-11T14:02:00+09:00",
       "source": "threads"
     }
   }
