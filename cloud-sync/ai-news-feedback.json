@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-06-16T14:31:12+09:00",
+  "updated_at": "2026-06-17T14:13:56+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -2004,6 +2004,36 @@
       "title": "Fable / Mythos 5 暫停事件又有新進展。",
       "source": "threads",
       "score": "up"
+    },
+    "https://qwen.ai/blog?id=qwen-robotsuite": {
+      "ts": "2026-06-17T14:12:10+09:00",
+      "title": "Qwen-Robot Suite: A Foundation Model Suite for Physical World Intelligence",
+      "source": "hackernews",
+      "score": "up"
+    },
+    "https://www.tno.nl/en/digital/artificial-intelligence/gpt-nl/": {
+      "ts": "2026-06-17T14:12:12+09:00",
+      "title": "GPT‑NL: a sovereign language model for the Netherlands",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://www.reuters.com/legal/transactional/spacex-buy-anysphere-60-billion-2026-06-16/": {
+      "ts": "2026-06-17T14:12:14+09:00",
+      "title": "SpaceX to buy Cursor for $60B",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://tim.blog/2026/06/12/has-ai-already-killed-nonfiction/": {
+      "ts": "2026-06-17T14:12:21+09:00",
+      "title": "Has AI already killed self-help nonfiction books?",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://www.threads.com/@carllee2077/post/DZozzloHIv8": {
+      "ts": "2026-06-17T14:13:56+09:00",
+      "title": "Claude终于松口，",
+      "source": "threads",
+      "score": "up"
     }
   },
   "favorites": {
@@ -2116,72 +2146,120 @@
       "ts": "2026-06-12T14:21:23+09:00",
       "source": "github_trending"
     },
-    "https://news.ycombinator.com/item?id=48542100": {
-      "ts": "2026-06-16T13:59:59+09:00",
-      "source": "hackernews"
-    },
-    "https://crankgpt.com": {
-      "ts": "2026-06-16T14:00:03+09:00",
-      "source": "hackernews"
-    },
-    "https://github.com/nex-agi/Nex-N2/issues/4": {
-      "ts": "2026-06-16T14:00:08+09:00",
-      "source": "hackernews"
-    },
     "https://github.com/asgeirtj/system_prompts_leaks": {
       "ts": "2026-06-16T14:00:14+09:00",
       "source": "github_trending"
     },
-    "https://www.threads.com/@govin999999/post/DZmSGs6kQtb": {
-      "ts": "2026-06-16T14:00:28+09:00",
+    "https://qwen.ai/blog?id=qwen-robotsuite": {
+      "ts": "2026-06-17T14:11:42+09:00",
+      "source": "hackernews"
+    },
+    "https://www.tno.nl/en/digital/artificial-intelligence/gpt-nl/": {
+      "ts": "2026-06-17T14:12:10+09:00",
+      "source": "hackernews"
+    },
+    "https://www.reuters.com/legal/transactional/spacex-buy-anysphere-60-billion-2026-06-16/": {
+      "ts": "2026-06-17T14:12:12+09:00",
+      "source": "hackernews"
+    },
+    "https://tim.blog/2026/06/12/has-ai-already-killed-nonfiction/": {
+      "ts": "2026-06-17T14:12:15+09:00",
+      "source": "hackernews"
+    },
+    "https://github.com/affaan-m/ECC": {
+      "ts": "2026-06-17T14:12:23+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/Imbad0202/academic-research-skills": {
+      "ts": "2026-06-17T14:12:26+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/anthropics/knowledge-work-plugins": {
+      "ts": "2026-06-17T14:12:29+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/multica-ai/andrej-karpathy-skills": {
+      "ts": "2026-06-17T14:12:33+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/anthropics/skills": {
+      "ts": "2026-06-17T14:12:34+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/anthropics/claude-code": {
+      "ts": "2026-06-17T14:12:35+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/garrytan/gstack": {
+      "ts": "2026-06-17T14:12:35+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/farion1231/cc-switch": {
+      "ts": "2026-06-17T14:12:36+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/punkpeye/awesome-mcp-servers": {
+      "ts": "2026-06-17T14:12:36+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/ComposioHQ/awesome-claude-skills": {
+      "ts": "2026-06-17T14:12:36+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/sansan0/TrendRadar": {
+      "ts": "2026-06-17T14:12:37+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/ChromeDevTools/chrome-devtools-mcp": {
+      "ts": "2026-06-17T14:12:37+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/sickn33/antigravity-awesome-skills": {
+      "ts": "2026-06-17T14:12:38+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/danny-avila/LibreChat": {
+      "ts": "2026-06-17T14:12:38+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/wshobson/agents": {
+      "ts": "2026-06-17T14:12:39+09:00",
+      "source": "github_trending"
+    },
+    "https://www.threads.com/@aiposthub/post/DZqxuhagXe8": {
+      "ts": "2026-06-17T14:12:41+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@hydai/post/DZnmFSQkx4o": {
-      "ts": "2026-06-16T14:29:53+09:00",
+    "https://www.threads.com/@webzz.co/post/DZpFhpAm4ud": {
+      "ts": "2026-06-17T14:12:54+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@cab_late/post/DZoIFoSEr4l": {
-      "ts": "2026-06-16T14:30:13+09:00",
+    "https://www.threads.com/@brewbytes.ai/post/DZpcjivFMEy": {
+      "ts": "2026-06-17T14:13:20+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@tripleh.ai/post/DZoMR_Kkzrm": {
-      "ts": "2026-06-16T14:30:28+09:00",
+    "https://www.threads.com/@govin999999/post/DZpC26SmLef": {
+      "ts": "2026-06-17T14:13:26+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@aiposthub/post/DZnOdb2gTwm": {
-      "ts": "2026-06-16T14:30:45+09:00",
+    "https://www.threads.com/@tripleh.ai/post/DZqxET1kjux": {
+      "ts": "2026-06-17T14:13:28+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@ci.fullstack/post/DZnLSIFE4eo": {
-      "ts": "2026-06-16T14:30:50+09:00",
+    "https://www.threads.com/@jerry_wang_1109/post/DZqz-k_iLK9": {
+      "ts": "2026-06-17T14:13:39+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@heroman1916/post/DZmk7-yEyfG": {
-      "ts": "2026-06-16T14:30:51+09:00",
+    "https://www.threads.com/@whai_why/post/DZq1vp2mJOM": {
+      "ts": "2026-06-17T14:13:40+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@shawn.chan123/post/DZoF9gxGNIk": {
-      "ts": "2026-06-16T14:30:52+09:00",
+    "https://www.threads.com/@chan_yu_chen/post/DZprGdrmUBE": {
+      "ts": "2026-06-17T14:13:47+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@ekcheungai/post/DZoNOzaDBun": {
-      "ts": "2026-06-16T14:31:01+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@govin999999/post/DZnU4JnGN4q": {
-      "ts": "2026-06-16T14:31:03+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@tripleh.ai/post/DZoRvSyj7YN": {
-      "ts": "2026-06-16T14:31:06+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@jackylin1313/post/DZmk76AmiSs": {
-      "ts": "2026-06-16T14:31:08+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@isray_notarray/post/DZoO_LdAWNx": {
-      "ts": "2026-06-16T14:31:12+09:00",
+    "https://www.threads.com/@carllee2077/post/DZozzloHIv8": {
+      "ts": "2026-06-17T14:13:49+09:00",
       "source": "threads"
     }
   }
