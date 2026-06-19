@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-06-18T14:19:57+09:00",
+  "updated_at": "2026-06-19T14:06:01+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -2070,6 +2070,30 @@
       "title": "Claude Code 目前更新到 2.1.181。這版不是單純修修補補，而是把日常操作裡幾個真的會卡手的地方一次補齊。",
       "source": "threads",
       "score": "up"
+    },
+    "https://www.threads.com/@whaleagent/post/DZt25-imjhD": {
+      "ts": "2026-06-19T14:04:38+09:00",
+      "title": "💻 科技新聞：你以為幫 AI 寫程式，設定檔越長越強？剛好相反！",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@moth.ai/post/DZurKAUmUFo": {
+      "ts": "2026-06-19T14:05:02+09:00",
+      "title": "🚨 Anthropic 高層鬆口：Claude 最強模型 Fable 5 可望「數日內」重新開放！",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@wan_hetalia/post/DZuYpzACO5c": {
+      "ts": "2026-06-19T14:05:26+09:00",
+      "title": "深入產業",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@pm.ai.notes/post/DZv9N7FnBVE": {
+      "ts": "2026-06-19T14:05:54+09:00",
+      "title": "📝 Claude Fable 5 在 Agent Arena 拿了第一，但評測標準偏向「任務成功率」而非「聽話程度」。這對 PM 是個提醒：現在 AI 的價值不是「完全服從」，而是「能幫你完成任務」。",
+      "source": "threads",
+      "score": "up"
     }
   },
   "favorites": {
@@ -2182,10 +2206,6 @@
       "ts": "2026-06-12T14:21:23+09:00",
       "source": "github_trending"
     },
-    "https://github.com/asgeirtj/system_prompts_leaks": {
-      "ts": "2026-06-16T14:00:14+09:00",
-      "source": "github_trending"
-    },
     "https://github.com/affaan-m/ECC": {
       "ts": "2026-06-17T14:12:23+09:00",
       "source": "github_trending"
@@ -2246,88 +2266,100 @@
       "ts": "2026-06-17T14:12:39+09:00",
       "source": "github_trending"
     },
-    "https://openrouter.ai/blog/insights/royale-last-agent-standing/": {
-      "ts": "2026-06-18T14:03:37+09:00",
-      "source": "hackernews"
-    },
-    "https://github.com/Adam-CAD/CADAM": {
-      "ts": "2026-06-18T14:03:41+09:00",
-      "source": "hackernews"
-    },
-    "https://artificialanalysis.ai/articles/glm-5-2-is-the-new-leading-open-weights-model-on-the-artificial-analysis-intelligence-index": {
-      "ts": "2026-06-18T14:03:44+09:00",
-      "source": "hackernews"
-    },
     "https://github.com/DeusData/codebase-memory-mcp": {
       "ts": "2026-06-18T14:03:51+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/calesthio/OpenMontage": {
-      "ts": "2026-06-18T14:03:56+09:00",
       "source": "github_trending"
     },
     "https://github.com/mukul975/Anthropic-Cybersecurity-Skills": {
       "ts": "2026-06-18T14:04:03+09:00",
       "source": "github_trending"
     },
-    "https://www.threads.com/@ekcheungai/post/DZrmIyCjEyy": {
-      "ts": "2026-06-18T14:04:07+09:00",
+    "https://blog.modelcontextprotocol.io/posts/enterprise-managed-auth/": {
+      "ts": "2026-06-19T14:04:02+09:00",
+      "source": "hackernews"
+    },
+    "https://tester.army": {
+      "ts": "2026-06-19T14:04:09+09:00",
+      "source": "hackernews"
+    },
+    "https://twitter.com/NoamShazeer/status/2067400851438932297": {
+      "ts": "2026-06-19T14:04:09+09:00",
+      "source": "hackernews"
+    },
+    "https://github.com/kenn-io/agentsview": {
+      "ts": "2026-06-19T14:04:16+09:00",
+      "source": "github_trending"
+    },
+    "https://www.threads.com/@whaleagent/post/DZt25-imjhD": {
+      "ts": "2026-06-19T14:04:21+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@yrzheee/post/DZtNOnnDGDu": {
-      "ts": "2026-06-18T14:18:20+09:00",
+    "https://www.threads.com/@vincent.chanw/post/DZv9-z3GoNu": {
+      "ts": "2026-06-19T14:04:37+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@alicken/post/DZtWascD03w": {
-      "ts": "2026-06-18T14:19:02+09:00",
+    "https://www.threads.com/@aiposthub/post/DZt8gMOEZ1B": {
+      "ts": "2026-06-19T14:04:41+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@cosnaye/post/DZrmmnSkhQV": {
-      "ts": "2026-06-18T14:19:09+09:00",
+    "https://www.threads.com/@moth.ai/post/DZvo7esk6SQ": {
+      "ts": "2026-06-19T14:04:52+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@humanlaike/post/DZsNGMVFF7X": {
-      "ts": "2026-06-18T14:19:13+09:00",
+    "https://www.threads.com/@moth.ai/post/DZurKAUmUFo": {
+      "ts": "2026-06-19T14:04:58+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@krumjahn/post/DZsBwwqGgkO": {
-      "ts": "2026-06-18T14:19:15+09:00",
+    "https://www.threads.com/@shane412335/post/DZu6MiUk_BI": {
+      "ts": "2026-06-19T14:05:03+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@shinychang.tw/post/DZscPL4G14y": {
-      "ts": "2026-06-18T14:19:17+09:00",
+    "https://www.threads.com/@futurecommerce_official/post/DZvkOUiAIzm": {
+      "ts": "2026-06-19T14:05:10+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@xiaoxiunique/post/DZtUVBQgePD": {
-      "ts": "2026-06-18T14:19:37+09:00",
+    "https://www.threads.com/@wan_hetalia/post/DZuYpzACO5c": {
+      "ts": "2026-06-19T14:05:20+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@tripleh.ai/post/DZtV0rAEqV2": {
-      "ts": "2026-06-18T14:19:41+09:00",
+    "https://www.threads.com/@sprintplot/post/DZv8Yhlke8V": {
+      "ts": "2026-06-19T14:05:26+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@tripleh.ai/post/DZtbJOcEtry": {
-      "ts": "2026-06-18T14:19:45+09:00",
+    "https://www.threads.com/@pan_0709/post/DZuAbVIARjM": {
+      "ts": "2026-06-19T14:05:29+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@iamraven.tw/post/DZrZ_FTGOn0": {
-      "ts": "2026-06-18T14:19:52+09:00",
+    "https://www.threads.com/@govin999999/post/DZubHqiGCwW": {
+      "ts": "2026-06-19T14:05:31+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@ocmeijp/post/DZtZYClE7R2": {
-      "ts": "2026-06-18T14:19:54+09:00",
+    "https://www.threads.com/@aiposthub/post/DZthvNiAdgj": {
+      "ts": "2026-06-19T14:05:37+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@reinhard0605/post/DZtWusLGKsh": {
-      "ts": "2026-06-18T14:19:55+09:00",
+    "https://www.threads.com/@lucasfutures/post/DZuIuYsk_EC": {
+      "ts": "2026-06-19T14:05:40+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@howard.helios/post/DZtVT3xGqkt": {
-      "ts": "2026-06-18T14:19:56+09:00",
+    "https://www.threads.com/@nexus.ai_club/post/DZumOH1GcNe": {
+      "ts": "2026-06-19T14:05:44+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@i.am.aiiivan/post/DZtVb7sjqh0": {
-      "ts": "2026-06-18T14:19:57+09:00",
+    "https://www.threads.com/@pm.ai.notes/post/DZv9N7FnBVE": {
+      "ts": "2026-06-19T14:05:48+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@darks0603/post/DZv_wkEmJaS": {
+      "ts": "2026-06-19T14:05:53+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@kufutw/post/DZuPwwEjZyX": {
+      "ts": "2026-06-19T14:06:00+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@ekcheungai/post/DZuK6-UDK9a": {
+      "ts": "2026-06-19T14:06:01+09:00",
       "source": "threads"
     }
   }
