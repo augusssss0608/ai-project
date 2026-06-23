@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-06-22T12:16:46+09:00",
+  "updated_at": "2026-06-23T14:56:11+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -2106,6 +2106,24 @@
       "title": "I was wrong about the Midjourney ultra-sound scanner",
       "source": "hackernews",
       "score": "down"
+    },
+    "https://www.threads.com/@brew.agent/post/DZ6BGPdDVWx": {
+      "ts": "2026-06-23T14:55:17+09:00",
+      "title": "✨ Claude Code 2.1.186 發佈，包含 33 項 CLI 變更",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@brew.agent/post/DZ6H9ztjfs-": {
+      "ts": "2026-06-23T14:55:33+09:00",
+      "title": "✨ Codex CLI 0.142.0 發佈，帶來 4 項重要更新，涵蓋預算管理、多代理委派及插件體驗優化",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@travis_studio_inc/post/DZ4qVCmCX0Z": {
+      "ts": "2026-06-23T14:56:06+09:00",
+      "title": "這樣跑 Loop 能省下大半的 token 消耗",
+      "source": "threads",
+      "score": "up"
     }
   },
   "favorites": {
@@ -2198,10 +2216,6 @@
       "ts": "2026-05-25T12:07:58+09:00",
       "source": "github_trending"
     },
-    "https://github.com/chopratejas/headroom": {
-      "ts": "2026-06-03T14:15:17+09:00",
-      "source": "github_trending"
-    },
     "https://github.com/mvanhorn/last30days-skill": {
       "ts": "2026-06-08T14:50:14+09:00",
       "source": "github_trending"
@@ -2282,22 +2296,6 @@
       "ts": "2026-06-18T14:04:03+09:00",
       "source": "github_trending"
     },
-    "https://github.com/raiyanyahya/recall": {
-      "ts": "2026-06-22T12:09:27+09:00",
-      "source": "hackernews"
-    },
-    "https://support.claude.com/en/articles/14328960-identity-verification-on-claude": {
-      "ts": "2026-06-22T12:11:13+09:00",
-      "source": "hackernews"
-    },
-    "https://apertvs.ai/": {
-      "ts": "2026-06-22T12:11:15+09:00",
-      "source": "hackernews"
-    },
-    "https://twitter.com/MattZirwas/status/2068365802491834541": {
-      "ts": "2026-06-22T12:11:22+09:00",
-      "source": "hackernews"
-    },
     "https://github.com/calesthio/OpenMontage": {
       "ts": "2026-06-22T12:16:26+09:00",
       "source": "github_trending"
@@ -2306,8 +2304,64 @@
       "ts": "2026-06-22T12:16:36+09:00",
       "source": "github_trending"
     },
-    "https://www.threads.com/@justin_hsieh_/post/DZ1appDE-RG": {
-      "ts": "2026-06-22T12:16:46+09:00",
+    "https://oak.space/oak/oak": {
+      "ts": "2026-06-23T14:22:56+09:00",
+      "source": "hackernews"
+    },
+    "https://unsloth.ai/docs/models/glm-5.2": {
+      "ts": "2026-06-23T14:54:22+09:00",
+      "source": "hackernews"
+    },
+    "https://github.com/headroomlabs-ai/headroom": {
+      "ts": "2026-06-23T14:54:27+09:00",
+      "source": "github_trending"
+    },
+    "https://www.threads.com/@aiposthub/post/DZ34Mq_EXyH": {
+      "ts": "2026-06-23T14:54:47+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@sliven0722/post/DZ6FG1UgXl2": {
+      "ts": "2026-06-23T14:54:52+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@ryanchou0210/post/DZ3u3LzEtYs": {
+      "ts": "2026-06-23T14:54:58+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@brew.agent/post/DZ6BGPdDVWx": {
+      "ts": "2026-06-23T14:55:01+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@dannyyang.gugu/post/DZ6SPAmCTn8": {
+      "ts": "2026-06-23T14:55:13+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@tripleh.ai/post/DZ6TFNWgYCg": {
+      "ts": "2026-06-23T14:55:15+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@tsla.mark/post/DZ4duHilJLm": {
+      "ts": "2026-06-23T14:55:20+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@krumjahn/post/DZ4ytIMGhtJ": {
+      "ts": "2026-06-23T14:55:24+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@brew.agent/post/DZ6H9ztjfs-": {
+      "ts": "2026-06-23T14:55:30+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@travis_studio_inc/post/DZ4qVCmCX0Z": {
+      "ts": "2026-06-23T14:55:34+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@alex_wang.dev/post/DZ4rjwvEuRn": {
+      "ts": "2026-06-23T14:56:05+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@roywannago/post/DZ35nVplKjK": {
+      "ts": "2026-06-23T14:56:11+09:00",
       "source": "threads"
     }
   }
