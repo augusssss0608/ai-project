@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-06-23T14:56:11+09:00",
+  "updated_at": "2026-06-24T14:16:30+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -2124,6 +2124,24 @@
       "title": "這樣跑 Loop 能省下大半的 token 消耗",
       "source": "threads",
       "score": "up"
+    },
+    "https://nega.tv/posts/low-tech-ai-of-elden-ring.html": {
+      "ts": "2026-06-24T14:14:15+09:00",
+      "title": "The Low-Tech AI of Elden Ring",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://www.threads.com/@brew.agent/post/DZ8l5ExFLns": {
+      "ts": "2026-06-24T14:15:18+09:00",
+      "title": "✨ Claude Code 2.1.187 發佈，共 21 項 CLI 變更",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@moth.ai/post/DZ732Gqmdyx": {
+      "ts": "2026-06-24T14:15:38+09:00",
+      "title": "🚨任務帶著走！Claude Cowork 即將登陸手機，關掉 App 也照跑",
+      "source": "threads",
+      "score": "up"
     }
   },
   "favorites": {
@@ -2236,10 +2254,6 @@
       "ts": "2026-06-17T14:12:23+09:00",
       "source": "github_trending"
     },
-    "https://github.com/anthropics/knowledge-work-plugins": {
-      "ts": "2026-06-17T14:12:29+09:00",
-      "source": "github_trending"
-    },
     "https://github.com/multica-ai/andrej-karpathy-skills": {
       "ts": "2026-06-17T14:12:33+09:00",
       "source": "github_trending"
@@ -2304,64 +2318,72 @@
       "ts": "2026-06-22T12:16:36+09:00",
       "source": "github_trending"
     },
-    "https://oak.space/oak/oak": {
-      "ts": "2026-06-23T14:22:56+09:00",
-      "source": "hackernews"
-    },
-    "https://unsloth.ai/docs/models/glm-5.2": {
-      "ts": "2026-06-23T14:54:22+09:00",
-      "source": "hackernews"
-    },
     "https://github.com/headroomlabs-ai/headroom": {
       "ts": "2026-06-23T14:54:27+09:00",
       "source": "github_trending"
     },
-    "https://www.threads.com/@aiposthub/post/DZ34Mq_EXyH": {
-      "ts": "2026-06-23T14:54:47+09:00",
+    "https://nega.tv/posts/low-tech-ai-of-elden-ring.html": {
+      "ts": "2026-06-24T14:14:04+09:00",
+      "source": "hackernews"
+    },
+    "https://github.com/shanraisshan/claude-code-best-practice": {
+      "ts": "2026-06-24T14:14:17+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/anthropics/claude-plugins-official": {
+      "ts": "2026-06-24T14:15:10+09:00",
+      "source": "github_trending"
+    },
+    "https://www.threads.com/@brew.agent/post/DZ8l5ExFLns": {
+      "ts": "2026-06-24T14:15:15+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@sliven0722/post/DZ6FG1UgXl2": {
-      "ts": "2026-06-23T14:54:52+09:00",
+    "https://www.threads.com/@ar.shek/post/DZ81kQ6CJ0-": {
+      "ts": "2026-06-24T14:15:19+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@ryanchou0210/post/DZ3u3LzEtYs": {
-      "ts": "2026-06-23T14:54:58+09:00",
+    "https://www.threads.com/@sliven0722/post/DZ8njT_AUgT": {
+      "ts": "2026-06-24T14:15:31+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@brew.agent/post/DZ6BGPdDVWx": {
-      "ts": "2026-06-23T14:55:01+09:00",
+    "https://www.threads.com/@moth.ai/post/DZ732Gqmdyx": {
+      "ts": "2026-06-24T14:15:33+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@dannyyang.gugu/post/DZ6SPAmCTn8": {
-      "ts": "2026-06-23T14:55:13+09:00",
+    "https://www.threads.com/@designer.riven/post/DZ7f2kuCWlh": {
+      "ts": "2026-06-24T14:15:39+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@tripleh.ai/post/DZ6TFNWgYCg": {
-      "ts": "2026-06-23T14:55:15+09:00",
+    "https://www.threads.com/@shawn.chan123/post/DZ822e2FMk3": {
+      "ts": "2026-06-24T14:15:47+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@tsla.mark/post/DZ4duHilJLm": {
-      "ts": "2026-06-23T14:55:20+09:00",
+    "https://www.threads.com/@ci.fullstack/post/DZ7wQybnYY2": {
+      "ts": "2026-06-24T14:15:49+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@krumjahn/post/DZ4ytIMGhtJ": {
-      "ts": "2026-06-23T14:55:24+09:00",
+    "https://www.threads.com/@prompt_case/post/DZ7OTQYjVl5": {
+      "ts": "2026-06-24T14:15:56+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@brew.agent/post/DZ6H9ztjfs-": {
-      "ts": "2026-06-23T14:55:30+09:00",
+    "https://www.threads.com/@jacobtechart/post/DZ7hufxGBsv": {
+      "ts": "2026-06-24T14:15:58+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@travis_studio_inc/post/DZ4qVCmCX0Z": {
-      "ts": "2026-06-23T14:55:34+09:00",
+    "https://www.threads.com/@jerry_wang_1109/post/DZ82qYiE-l0": {
+      "ts": "2026-06-24T14:16:16+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@alex_wang.dev/post/DZ4rjwvEuRn": {
-      "ts": "2026-06-23T14:56:05+09:00",
+    "https://www.threads.com/@krumjahn/post/DZ6ZsmgFC1C": {
+      "ts": "2026-06-24T14:16:25+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@roywannago/post/DZ35nVplKjK": {
-      "ts": "2026-06-23T14:56:11+09:00",
+    "https://www.threads.com/@tripleh.ai/post/DZ838QpD5Ox": {
+      "ts": "2026-06-24T14:16:29+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@licca_bobo/post/DZ7O7VAiVgL": {
+      "ts": "2026-06-24T14:16:30+09:00",
       "source": "threads"
     }
   }
