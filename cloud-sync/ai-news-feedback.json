@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-06-24T14:16:30+09:00",
+  "updated_at": "2026-06-25T14:19:03+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -2142,6 +2142,12 @@
       "title": "🚨任務帶著走！Claude Cowork 即將登陸手機，關掉 App 也照跑",
       "source": "threads",
       "score": "up"
+    },
+    "https://www.threads.com/@aiposthub/post/DZ9QpFlkamW": {
+      "ts": "2026-06-25T14:18:01+09:00",
+      "title": "Claude Tag 來了，Slack 真的要變成 AI 協作戰場了。",
+      "source": "threads",
+      "score": "up"
     }
   },
   "favorites": {
@@ -2242,10 +2248,6 @@
       "ts": "2026-06-09T14:11:38+09:00",
       "source": "github_trending"
     },
-    "https://github.com/addyosmani/agent-skills": {
-      "ts": "2026-06-10T14:12:59+09:00",
-      "source": "github_trending"
-    },
     "https://github.com/NVIDIA/SkillSpector": {
       "ts": "2026-06-12T14:21:23+09:00",
       "source": "github_trending"
@@ -2322,68 +2324,76 @@
       "ts": "2026-06-23T14:54:27+09:00",
       "source": "github_trending"
     },
-    "https://nega.tv/posts/low-tech-ai-of-elden-ring.html": {
-      "ts": "2026-06-24T14:14:04+09:00",
+    "https://www.interconnects.ai/p/glm-52-is-the-step-change-for-open": {
+      "ts": "2026-06-25T14:14:07+09:00",
       "source": "hackernews"
     },
-    "https://github.com/shanraisshan/claude-code-best-practice": {
-      "ts": "2026-06-24T14:14:17+09:00",
-      "source": "github_trending"
+    "https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-computer-use-gemini-3-5-flash/": {
+      "ts": "2026-06-25T14:17:28+09:00",
+      "source": "hackernews"
     },
-    "https://github.com/anthropics/claude-plugins-official": {
-      "ts": "2026-06-24T14:15:10+09:00",
-      "source": "github_trending"
+    "https://rubyllm.com/": {
+      "ts": "2026-06-25T14:17:32+09:00",
+      "source": "hackernews"
     },
-    "https://www.threads.com/@brew.agent/post/DZ8l5ExFLns": {
-      "ts": "2026-06-24T14:15:15+09:00",
+    "https://techcrunch.com/2026/06/24/openai-unveils-its-first-custom-chip-built-by-broadcom/": {
+      "ts": "2026-06-25T14:17:36+09:00",
+      "source": "hackernews"
+    },
+    "https://www.reuters.com/world/china/anthropic-says-alibaba-illicitly-extracted-claude-ai-model-capabilities-2026-06-24/": {
+      "ts": "2026-06-25T14:17:38+09:00",
+      "source": "hackernews"
+    },
+    "https://www.threads.com/@futurecommerce_official/post/DZ_A-HKES_z": {
+      "ts": "2026-06-25T14:17:44+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@ar.shek/post/DZ81kQ6CJ0-": {
-      "ts": "2026-06-24T14:15:19+09:00",
+    "https://www.threads.com/@aiposthub/post/DZ9QpFlkamW": {
+      "ts": "2026-06-25T14:17:47+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@sliven0722/post/DZ8njT_AUgT": {
-      "ts": "2026-06-24T14:15:31+09:00",
+    "https://www.threads.com/@jonas.jonas.ko/post/DZ9VGG1gehJ": {
+      "ts": "2026-06-25T14:18:01+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@moth.ai/post/DZ732Gqmdyx": {
-      "ts": "2026-06-24T14:15:33+09:00",
+    "https://www.threads.com/@tripleh.ai/post/DZ_XeeCEyBi": {
+      "ts": "2026-06-25T14:18:15+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@designer.riven/post/DZ7f2kuCWlh": {
-      "ts": "2026-06-24T14:15:39+09:00",
+    "https://www.threads.com/@a5555555678/post/DZ-PapHj2KM": {
+      "ts": "2026-06-25T14:18:34+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@shawn.chan123/post/DZ822e2FMk3": {
-      "ts": "2026-06-24T14:15:47+09:00",
+    "https://www.threads.com/@automoney_gda/post/DZ_VX7WGblk": {
+      "ts": "2026-06-25T14:18:39+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@ci.fullstack/post/DZ7wQybnYY2": {
-      "ts": "2026-06-24T14:15:49+09:00",
+    "https://www.threads.com/@tripleh.ai/post/DZ_ZUusCQEK": {
+      "ts": "2026-06-25T14:18:46+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@prompt_case/post/DZ7OTQYjVl5": {
-      "ts": "2026-06-24T14:15:56+09:00",
+    "https://www.threads.com/@meteor.0905/post/DZ_RNsGge3I": {
+      "ts": "2026-06-25T14:18:48+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@jacobtechart/post/DZ7hufxGBsv": {
-      "ts": "2026-06-24T14:15:58+09:00",
+    "https://www.threads.com/@jerry_wang_1109/post/DZ9yigAEyJS": {
+      "ts": "2026-06-25T14:18:51+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@jerry_wang_1109/post/DZ82qYiE-l0": {
-      "ts": "2026-06-24T14:16:16+09:00",
+    "https://www.threads.com/@licca_bobo/post/DZ94zTeAdSd": {
+      "ts": "2026-06-25T14:18:58+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@krumjahn/post/DZ6ZsmgFC1C": {
-      "ts": "2026-06-24T14:16:25+09:00",
+    "https://www.threads.com/@aiposthub/post/DZ9YJ9MkURT": {
+      "ts": "2026-06-25T14:19:00+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@tripleh.ai/post/DZ838QpD5Ox": {
-      "ts": "2026-06-24T14:16:29+09:00",
+    "https://www.threads.com/@nexus.ai_club/post/DZ9tH61mBxz": {
+      "ts": "2026-06-25T14:19:01+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@licca_bobo/post/DZ7O7VAiVgL": {
-      "ts": "2026-06-24T14:16:30+09:00",
+    "https://www.threads.com/@s_h_u_ooo/post/DZ87-APjolu": {
+      "ts": "2026-06-25T14:19:03+09:00",
       "source": "threads"
     }
   }
