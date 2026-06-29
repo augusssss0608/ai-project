@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-06-26T14:21:09+09:00",
+  "updated_at": "2026-06-29T14:19:26+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -2154,6 +2154,24 @@
       "title": "✨ Claude Code 2.1.193 發佈，涵蓋 15 項 CLI 變更",
       "source": "threads",
       "score": "up"
+    },
+    "https://english.elpais.com/education/2026-06-28/ai-fraud-at-brown-university-academic-integrity-is-at-risk.html": {
+      "ts": "2026-06-29T14:14:09+09:00",
+      "title": "Professor denounces mass AI fraud on an exam at Brown",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://news.ycombinator.com/item?id=48713041": {
+      "ts": "2026-06-29T14:14:11+09:00",
+      "title": "We need tech news sources which exclude AI",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://www.threads.com/@martech_bb/post/DaHeXydkTNm": {
+      "ts": "2026-06-29T14:18:40+09:00",
+      "title": "本週 GitHub trending 第2名，一路狂飆 +7,674 星衝到 17.8k：DeusData 的 codebase-memory-mcp。",
+      "source": "threads",
+      "score": "up"
     }
   },
   "favorites": {
@@ -2234,10 +2252,6 @@
     }
   },
   "seen": {
-    "https://github.com/colbymchenry/codegraph": {
-      "ts": "2026-05-25T12:07:50+09:00",
-      "source": "github_trending"
-    },
     "https://github.com/mattpocock/skills": {
       "ts": "2026-05-25T12:07:54+09:00",
       "source": "github_trending"
@@ -2248,10 +2262,6 @@
     },
     "https://github.com/mvanhorn/last30days-skill": {
       "ts": "2026-06-08T14:50:14+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/Egonex-AI/Understand-Anything": {
-      "ts": "2026-06-09T14:11:38+09:00",
       "source": "github_trending"
     },
     "https://github.com/affaan-m/ECC": {
@@ -2326,68 +2336,80 @@
       "ts": "2026-06-23T14:54:27+09:00",
       "source": "github_trending"
     },
-    "https://github.com/inkeep/open-knowledge": {
-      "ts": "2026-06-26T14:10:13+09:00",
-      "source": "hackernews"
-    },
     "https://github.com/xbtlin/ai-berkshire": {
       "ts": "2026-06-26T14:10:30+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/shanraisshan/claude-code-best-practice": {
-      "ts": "2026-06-26T14:10:34+09:00",
       "source": "github_trending"
     },
     "https://github.com/aws/agent-toolkit-for-aws": {
       "ts": "2026-06-26T14:10:37+09:00",
       "source": "github_trending"
     },
-    "https://www.threads.com/@aiposthub/post/DZ_rf0Ugc_E": {
-      "ts": "2026-06-26T14:10:45+09:00",
+    "https://semgrep.dev/blog/2026/we-have-mythos-at-home-glm-52-beats-claude-in-our-cyber-benchmarks/": {
+      "ts": "2026-06-29T14:13:58+09:00",
+      "source": "hackernews"
+    },
+    "https://github.com/openai/codex/issues/2847": {
+      "ts": "2026-06-29T14:14:04+09:00",
+      "source": "hackernews"
+    },
+    "https://antoine.fi/mri-analysis-using-claude-code-opus": {
+      "ts": "2026-06-29T14:14:06+09:00",
+      "source": "hackernews"
+    },
+    "https://english.elpais.com/education/2026-06-28/ai-fraud-at-brown-university-academic-integrity-is-at-risk.html": {
+      "ts": "2026-06-29T14:14:08+09:00",
+      "source": "hackernews"
+    },
+    "https://news.ycombinator.com/item?id=48713041": {
+      "ts": "2026-06-29T14:14:10+09:00",
+      "source": "hackernews"
+    },
+    "https://www.threads.com/@martech_bb/post/DaHeXydkTNm": {
+      "ts": "2026-06-29T14:14:15+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@brew.agent/post/DaBve69nCvU": {
-      "ts": "2026-06-26T14:20:40+09:00",
+    "https://www.threads.com/@leeunhn/post/DaH-p9xk2Hh": {
+      "ts": "2026-06-29T14:18:45+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@aiposthub/post/DaA0Z-DATLP": {
-      "ts": "2026-06-26T14:20:44+09:00",
+    "https://www.threads.com/@aiposthub/post/DaItdbigRTu": {
+      "ts": "2026-06-29T14:18:48+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@techsundries/post/DaBCmdeFG6P": {
-      "ts": "2026-06-26T14:20:50+09:00",
+    "https://www.threads.com/@brewbytes.ai/post/DaH6n6blUBM": {
+      "ts": "2026-06-29T14:18:55+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@erikthought/post/DaCBGXWkRua": {
-      "ts": "2026-06-26T14:20:53+09:00",
+    "https://www.threads.com/@tripleh.ai/post/DaJsu7WEuOt": {
+      "ts": "2026-06-29T14:18:58+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@daizicheng8/post/DaBReECj-br": {
-      "ts": "2026-06-26T14:20:55+09:00",
+    "https://www.threads.com/@startup_diary_go/post/DaHzxkTlCXc": {
+      "ts": "2026-06-29T14:19:00+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@sliven0722/post/DaAMkKiiA0W": {
-      "ts": "2026-06-26T14:20:57+09:00",
+    "https://www.threads.com/@ryanchou0210/post/DaIkpJUEqnl": {
+      "ts": "2026-06-29T14:19:15+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@andrew54068/post/DaA31asGgm9": {
-      "ts": "2026-06-26T14:21:04+09:00",
+    "https://www.threads.com/@sliven0722/post/DaJqUzcmXDQ": {
+      "ts": "2026-06-29T14:19:18+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@r23456999/post/DaCBcPnjggF": {
-      "ts": "2026-06-26T14:21:05+09:00",
+    "https://www.threads.com/@chihua.wang.3/post/DaH9bCEHCdb": {
+      "ts": "2026-06-29T14:19:21+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@tripleh.ai/post/DaCBfNMmTHt": {
-      "ts": "2026-06-26T14:21:07+09:00",
+    "https://www.threads.com/@aiposthub/post/DaIhfzDAWr0": {
+      "ts": "2026-06-29T14:19:23+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@jerry_wang_1109/post/DaB_IdSiNLp": {
-      "ts": "2026-06-26T14:21:08+09:00",
+    "https://www.threads.com/@mengshyue.tsai/post/DaIFrmdGKWx": {
+      "ts": "2026-06-29T14:19:24+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@crazyaitools_/post/DaB-MDQEvK_": {
-      "ts": "2026-06-26T14:21:09+09:00",
+    "https://www.threads.com/@aiposthub/post/DaHq132Afjf": {
+      "ts": "2026-06-29T14:19:26+09:00",
       "source": "threads"
     }
   }
