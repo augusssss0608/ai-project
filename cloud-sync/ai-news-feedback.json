@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-06-30T14:13:55+09:00",
+  "updated_at": "2026-07-01T14:02:30+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -2190,6 +2190,12 @@
       "title": "前陣子因為美國政府出口管制命令，導致 Anthropic 突然無預警封鎖了地表最強模型 Fable 5 與 Mythos 5 的全球存取，搞得大批開發者措手不及。好消息是最新消息指出白宮擬鬆綁限制，最快下週就會重新開放大眾版本的 Fable",
       "source": "threads",
       "score": "up"
+    },
+    "https://www.threads.com/@prompt_case/post/DaOw8ZZmXgy": {
+      "ts": "2026-07-01T14:02:14+09:00",
+      "title": "突發！Anthropic 正式推出 Claude Sonnet 5。",
+      "source": "threads",
+      "score": "up"
     }
   },
   "favorites": {
@@ -2298,60 +2304,120 @@
       "ts": "2026-06-26T14:10:37+09:00",
       "source": "github_trending"
     },
-    "https://github.com/deepreinforce-ai/Ornith-1": {
-      "ts": "2026-06-30T14:07:49+09:00",
+    "https://thereallo.dev/blog/claude-code-prompt-steganography": {
+      "ts": "2026-07-01T14:01:24+09:00",
       "source": "hackernews"
     },
-    "https://quesma.com/blog/qwen-36-is-awesome/": {
-      "ts": "2026-06-30T14:12:28+09:00",
+    "https://claude.com/product/claude-science": {
+      "ts": "2026-07-01T14:01:33+09:00",
       "source": "hackernews"
     },
-    "https://htmx.org/essays/working-with-ai/": {
-      "ts": "2026-06-30T14:12:30+09:00",
+    "https://twitter.com/AnthropicAI/status/2072106151890809341": {
+      "ts": "2026-07-01T14:01:38+09:00",
       "source": "hackernews"
     },
-    "https://www.threads.com/@inside.tw/post/DaKnVwogLwh": {
-      "ts": "2026-06-30T14:12:35+09:00",
+    "https://github.com/diegosouzapw/OmniRoute": {
+      "ts": "2026-07-01T14:01:43+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/kenn-io/agentsview": {
+      "ts": "2026-07-01T14:01:51+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/affaan-m/ECC": {
+      "ts": "2026-07-01T14:01:54+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/multica-ai/andrej-karpathy-skills": {
+      "ts": "2026-07-01T14:01:56+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/anthropics/skills": {
+      "ts": "2026-07-01T14:01:57+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/mattpocock/skills": {
+      "ts": "2026-07-01T14:01:57+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/x1xhlol/system-prompts-and-models-of-ai-tools": {
+      "ts": "2026-07-01T14:01:58+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/anthropics/claude-code": {
+      "ts": "2026-07-01T14:01:58+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/garrytan/gstack": {
+      "ts": "2026-07-01T14:01:58+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/farion1231/cc-switch": {
+      "ts": "2026-07-01T14:01:58+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/punkpeye/awesome-mcp-servers": {
+      "ts": "2026-07-01T14:01:59+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/ComposioHQ/awesome-claude-skills": {
+      "ts": "2026-07-01T14:01:59+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/sansan0/TrendRadar": {
+      "ts": "2026-07-01T14:01:59+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/headroomlabs-ai/headroom": {
+      "ts": "2026-07-01T14:01:59+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/ChromeDevTools/chrome-devtools-mcp": {
+      "ts": "2026-07-01T14:01:59+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/sickn33/antigravity-awesome-skills": {
+      "ts": "2026-07-01T14:02:00+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/danny-avila/LibreChat": {
+      "ts": "2026-07-01T14:02:00+09:00",
+      "source": "github_trending"
+    },
+    "https://www.threads.com/@miulaviewpoint/post/DaOwPkmE_E7": {
+      "ts": "2026-07-01T14:02:02+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@ai.lanrenbao/post/DaKjovPjWEp": {
-      "ts": "2026-06-30T14:13:09+09:00",
+    "https://www.threads.com/@prompt_case/post/DaOw8ZZmXgy": {
+      "ts": "2026-07-01T14:02:08+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@govin999999/post/DaKdEzvmFJB": {
-      "ts": "2026-06-30T14:13:13+09:00",
+    "https://www.threads.com/@fennyhsu1936/post/DaMWT38DCiX": {
+      "ts": "2026-07-01T14:02:15+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@ethansavemoneydairy/post/DaJ9NeNGsuj": {
-      "ts": "2026-06-30T14:13:17+09:00",
+    "https://www.threads.com/@cheese_bash/post/DaOA3AdgpmU": {
+      "ts": "2026-07-01T14:02:16+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@brew.agent/post/DaMQZNzks1w": {
-      "ts": "2026-06-30T14:13:26+09:00",
+    "https://www.threads.com/@govin999999/post/DaN8CmMGLbj": {
+      "ts": "2026-07-01T14:02:19+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@jerry_wang_1109/post/DaMSTl5CJeI": {
-      "ts": "2026-06-30T14:13:30+09:00",
+    "https://www.threads.com/@tripleh.ai/post/DaO2PpqE5Ph": {
+      "ts": "2026-07-01T14:02:20+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@truewatch_hq/post/DaKoLTVm98b": {
-      "ts": "2026-06-30T14:13:38+09:00",
+    "https://www.threads.com/@govin999999/post/DaMwza1GAN1": {
+      "ts": "2026-07-01T14:02:21+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@zidoodi.hk/post/DaJyVIwkx2A": {
-      "ts": "2026-06-30T14:13:48+09:00",
+    "https://www.threads.com/@tripleh.ai/post/DaO5ZF7EzhU": {
+      "ts": "2026-07-01T14:02:27+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@chiilllman666/post/DaLIwS0kvfh": {
-      "ts": "2026-06-30T14:13:51+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@shane412335/post/DaMUZIhAILb": {
-      "ts": "2026-06-30T14:13:53+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@kufutw/post/DaKVRcvjFPR": {
-      "ts": "2026-06-30T14:13:55+09:00",
+    "https://www.threads.com/@easyanythinghk/post/DaM3KlFgPbS": {
+      "ts": "2026-07-01T14:02:30+09:00",
       "source": "threads"
     }
   }
