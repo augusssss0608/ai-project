@@ -1,7 +1,6 @@
 type: github_trending_multi
 params:
-  per_fetch_limit: 25   # 每个 trending 页面抓 25 条 (日/周/月用)
-  # per_dim_limit 不再用 — fetcher 返回完整候选池, 由前端按维度截 top 15 (避免 filter 前被大而杂仓库占名额)
+  per_dim_limit: 25   # 每维度 (日/周/月) 从 RSSHub 抓 25 条, 前端按维度截 top 15
 
   # total 维度用 GitHub Search API, 真正全站按总 star 排
   total_queries:

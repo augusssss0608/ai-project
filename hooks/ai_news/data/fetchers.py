@@ -319,19 +319,22 @@ def fetch_github_trending_multi(params: dict) -> list:
 
     每条 item 带 `dimension` 字段标识所属榜单. 同一仓库可跨维度重复出现 (各维度各留一条).
     daily/weekly/monthly 走 RSSHub trending (真实名次, 见 *_rank); total 走 Search API 按总 star 排.
-    单个维度抓取失败不影响其他维度 (各自 try/except).
+    单个维度抓取失败不影响其他维度 (各自 try/except); 但四个维度全空且发生过异常时 raise,
+    让失败暴露到 source.error, 避免全站被封时仍"假装成功"只显示暂无数据.
 
     params:
     - per_dim_limit: 每维度抓取上限 (默认 25, 前端再截 top N)
     """
     per_dim = int(params.get("per_dim_limit", 25))
+    errors = []
 
     raw_by_url = {}
     dim_urls = {"daily": [], "weekly": [], "monthly": []}
     for since in ("daily", "weekly", "monthly"):
         try:
             sub = fetch_github_trending_rss(since, per_dim)
-        except Exception:
+        except Exception as e:
+            errors.append(f"{since}: {type(e).__name__}: {e}")
             sub = []
         for rank, it in enumerate(sub, 1):
             url = it["url"]
@@ -368,7 +371,8 @@ def fetch_github_trending_multi(params: dict) -> list:
     }
     try:
         search_pool = fetch_github_search(total_search_params)
-    except Exception:
+    except Exception as e:
+        errors.append(f"total: {type(e).__name__}: {e}")
         search_pool = []
     search_pool.sort(key=lambda x: x.get("total_stars_int", 0), reverse=True)
     dim_map["total"] = search_pool
@@ -377,6 +381,11 @@ def fetch_github_trending_multi(params: dict) -> list:
     for dim in ("daily", "weekly", "monthly", "total"):
         for it in dim_map[dim]:
             flat.append({**it, "dimension": dim})
+
+    # 四维度全空且发生过异常 = 真失败, 抛出让 fetch_one 记入 source.error;
+    # 任一维度有数据即视为成功降级 (如 RSSHub 挂但 total 正常), 不误报.
+    if not flat and errors:
+        raise RuntimeError("github trending all dimensions failed: " + " | ".join(errors))
     return flat
 
 
