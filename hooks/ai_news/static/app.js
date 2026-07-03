@@ -104,24 +104,30 @@
   }
   function renderGithubStars(it, activeKey){
     if (!hasGithubStars(it)) return '';
-    const d = it.daily_stars || 0;
-    const w = it.weekly_stars || 0;
-    const m = it.monthly_stars || 0;
     const t = it.total_stars_int || 0;
+    // trending 数据源无"本期新增 star", 日/周/月展示真实 trending 名次 (#rank); 总展示总 star
+    const dimVal = (k) => {
+      const r = it[k + '_rank'] || 0;
+      if (r) return '#' + r;
+      const g = it[k + '_stars'] || 0;   // 老数据兼容: 有增量则显示 +N⭐
+      return g ? '+' + fmtStarNum(g) + '⭐' : '—';
+    };
     const rows = [
-      ['daily',   '日', '+'+fmtStarNum(d)],
-      ['weekly',  '周', '+'+fmtStarNum(w)],
-      ['monthly', '月', '+'+fmtStarNum(m)],
-      ['total',   '总',   fmtStarNum(t)],
+      ['daily',   '日', dimVal('daily')],
+      ['weekly',  '周', dimVal('weekly')],
+      ['monthly', '月', dimVal('monthly')],
+      ['total',   '总', fmtStarNum(t) + '⭐'],
     ];
     return rows.map(([k, label, v]) => {
       const active = k === activeKey ? 'active' : '';
-      return `<span class='github-star ${active}'><span class='lbl'>${label}</span><span class='val'>${v}⭐</span></span>`;
+      return `<span class='github-star ${active}'><span class='lbl'>${label}</span><span class='val'>${v}</span></span>`;
     }).join('');
   }
   function githubSortKey(it, k){
     if (k === 'total') return it.total_stars_int || 0;
-    return it[k + '_stars'] || 0;
+    const r = it[k + '_rank'] || 0;
+    if (r) return -r;                    // 名次升序: #1 最前 (降序排序下 -1 > -2)
+    return it[k + '_stars'] || 0;        // 老数据兼容: 按增量降序
   }
   const GITHUB_PER_DIM_DISPLAY = 15;
   // 按维度过滤: 仅保留 item.dimension === 维度 的条目, 按对应 star 降序, 截 top 15

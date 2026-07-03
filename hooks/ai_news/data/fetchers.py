@@ -91,6 +91,13 @@ def fetch_hn_algolia(params: dict) -> list:
 
 GITHUB_TRENDING_URL_TPL = "https://github.com/trending?since={since}"
 
+# github.com/trending 是 HTML 页面且无官方 API, 对机房 IP 常年 403; 云端 routine 走 RSSHub
+# 取真实 trending 榜单. RSS 只含总 star, 不含"本期新增 star", 故排序改用 trending 名次 (见 *_rank).
+RSSHUB_INSTANCES = (
+    "https://rsshub.rssforever.com",
+    "https://rsshub.app",
+)
+
 
 class _TrendingParser(HTMLParser):
     def __init__(self):
@@ -257,28 +264,76 @@ def fetch_github_search(params: dict) -> list:
     return list(merged.values())
 
 
+def fetch_github_trending_rss(since: str, limit: int = 25) -> list:
+    """从 RSSHub 抓 GitHub trending (since = daily/weekly/monthly).
+
+    GitHub 无官方 trending API, HTML 页面对机房 IP 返 403, 故走 RSSHub.
+    RSS 条目已按 GitHub trending 名次排序; 只含总 star, 无"本期新增 star".
+    返回按名次排列的 list, 每条: {title(full_name), url, desc, ts, lang, stars, total_stars_int}.
+    """
+    import xml.etree.ElementTree as ET
+    path = f"/github/trending/{since}/any"
+    raw, last_err = None, None
+    for base in RSSHUB_INSTANCES:
+        try:
+            raw = _fetch(base + path)
+            break
+        except Exception as e:
+            last_err = e
+    if raw is None:
+        raise last_err or RuntimeError("all RSSHub instances failed")
+
+    root = ET.fromstring(raw)
+    items = []
+    for node in root.findall(".//item")[:limit]:
+        def _text(tag):
+            el = node.find(tag)
+            return (el.text or "") if el is not None else ""
+        title = _text("title").strip()
+        url = _text("link").strip()
+        if not title or not url:
+            continue
+        desc_html = _text("description")
+        stars_m = re.search(r"Stars:\s*([\d,]+)", desc_html)
+        lang_m = re.search(r"Language:\s*([^<\n]+)", desc_html)
+        stars_int = _parse_int_compact(stars_m.group(1)) if stars_m else 0
+        # 纯描述: 截到 Language: 之前, 去掉 img 和其余标签
+        body = re.split(r"Language:", desc_html)[0]
+        body = re.sub(r"<img[^>]*>", "", body)
+        body = re.sub(r"<[^>]+>", " ", body)
+        desc = re.sub(r"\s+", " ", body).strip()
+        items.append({
+            "title": title,
+            "url": url,
+            "desc": desc[:200],
+            "ts": _now_iso(),
+            "lang": lang_m.group(1).strip() if lang_m else "",
+            "stars": f"{stars_int:,}",
+            "total_stars_int": stars_int,
+        })
+    return items
+
+
 def fetch_github_trending_multi(params: dict) -> list:
-    """抓 daily + weekly + monthly 三个 trending 页面, 为每个维度独立产出一个榜单.
+    """为 daily / weekly / monthly / total 四个维度各产出一个榜单, 返回扁平 list.
 
-    返回扁平 list, 每条 item 带 `dimension` 字段标识属于哪个榜单:
-    - dimension='daily':   daily trending 页面 top N, 按日增长排
-    - dimension='weekly':  weekly trending 页面 top N, 按周增长排
-    - dimension='monthly': monthly trending 页面 top N, 按月增长排
-    - dimension='total':   三页面合并去重后, 按历史总 star 取 top N
-
-    同一仓库可能在多个维度重复出现 (各维度各保留一条), 因为用户要"各榜单纯粹 top N".
+    每条 item 带 `dimension` 字段标识所属榜单. 同一仓库可跨维度重复出现 (各维度各留一条).
+    daily/weekly/monthly 走 RSSHub trending (真实名次, 见 *_rank); total 走 Search API 按总 star 排.
+    单个维度抓取失败不影响其他维度 (各自 try/except).
 
     params:
-    - per_fetch_limit: 每个 trending 页面抓多少 (默认 25, trending 页面约 25 条, 够用)
-    - per_dim_limit:   每个维度展示多少 top (默认 15)
+    - per_dim_limit: 每维度抓取上限 (默认 25, 前端再截 top N)
     """
-    per_fetch = int(params.get("per_fetch_limit", 25))
-    per_dim = int(params.get("per_dim_limit", 15))
+    per_dim = int(params.get("per_dim_limit", 25))
 
     raw_by_url = {}
+    dim_urls = {"daily": [], "weekly": [], "monthly": []}
     for since in ("daily", "weekly", "monthly"):
-        sub = fetch_github_trending({"since": since, "limit": per_fetch})
-        for it in sub:
+        try:
+            sub = fetch_github_trending_rss(since, per_dim)
+        except Exception:
+            sub = []
+        for rank, it in enumerate(sub, 1):
             url = it["url"]
             if url not in raw_by_url:
                 raw_by_url[url] = {
@@ -288,25 +343,19 @@ def fetch_github_trending_multi(params: dict) -> list:
                     "ts": it.get("ts", ""),
                     "lang": it.get("lang", ""),
                     "stars": it.get("stars", ""),
-                    "total_stars_int": _parse_int_compact(it.get("stars", "")),
+                    "total_stars_int": it.get("total_stars_int", 0),
                     "daily_stars": 0,
                     "weekly_stars": 0,
                     "monthly_stars": 0,
+                    "daily_rank": 0,
+                    "weekly_rank": 0,
+                    "monthly_rank": 0,
                 }
-            raw_by_url[url][f"{since}_stars"] = it.get("today_stars_int", 0)
+            raw_by_url[url][f"{since}_rank"] = rank
+            dim_urls[since].append(url)
 
-    pool = list(raw_by_url.values())
-
-    # fetcher 不截 top — 返回完整候选池. 过 filter 后前端按维度再截 top N
-    # 每个 dimension 只保留"本维度 star > 0"的仓库 (意即真正出现在该 trending 页面的), 避免从别维度合并来的 0 值仓库混入
-    dim_map = {
-        "daily": sorted([it for it in pool if it.get("daily_stars", 0) > 0],
-                        key=lambda x: x["daily_stars"], reverse=True),
-        "weekly": sorted([it for it in pool if it.get("weekly_stars", 0) > 0],
-                         key=lambda x: x["weekly_stars"], reverse=True),
-        "monthly": sorted([it for it in pool if it.get("monthly_stars", 0) > 0],
-                          key=lambda x: x["monthly_stars"], reverse=True),
-    }
+    # RSS 已按名次排序, 直接保序; 前端按 *_rank 升序展示
+    dim_map = {dim: [raw_by_url[u] for u in urls] for dim, urls in dim_urls.items()}
 
     # total 维度改走 Search API, 真正"全站 Claude 相关按总 star 排", 不受 trending 池限制
     total_search_params = {
