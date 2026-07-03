@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-02T14:10:43+09:00",
+  "updated_at": "2026-07-03T15:08:22+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -2208,6 +2208,12 @@
       "title": "🚨 Claude Fable 5 今天重新上線了，但…一般用戶可能會有點失望",
       "source": "threads",
       "score": "up"
+    },
+    "https://www.threads.com/@brew.agent/post/DaT-x9ij2R9": {
+      "ts": "2026-07-03T15:07:59+09:00",
+      "title": "✨ Claude Code 2.1.199 發佈，包含 24 項 CLI 變更",
+      "source": "threads",
+      "score": "up"
     }
   },
   "favorites": {
@@ -2288,60 +2294,52 @@
     }
   },
   "seen": {
-    "https://zcode.z.ai/en": {
-      "ts": "2026-07-02T14:05:34+09:00",
+    "https://github.com/HUANGCHIHHUNGLeo/claude-real-video": {
+      "ts": "2026-07-03T14:56:32+09:00",
       "source": "hackernews"
     },
-    "https://mlq.ai/news/meta-caps-internal-ai-token-spending-after-costs-approach-billions-in-2026/": {
-      "ts": "2026-07-02T14:09:31+09:00",
+    "https://blog.okturtles.org/2026/07/short-leash-ai-method/": {
+      "ts": "2026-07-03T14:56:36+09:00",
       "source": "hackernews"
     },
-    "https://www.threads.com/@brew.agent/post/DaRMQN6jtbf": {
-      "ts": "2026-07-02T14:09:39+09:00",
+    "https://www.threads.com/@djcolindd_ok/post/DaTTkpeE0xg": {
+      "ts": "2026-07-03T15:07:35+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@lawrenceteh_/post/DaPtdrBCNdO": {
-      "ts": "2026-07-02T14:09:52+09:00",
+    "https://www.threads.com/@darrell_tw_/post/DaRqg07kXMP": {
+      "ts": "2026-07-03T15:07:47+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@futurecommerce_official/post/DaRChPFCV6-": {
-      "ts": "2026-07-02T14:10:06+09:00",
+    "https://www.threads.com/@ekcheungai/post/DaSAqRijIIo": {
+      "ts": "2026-07-03T15:07:51+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@unicorn.geai/post/DaPb41uko37": {
-      "ts": "2026-07-02T14:10:10+09:00",
+    "https://www.threads.com/@brew.agent/post/DaT-x9ij2R9": {
+      "ts": "2026-07-03T15:07:55+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@yrzheee/post/DaQhEsLkSKD": {
-      "ts": "2026-07-02T14:10:17+09:00",
+    "https://www.threads.com/@octopusbeak.fin/post/DaUCBy9gr8A": {
+      "ts": "2026-07-03T15:07:58+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@sofi.life_official/post/DaPm1MKE9vl": {
-      "ts": "2026-07-02T14:10:21+09:00",
+    "https://www.threads.com/@jsfiend32/post/DaTUVldEzIL": {
+      "ts": "2026-07-03T15:08:04+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@govin999999/post/DaPuFwPGK0A": {
-      "ts": "2026-07-02T14:10:23+09:00",
+    "https://www.threads.com/@stratpilotlab/post/DaTAgbAk6Dg": {
+      "ts": "2026-07-03T15:08:16+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@tripleh.ai/post/DaReWydj4fx": {
-      "ts": "2026-07-02T14:10:26+09:00",
+    "https://www.threads.com/@pun.pun191/post/DaRkT5EDxyA": {
+      "ts": "2026-07-03T15:08:17+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@sally.sales.ttt/post/DaP_-LXD0iU": {
-      "ts": "2026-07-02T14:10:31+09:00",
+    "https://www.threads.com/@heibaijie5/post/DaUBGW9mjN2": {
+      "ts": "2026-07-03T15:08:19+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@prompt_case/post/DaRbjoZjQlh": {
-      "ts": "2026-07-02T14:10:34+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@cognitive_supply/post/DaPbyAej6-Q": {
-      "ts": "2026-07-02T14:10:42+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@ai_tjb/post/DaPDfbbjhsp": {
-      "ts": "2026-07-02T14:10:43+09:00",
+    "https://www.threads.com/@debutai.tw/post/DaUBW_ykxaU": {
+      "ts": "2026-07-03T15:08:22+09:00",
       "source": "threads"
     }
   }
