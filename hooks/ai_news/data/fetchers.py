@@ -319,8 +319,8 @@ def fetch_github_trending_multi(params: dict) -> list:
 
     每条 item 带 `dimension` 字段标识所属榜单. 同一仓库可跨维度重复出现 (各维度各留一条).
     daily/weekly/monthly 走 RSSHub trending (真实名次, 见 *_rank); total 走 Search API 按总 star 排.
-    单个维度抓取失败不影响其他维度 (各自 try/except); 但四个维度全空且发生过异常时 raise,
-    让失败暴露到 source.error, 避免全站被封时仍"假装成功"只显示暂无数据.
+    单个维度抓取失败不影响其他维度 (各自 try/except); 但四个维度全空时 raise (无论是否抛异常),
+    让失败暴露到 source.error, 避免全站被封/限流仍"假装成功"只显示暂无数据.
 
     params:
     - per_dim_limit: 每维度抓取上限 (默认 25, 前端再截 top N)
@@ -382,10 +382,12 @@ def fetch_github_trending_multi(params: dict) -> list:
         for it in dim_map[dim]:
             flat.append({**it, "dimension": dim})
 
-    # 四维度全空且发生过异常 = 真失败, 抛出让 fetch_one 记入 source.error;
-    # 任一维度有数据即视为成功降级 (如 RSSHub 挂但 total 正常), 不误报.
-    if not flat and errors:
-        raise RuntimeError("github trending all dimensions failed: " + " | ".join(errors))
+    # 四维度全空 = 真失败 (这两个源正常时恒有数据), 抛出让 fetch_one 记入 source.error,
+    # 避免全站被封/限流 (含"HTTP 200 但空结果"这类不抛异常的失败) 仍假装成功只显示暂无数据.
+    # 任一维度有数据即成功降级 (如 RSSHub 挂但 total 正常), 不误报.
+    if not flat:
+        detail = " | ".join(errors) if errors else "所有维度返回空 (无异常)"
+        raise RuntimeError("github trending 无任何条目: " + detail)
     return flat
 
 
