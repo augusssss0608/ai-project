@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-03T15:08:22+09:00",
+  "updated_at": "2026-07-06T14:08:41+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -2214,6 +2214,24 @@
       "title": "✨ Claude Code 2.1.199 發佈，包含 24 項 CLI 變更",
       "source": "threads",
       "score": "up"
+    },
+    "https://www.reuters.com/business/zuckerberg-says-ai-agent-development-going-slower-than-expected-2026-07-02/": {
+      "ts": "2026-07-06T13:58:22+09:00",
+      "title": "Zuckerberg says AI agent development going slower than expected",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://intextbooks.science.uu.nl/workshop2026/files/itb26_s1s2.pdf": {
+      "ts": "2026-07-06T13:58:24+09:00",
+      "title": "New AI tutor achieves 0.71-1.30 SD effect size in Dartmouth course [pdf]",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://www.threads.com/@sliven0722/post/DaZuwHhAp7S": {
+      "ts": "2026-07-06T14:08:15+09:00",
+      "title": "Anthropic 內部的知識管理方式曝光了。",
+      "source": "threads",
+      "score": "up"
     }
   },
   "favorites": {
@@ -2294,52 +2312,112 @@
     }
   },
   "seen": {
-    "https://github.com/HUANGCHIHHUNGLeo/claude-real-video": {
-      "ts": "2026-07-03T14:56:32+09:00",
+    "https://twitter.com/thsottiaux/status/2073933490513752151": {
+      "ts": "2026-07-06T13:58:13+09:00",
       "source": "hackernews"
     },
-    "https://blog.okturtles.org/2026/07/short-leash-ai-method/": {
-      "ts": "2026-07-03T14:56:36+09:00",
+    "https://www.reuters.com/business/zuckerberg-says-ai-agent-development-going-slower-than-expected-2026-07-02/": {
+      "ts": "2026-07-06T13:58:20+09:00",
       "source": "hackernews"
     },
-    "https://www.threads.com/@djcolindd_ok/post/DaTTkpeE0xg": {
-      "ts": "2026-07-03T15:07:35+09:00",
+    "https://intextbooks.science.uu.nl/workshop2026/files/itb26_s1s2.pdf": {
+      "ts": "2026-07-06T13:58:23+09:00",
+      "source": "hackernews"
+    },
+    "https://github.com/openai/codex-plugin-cc": {
+      "ts": "2026-07-06T13:58:24+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/asgeirtj/system_prompts_leaks": {
+      "ts": "2026-07-06T14:05:55+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/alirezarezvani/claude-skills": {
+      "ts": "2026-07-06T14:06:00+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/hesreallyhim/awesome-claude-code": {
+      "ts": "2026-07-06T14:06:01+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/coreyhaines31/marketingskills": {
+      "ts": "2026-07-06T14:06:29+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/JuliusBrussee/caveman": {
+      "ts": "2026-07-06T14:06:31+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/CoplayDev/unity-mcp": {
+      "ts": "2026-07-06T14:06:32+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/steipete/CodexBar": {
+      "ts": "2026-07-06T14:06:35+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/anthropics/claude-code": {
+      "ts": "2026-07-06T14:06:38+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/xbtlin/ai-berkshire": {
+      "ts": "2026-07-06T14:06:43+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/diegosouzapw/OmniRoute": {
+      "ts": "2026-07-06T14:06:46+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/DeusData/codebase-memory-mcp": {
+      "ts": "2026-07-06T14:06:50+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/calesthio/OpenMontage": {
+      "ts": "2026-07-06T14:06:50+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/mvanhorn/last30days-skill": {
+      "ts": "2026-07-06T14:06:55+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/kenn-io/agentsview": {
+      "ts": "2026-07-06T14:06:56+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/mukul975/Anthropic-Cybersecurity-Skills": {
+      "ts": "2026-07-06T14:06:57+09:00",
+      "source": "github_trending"
+    },
+    "https://www.threads.com/@sliven0722/post/DaZuwHhAp7S": {
+      "ts": "2026-07-06T14:07:03+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@darrell_tw_/post/DaRqg07kXMP": {
-      "ts": "2026-07-03T15:07:47+09:00",
+    "https://www.threads.com/@aiposthub/post/DaaiU4qAb0T": {
+      "ts": "2026-07-06T14:08:15+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@ekcheungai/post/DaSAqRijIIo": {
-      "ts": "2026-07-03T15:07:51+09:00",
+    "https://www.threads.com/@yrzheee/post/DaZn7U_jh1I": {
+      "ts": "2026-07-06T14:08:17+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@brew.agent/post/DaT-x9ij2R9": {
-      "ts": "2026-07-03T15:07:55+09:00",
+    "https://www.threads.com/@ekcheungai/post/DaZ8cfjjHUP": {
+      "ts": "2026-07-06T14:08:26+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@octopusbeak.fin/post/DaUCBy9gr8A": {
-      "ts": "2026-07-03T15:07:58+09:00",
+    "https://www.threads.com/@mangobear2/post/DaZtRdakkX1": {
+      "ts": "2026-07-06T14:08:30+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@jsfiend32/post/DaTUVldEzIL": {
-      "ts": "2026-07-03T15:08:04+09:00",
+    "https://www.threads.com/@ericwu0324/post/DabuedKj05f": {
+      "ts": "2026-07-06T14:08:36+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@stratpilotlab/post/DaTAgbAk6Dg": {
-      "ts": "2026-07-03T15:08:16+09:00",
+    "https://www.threads.com/@tripleh.ai/post/DabqrSmmaoz": {
+      "ts": "2026-07-06T14:08:38+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@pun.pun191/post/DaRkT5EDxyA": {
-      "ts": "2026-07-03T15:08:17+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@heibaijie5/post/DaUBGW9mjN2": {
-      "ts": "2026-07-03T15:08:19+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@debutai.tw/post/DaUBW_ykxaU": {
-      "ts": "2026-07-03T15:08:22+09:00",
+    "https://www.threads.com/@tripleh.ai/post/DabxswrGbm_": {
+      "ts": "2026-07-06T14:08:41+09:00",
       "source": "threads"
     }
   }
