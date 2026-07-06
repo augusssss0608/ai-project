@@ -5,6 +5,7 @@ items 每条包含: title, url, desc, ts (ISO), 以及源特有字段 (HN: score
 import json
 import os
 import re
+import sys
 import urllib.request
 import urllib.error
 from datetime import datetime, timezone, timedelta
@@ -228,7 +229,15 @@ def fetch_github_search(params: dict) -> list:
     per_query_limit = int(params.get("per_query_limit", 30))
     min_stars = int(params.get("min_stars", 30))
 
+    # 机房 IP 直连匿名 Search API 常被 403/限流 (总维度长期空的根因).
+    # 带 token 时机房 IP 不再被挡, Search 限流 10→30 次/分; 无 token 退回匿名, 行为不变.
+    gh_headers = {"Accept": "application/vnd.github+json"}
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    if token:
+        gh_headers["Authorization"] = f"Bearer {token}"
+
     merged = {}
+    errors = []
     for q in queries:
         q_full = f"{q} stars:>={min_stars}"
         url = (
@@ -237,9 +246,10 @@ def fetch_github_search(params: dict) -> list:
             f"&sort=stars&order=desc&per_page={per_query_limit}"
         )
         try:
-            raw = _fetch(url, headers={"Accept": "application/vnd.github+json"})
+            raw = _fetch(url, headers=gh_headers)
             data = json.loads(raw)
-        except Exception:
+        except Exception as e:
+            errors.append(f"{type(e).__name__}: {e}")
             continue
         for r in data.get("items", []):
             full_name = r.get("full_name", "")
@@ -261,6 +271,10 @@ def fetch_github_search(params: dict) -> list:
                 "weekly_stars": 0,
                 "monthly_stars": 0,
             }
+    # 所有 query 都异常 (限流/403/网络) 而非"查成功但零命中" → 抛出让上层记录到 total 维度错误,
+    # 避免机房 IP 被 GitHub 挡后总维度静默返 [].
+    if not merged and len(errors) == len(queries):
+        raise RuntimeError("github search 全部 query 失败: " + " | ".join(errors))
     return list(merged.values())
 
 
@@ -376,6 +390,12 @@ def fetch_github_trending_multi(params: dict) -> list:
         search_pool = []
     search_pool.sort(key=lambda x: x.get("total_stars_int", 0), reverse=True)
     dim_map["total"] = search_pool
+    # total 单维度空但日周月正常时不会触发下面的全空 raise, 会被静默. 显式告警到 routine 日志,
+    # 便于区分"GitHub 挡了机房 IP (需 GITHUB_TOKEN)"与"确实没结果".
+    if not search_pool:
+        why = errors[-1] if errors and errors[-1].startswith("total") else "search 返回空"
+        print(f"[ai-news] github total 维度为空: {why} (未配 GITHUB_TOKEN 时机房 IP 易被限流/403)",
+              file=sys.stderr)
 
     flat = []
     for dim in ("daily", "weekly", "monthly", "total"):
