@@ -231,8 +231,12 @@ def fetch_github_search(params: dict) -> list:
 
     # 机房 IP 直连匿名 Search API 常被 403/限流 (总维度长期空的根因).
     # 带 token 时机房 IP 不再被挡, Search 限流 10→30 次/分; 无 token 退回匿名, 行为不变.
+    # GITHUB_PAT 是云端 routine 已挂的 token (原用于 git push), 搜公开仓库解限流与 scope 无关,
+    # 直接复用, 无需另建. GITHUB_TOKEN/GH_TOKEN 作通用兜底.
     gh_headers = {"Accept": "application/vnd.github+json"}
-    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    token = (os.environ.get("GITHUB_PAT")
+             or os.environ.get("GITHUB_TOKEN")
+             or os.environ.get("GH_TOKEN"))
     if token:
         gh_headers["Authorization"] = f"Bearer {token}"
 
@@ -394,7 +398,7 @@ def fetch_github_trending_multi(params: dict) -> list:
     # 便于区分"GitHub 挡了机房 IP (需 GITHUB_TOKEN)"与"确实没结果".
     if not search_pool:
         why = errors[-1] if errors and errors[-1].startswith("total") else "search 返回空"
-        print(f"[ai-news] github total 维度为空: {why} (未配 GITHUB_TOKEN 时机房 IP 易被限流/403)",
+        print(f"[ai-news] github total 维度为空: {why} (未配 GITHUB_PAT 时机房 IP 易被限流/403)",
               file=sys.stderr)
 
     flat = []

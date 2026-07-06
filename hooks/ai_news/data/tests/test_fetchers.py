@@ -70,14 +70,15 @@ class TestGithubTrendingMultiFailure(unittest.TestCase):
 class TestGithubSearch(unittest.TestCase):
     """fetch_github_search 的 token 注入 / 全失败抛错行为."""
 
+    _TOKEN_ENVS = ("GITHUB_PAT", "GITHUB_TOKEN", "GH_TOKEN")
+
     def setUp(self):
         self._fetch = F._fetch
-        self._token = os.environ.pop("GITHUB_TOKEN", None)
-        self._ghtoken = os.environ.pop("GH_TOKEN", None)
+        self._saved = {k: os.environ.pop(k, None) for k in self._TOKEN_ENVS}
 
     def tearDown(self):
         F._fetch = self._fetch
-        for k, v in (("GITHUB_TOKEN", self._token), ("GH_TOKEN", self._ghtoken)):
+        for k, v in self._saved.items():
             if v is None:
                 os.environ.pop(k, None)
             else:
@@ -90,6 +91,15 @@ class TestGithubSearch(unittest.TestCase):
             seen.update(headers or {}) or b'{"items": []}')
         F.fetch_github_search({"queries": ["claude"], "min_stars": 30})
         self.assertEqual(seen.get("Authorization"), "Bearer tok123")
+
+    def test_github_pat_injected_into_auth_header(self):
+        # 云端已挂的 GITHUB_PAT (git push 用) 也应被复用
+        os.environ["GITHUB_PAT"] = "patABC"
+        seen = {}
+        F._fetch = lambda url, headers=None, timeout=12: (
+            seen.update(headers or {}) or b'{"items": []}')
+        F.fetch_github_search({"queries": ["claude"], "min_stars": 30})
+        self.assertEqual(seen.get("Authorization"), "Bearer patABC")
 
     def test_no_token_no_auth_header(self):
         seen = {}

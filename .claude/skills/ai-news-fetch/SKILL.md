@@ -408,7 +408,7 @@ payload["pipeline_metrics"] = {
 }
 ```
 
-`github_dim_counts`: 对 github_trending 源按 `it["dimension"]` 统计四维度条数, 例如 `{"daily":21,"weekly":21,"monthly":20,"total":0}`. **total=0 是机房 IP 直连 GitHub Search 被限流/403 的典型信号** (日周月走 RSSHub 不受影响, total 直连 api.github.com), 前端切"总"会空白. 根治: 云端 routine 配 `GITHUB_TOKEN` env (fetcher 自动读, 带 token 后机房 IP 不再被挡). 无 token 时 fetcher 已打 stderr 告警, 此处再落 metrics 便于 dashboard 观测。
+`github_dim_counts`: 对 github_trending 源按 `it["dimension"]` 统计四维度条数, 例如 `{"daily":21,"weekly":21,"monthly":20,"total":0}`. **total=0 是机房 IP 直连 GitHub Search 被限流/403 的典型信号** (日周月走 RSSHub 不受影响, total 直连 api.github.com), 前端切"总"会空白. 根治: fetcher 自动读云端已挂的 `GITHUB_PAT` (git push 用的那个, 搜公开仓库解限流与 scope 无关, 无需另建 token; 兜底也读 `GITHUB_TOKEN`/`GH_TOKEN`), 带 token 后机房 IP 不再被挡. 无 token 时 fetcher 打 stderr 告警, 此处再落 metrics 便于 dashboard 观测。
 
 `dedupe_metrics` 字段:
 - `eligible_count` / `kept_count` / `suppressed_total`
