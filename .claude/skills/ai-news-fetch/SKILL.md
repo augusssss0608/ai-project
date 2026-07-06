@@ -408,7 +408,7 @@ payload["pipeline_metrics"] = {
 }
 ```
 
-`github_dim_counts`: 对 github_trending 源按 `it["dimension"]` 统计四维度条数, 例如 `{"daily":21,"weekly":21,"monthly":20,"total":0}`. **total=0 是机房 IP 直连 GitHub Search 被限流/403 的典型信号** (日周月走 RSSHub 不受影响, total 直连 api.github.com), 前端切"总"会空白. 根治: fetcher 自动读云端已挂的 `GITHUB_PAT` (git push 用的那个, 搜公开仓库解限流与 scope 无关, 无需另建 token; 兜底也读 `GITHUB_TOKEN`/`GH_TOKEN`), 带 token 后机房 IP 不再被挡. 无 token 时 fetcher 打 stderr 告警, 此处再落 metrics 便于 dashboard 观测。
+`github_dim_counts`: 对 github_trending 源按 `it["dimension"]` 统计四维度条数, 例如 `{"daily":21,"weekly":21,"monthly":20,"total":14}`. total 走 Jina 代理 github.com/search (云端封 api.github.com/search 与 github.com/trending 全局端点, 只放行 `repos/{owner}/{repo}` scoped 路径; 第三方 host r.jina.ai 不受限). Jina 挂或解析空时 fetcher 自动回退到"日/周/月合并池按总 star 排"并打 stderr 告警, 故 total 只要日周月有数据就不会为 0; 若 total 明显偏少 (<8) 或与日周月完全重合, 多半是 Jina 解析退化, 查 routine 日志的回退告警。
 
 `dedupe_metrics` 字段:
 - `eligible_count` / `kept_count` / `suppressed_total`

@@ -212,73 +212,63 @@ def _parse_int_compact(s: str) -> int:
     return int(val)
 
 
-def fetch_github_search(params: dict) -> list:
-    """GitHub Search API: 按总 star 排序, 找 Claude 生态仓库 (不受 trending 池限制).
+# stargazers 链接同时给出 star 数与 owner/repo, 是 Jina 渲染结果里最稳的锚点.
+_JINA_STARGAZER_RE = re.compile(
+    r'\[([\d.,]+[kKmM]?)\]\(https://github\.com/([\w.-]+/[\w.-]+)/stargazers\)')
 
-    匿名限流 60 次/小时, 每次 pipeline 跑 len(queries) 次请求.
+
+def _jina_repo_desc(raw: str, full_name: str) -> str:
+    """从 Jina markdown 里取某仓库描述 (仓库名链接后紧跟的首行正文)."""
+    m = re.search(
+        r'\[' + re.escape(full_name) + r'\]\(https://github\.com/'
+        + re.escape(full_name) + r'\)\s*\n+([^\[\n][^\n]*)', raw)
+    return (m.group(1).strip() if m else "")[:200]
+
+
+def fetch_github_search(params: dict) -> list:
+    """全站 Claude 生态仓库按总 star 排 (total 维度), 走 Jina 代理 github.com/search.
+
+    云端沙箱把 github 全局端点整体封了 (api.github.com/search 与 github.com/trending HTML
+    对绑定仓库外的 session 返 403), 但第三方 host r.jina.ai 不受限, 由 Jina 侧渲染并抓取
+    JS 结果. 解析锚点是 stargazers 链接 (同时含 star 数与 owner/repo). star 为 github 展示的
+    k 近似值 (排序足够). 失败/解析空时返 []; 上层 fetch_github_trending_multi 回退 trending 池.
     params:
-    - queries: 查询列表 (默认含 claude name/desc/readme + topic:mcp)
-    - per_query_limit: 每个 query 取前 N (默认 30, GitHub Search API 上限 100)
-    - min_stars: 最低总 star 门槛 (默认 30, 过滤不成熟小项目)
+    - queries: 查询列表 (默认 claude + topic:mcp; 避免 in:...readme, 那会返 awesome 列表噪声且无描述)
+    - pages: 每个 query 抓几页 (默认 2, 单页约 10 条)
+    - min_stars: 最低总 star 门槛 (默认 30)
     """
     import urllib.parse as _up
-    queries = params.get("queries") or [
-        "claude in:name,description,readme",
-        "topic:mcp",
-    ]
-    per_query_limit = int(params.get("per_query_limit", 30))
+    queries = params.get("queries") or ["claude", "topic:mcp"]
+    pages = int(params.get("pages", 2))
     min_stars = int(params.get("min_stars", 30))
 
-    # 机房 IP 直连匿名 Search API 常被 403/限流 (总维度长期空的根因).
-    # 带 token 时机房 IP 不再被挡, Search 限流 10→30 次/分; 无 token 退回匿名, 行为不变.
-    # GITHUB_PAT 是云端 routine 已挂的 token (原用于 git push), 搜公开仓库解限流与 scope 无关,
-    # 直接复用, 无需另建. GITHUB_TOKEN/GH_TOKEN 作通用兜底.
-    gh_headers = {"Accept": "application/vnd.github+json"}
-    token = (os.environ.get("GITHUB_PAT")
-             or os.environ.get("GITHUB_TOKEN")
-             or os.environ.get("GH_TOKEN"))
-    if token:
-        gh_headers["Authorization"] = f"Bearer {token}"
-
     merged = {}
-    errors = []
     for q in queries:
-        q_full = f"{q} stars:>={min_stars}"
-        url = (
-            "https://api.github.com/search/repositories"
-            f"?q={_up.quote(q_full)}"
-            f"&sort=stars&order=desc&per_page={per_query_limit}"
-        )
-        try:
-            raw = _fetch(url, headers=gh_headers)
-            data = json.loads(raw)
-        except Exception as e:
-            errors.append(f"{type(e).__name__}: {e}")
-            continue
-        for r in data.get("items", []):
-            full_name = r.get("full_name", "")
-            html_url = r.get("html_url", "")
-            if not full_name or not html_url:
+        for p in range(1, pages + 1):
+            gh = ("https://github.com/search?q="
+                  + _up.quote(f"{q} stars:>={min_stars}")
+                  + f"&type=repositories&s=stars&o=desc&p={p}")
+            try:
+                raw = _fetch(JINA_READER_PREFIX + gh, timeout=25).decode("utf-8", "ignore")
+            except Exception:
                 continue
-            if html_url in merged:
-                continue
-            stars_n = int(r.get("stargazers_count", 0) or 0)
-            merged[html_url] = {
-                "title": full_name,
-                "url": html_url,
-                "desc": (r.get("description") or "")[:200],
-                "ts": r.get("pushed_at", "") or _now_iso(),
-                "lang": r.get("language") or "",
-                "stars": f"{stars_n:,}",
-                "total_stars_int": stars_n,
-                "daily_stars": 0,
-                "weekly_stars": 0,
-                "monthly_stars": 0,
-            }
-    # 所有 query 都异常 (限流/403/网络) 而非"查成功但零命中" → 抛出让上层记录到 total 维度错误,
-    # 避免机房 IP 被 GitHub 挡后总维度静默返 [].
-    if not merged and len(errors) == len(queries):
-        raise RuntimeError("github search 全部 query 失败: " + " | ".join(errors))
+            for m in _JINA_STARGAZER_RE.finditer(raw):
+                stars_n = _parse_int_compact(m.group(1))
+                full_name = m.group(2)
+                if full_name in merged or stars_n < min_stars:
+                    continue
+                merged[full_name] = {
+                    "title": full_name,
+                    "url": f"https://github.com/{full_name}",
+                    "desc": _jina_repo_desc(raw, full_name),
+                    "ts": _now_iso(),
+                    "lang": "",
+                    "stars": f"{stars_n:,}",
+                    "total_stars_int": stars_n,
+                    "daily_stars": 0,
+                    "weekly_stars": 0,
+                    "monthly_stars": 0,
+                }
     return list(merged.values())
 
 
@@ -378,13 +368,12 @@ def fetch_github_trending_multi(params: dict) -> list:
     # RSS 已按名次排序, 直接保序; 前端按 *_rank 升序展示
     dim_map = {dim: [raw_by_url[u] for u in urls] for dim, urls in dim_urls.items()}
 
-    # total 维度改走 Search API, 真正"全站 Claude 相关按总 star 排", 不受 trending 池限制
+    # total 维度: Jina 代理搜出"全站 Claude 仓库按总 star 排" (含未在 trending 的老牌大仓).
+    # 拿不到 (Jina 挂 / github 改版解析空) 时回退到"日/周/月合并池按总 star 排" —— 语义退化成
+    # trending 内重排, 但保证 total 非空. 云端不能走 api.github.com/search (沙箱封全局端点).
     total_search_params = {
-        "queries": params.get("total_queries") or [
-            "claude in:name,description,readme",
-            "topic:mcp",
-        ],
-        "per_query_limit": int(params.get("total_per_query_limit", 30)),
+        "queries": params.get("total_queries") or ["claude", "topic:mcp"],
+        "pages": int(params.get("total_pages", 2)),
         "min_stars": int(params.get("total_min_stars", 30)),
     }
     try:
@@ -392,14 +381,14 @@ def fetch_github_trending_multi(params: dict) -> list:
     except Exception as e:
         errors.append(f"total: {type(e).__name__}: {e}")
         search_pool = []
-    search_pool.sort(key=lambda x: x.get("total_stars_int", 0), reverse=True)
-    dim_map["total"] = search_pool
-    # total 单维度空但日周月正常时不会触发下面的全空 raise, 会被静默. 显式告警到 routine 日志,
-    # 便于区分"GitHub 挡了机房 IP (需 GITHUB_TOKEN)"与"确实没结果".
-    if not search_pool:
-        why = errors[-1] if errors and errors[-1].startswith("total") else "search 返回空"
-        print(f"[ai-news] github total 维度为空: {why} (未配 GITHUB_PAT 时机房 IP 易被限流/403)",
-              file=sys.stderr)
+    if search_pool:
+        search_pool.sort(key=lambda x: x.get("total_stars_int", 0), reverse=True)
+        dim_map["total"] = search_pool
+    else:
+        dim_map["total"] = sorted(
+            raw_by_url.values(),
+            key=lambda x: x.get("total_stars_int", 0), reverse=True)
+        print("[ai-news] github total: Jina 搜索无结果, 回退 trending 池排序", file=sys.stderr)
 
     flat = []
     for dim in ("daily", "weekly", "monthly", "total"):

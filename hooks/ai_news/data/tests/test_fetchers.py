@@ -1,4 +1,3 @@
-import os
 import unittest
 import ai_news.data.fetchers as F
 from ai_news.data.fetchers import _TrendingParser
@@ -66,60 +65,72 @@ class TestGithubTrendingMultiFailure(unittest.TestCase):
         self.assertTrue(out)
         self.assertEqual({x["dimension"] for x in out}, {"total"})
 
+    def test_search_empty_total_falls_back_to_pool(self):
+        # Jina 搜索空 (云端封 github 全局端点) 时, total 回退到 trending 池按总 star 排
+        rss = [
+            {"url": "u1", "title": "big/repo", "total_stars_int": 500,
+             "daily_stars": 0, "weekly_stars": 0, "monthly_stars": 0},
+            {"url": "u2", "title": "small/repo", "total_stars_int": 20,
+             "daily_stars": 0, "weekly_stars": 0, "monthly_stars": 0},
+        ]
+        F.fetch_github_trending_rss = lambda since, limit=25: rss
+        F.fetch_github_search = lambda params: []
+        out = F.fetch_github_trending_multi({})
+        total = [x for x in out if x["dimension"] == "total"]
+        self.assertEqual([x["url"] for x in total], ["u1", "u2"])  # 按总 star 降序
+
 
 class TestGithubSearch(unittest.TestCase):
-    """fetch_github_search 的 token 注入 / 全失败抛错行为."""
+    """fetch_github_search 走 Jina 代理: 解析 stargazers 锚点 + 描述, 失败返 []."""
 
-    _TOKEN_ENVS = ("GITHUB_PAT", "GITHUB_TOKEN", "GH_TOKEN")
+    _SAMPLE = (
+        "### ![Image 1](https://github.com/owner1.png?size=40)\n\n"
+        "[owner1/claude-tool](https://github.com/owner1/claude-tool)\n\n"
+        "A Claude helper tool.\n\n"
+        "[topic](https://github.com/topics/x)\n\n"
+        "*    Python\n"
+        "·*   [12k](https://github.com/owner1/claude-tool/stargazers)\n"
+        "·*   Updated 1 day ago\n\n"
+        "### ![Image 2](https://github.com/owner2.png?size=40)\n\n"
+        "[owner2/mcp-server](https://github.com/owner2/mcp-server)\n\n"
+        "An MCP server.\n\n"
+        "*    Go\n"
+        "·*   [3,400](https://github.com/owner2/mcp-server/stargazers)\n"
+    )
 
     def setUp(self):
         self._fetch = F._fetch
-        self._saved = {k: os.environ.pop(k, None) for k in self._TOKEN_ENVS}
 
     def tearDown(self):
         F._fetch = self._fetch
-        for k, v in self._saved.items():
-            if v is None:
-                os.environ.pop(k, None)
-            else:
-                os.environ[k] = v
 
-    def test_token_injected_into_auth_header(self):
-        os.environ["GITHUB_TOKEN"] = "tok123"
-        seen = {}
-        F._fetch = lambda url, headers=None, timeout=12: (
-            seen.update(headers or {}) or b'{"items": []}')
-        F.fetch_github_search({"queries": ["claude"], "min_stars": 30})
-        self.assertEqual(seen.get("Authorization"), "Bearer tok123")
+    def test_parses_full_name_stars_desc(self):
+        F._fetch = lambda url, headers=None, timeout=25: self._SAMPLE.encode()
+        out = F.fetch_github_search({"queries": ["claude"], "pages": 1, "min_stars": 30})
+        by = {it["title"]: it for it in out}
+        self.assertEqual(by["owner1/claude-tool"]["total_stars_int"], 12000)
+        self.assertEqual(by["owner1/claude-tool"]["desc"], "A Claude helper tool.")
+        self.assertEqual(by["owner1/claude-tool"]["url"],
+                         "https://github.com/owner1/claude-tool")
+        self.assertEqual(by["owner2/mcp-server"]["total_stars_int"], 3400)
 
-    def test_github_pat_injected_into_auth_header(self):
-        # 云端已挂的 GITHUB_PAT (git push 用) 也应被复用
-        os.environ["GITHUB_PAT"] = "patABC"
-        seen = {}
-        F._fetch = lambda url, headers=None, timeout=12: (
-            seen.update(headers or {}) or b'{"items": []}')
-        F.fetch_github_search({"queries": ["claude"], "min_stars": 30})
-        self.assertEqual(seen.get("Authorization"), "Bearer patABC")
+    def test_dedups_across_pages_and_queries(self):
+        F._fetch = lambda url, headers=None, timeout=25: self._SAMPLE.encode()
+        out = F.fetch_github_search({"queries": ["claude", "topic:mcp"], "pages": 2})
+        self.assertEqual(sorted(it["title"] for it in out),
+                         ["owner1/claude-tool", "owner2/mcp-server"])
 
-    def test_no_token_no_auth_header(self):
-        seen = {}
-        F._fetch = lambda url, headers=None, timeout=12: (
-            seen.update(headers or {}) or b'{"items": []}')
-        F.fetch_github_search({"queries": ["claude"], "min_stars": 30})
-        self.assertNotIn("Authorization", seen)
-
-    def test_all_queries_fail_raises(self):
+    def test_fetch_failure_returns_empty(self):
         def boom(*a, **k):
-            raise RuntimeError("HTTP 403")
+            raise RuntimeError("network down")
         F._fetch = boom
-        with self.assertRaises(RuntimeError):
-            F.fetch_github_search({"queries": ["claude", "topic:mcp"], "min_stars": 30})
-
-    def test_empty_results_no_raise(self):
-        # 查询成功但零命中 ≠ 失败, 不得抛错
-        F._fetch = lambda url, headers=None, timeout=12: b'{"items": []}'
         self.assertEqual(
-            F.fetch_github_search({"queries": ["claude"], "min_stars": 30}), [])
+            F.fetch_github_search({"queries": ["claude"], "pages": 1}), [])
+
+    def test_no_stargazers_returns_empty(self):
+        F._fetch = lambda url, headers=None, timeout=25: b"no results here"
+        self.assertEqual(
+            F.fetch_github_search({"queries": ["claude"], "pages": 1}), [])
 
 
 if __name__ == "__main__":

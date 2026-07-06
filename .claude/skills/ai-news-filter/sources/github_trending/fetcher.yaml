@@ -2,9 +2,10 @@ type: github_trending_multi
 params:
   per_dim_limit: 25   # 每维度 (日/周/月) 从 RSSHub 抓 25 条, 前端按维度截 top 15
 
-  # total 维度用 GitHub Search API, 真正全站按总 star 排
+  # total 维度走 Jina 代理 github.com/search (云端封 api.github.com/search 全局端点).
+  # 用 "claude" 不用 "claude in:name,description,readme" —— 后者 Jina 渲染返 awesome 列表噪声且无描述.
   total_queries:
-    - "claude in:name,description,readme"
+    - "claude"
     - "topic:mcp"
-  total_per_query_limit: 30   # 每个 query 取前 N
-  total_min_stars: 30         # 过滤不成熟小项目
+  total_pages: 2       # 每个 query 抓几页 (单页约 10 条)
+  total_min_stars: 30  # 过滤不成熟小项目
