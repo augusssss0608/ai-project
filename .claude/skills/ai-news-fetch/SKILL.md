@@ -254,7 +254,8 @@ except Exception as e:
 
 **对每个非 threads 源 §2.3e 去重后的最终入库 items 跑 summary**:
 - mid/hot 源: dedupe 后剩下的 scored items 全跑（含 github_trending）
-- cold 源: items[:10] 都跑（含 github_trending）
+- 普通 cold 源: items[:10] 都跑
+- **github_trending（强制 cold 但不截断, 见 §2.2/§2.3）**: 去重后**全部唯一 url** 都跑, **不套 items[:10]**. github 是日/周/月/总多维度榜, 第 10 名之后正好是周/月/总专属仓库; 套了 items[:10] 这些仓库就没摘要, 前端切到周/月/总只剩标题.
 - **threads 源**: 永远跳过, 直接把 `it.desc[:300]` 拷到 `it.summary` (post 是短文, AI 复述损失原汁原味). 前端按源 ID 检测后用 "原文" label 渲染.
 
 注: github 源跑 summary 是历史行为, 让用户看中文摘要而不是英文仓库简介. 别误以为 "github desc 已是简介就不用跑 summary" —— 重构前 27/27 github items 都有 haiku 中文摘要, 是有意保留的.
@@ -274,9 +275,9 @@ except Exception as e:
 
 **对 §2.3e 去重后的最终入库 items 跑 analysis**, 用 Opus 跑准确度:
 - mid/hot 源: dedupe 后剩下的 scored items 全跑（含 github_trending / threads）
-- cold 源: items[:10] 都跑（含 github_trending）
+- 普通 cold 源: items[:10] 都跑
+- **github_trending（强制 cold 但不截断, 见 §2.2/§2.3）**: 去重后**全部唯一 url** 都跑, **不套 items[:10]**（理由同 §2.4: 第 10 名之后是周/月/总专属仓库, 截了相关度分析就空）. 用户想知道每个仓库对 workspace / Claude 工作流的具体帮助.
 - threads 也要跑 (虽然 §2.4 跳过 summary), threads 的相关度判断对用户有价值
-- github_trending 必须跑: 用户想知道每个仓库对 workspace / Claude 工作流的具体帮助
 
 **派单前必须按 url 去重** (理由同 §2.4: github 多维度榜单同 url 共享分析素材, 跑一份就够). 派单单位 = 每个唯一 url 一次.
 
