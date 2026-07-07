@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-06T14:08:41+09:00",
+  "updated_at": "2026-07-07T14:30:38+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -2232,6 +2232,42 @@
       "title": "Anthropic 內部的知識管理方式曝光了。",
       "source": "threads",
       "score": "up"
+    },
+    "https://github.com/iOfficeAI/OfficeCLI": {
+      "ts": "2026-07-07T14:11:09+09:00",
+      "title": "OfficeCLI: Office suite for AI agents to read and edit Microsoft Office files",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://www.lttlabs.com/articles/2026/07/06/amd-ryzen-ai-halo": {
+      "ts": "2026-07-07T14:11:13+09:00",
+      "title": "AMD Ryzen AI Halo – $4k AI Dev Kit",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://martinalderson.com/posts/the-upcoming-ai-margin-collapse-part-1-glm-5-2/": {
+      "ts": "2026-07-07T14:11:15+09:00",
+      "title": "GLM 5.2 and the coming AI margin collapse",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://www.threads.com/@debutai.tw/post/DaeW080ica1": {
+      "ts": "2026-07-07T14:30:22+09:00",
+      "title": "📰 TeraWulf 拿下 Anthropic 20 年算力長約 190 億美元合約收入落袋",
+      "source": "threads",
+      "score": "down"
+    },
+    "https://www.threads.com/@darrell_tw_/post/DacDqNhESm-": {
+      "ts": "2026-07-07T14:30:29+09:00",
+      "title": "Claude Code 更新默默多了一個內建 skill",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@lucasfutures/post/Dacvk9BE_hL": {
+      "ts": "2026-07-07T14:30:38+09:00",
+      "title": "Director Mode Lite v1.8 發布 🎬",
+      "source": "threads",
+      "score": "up"
     }
   },
   "favorites": {
@@ -2312,18 +2348,6 @@
     }
   },
   "seen": {
-    "https://twitter.com/thsottiaux/status/2073933490513752151": {
-      "ts": "2026-07-06T13:58:13+09:00",
-      "source": "hackernews"
-    },
-    "https://www.reuters.com/business/zuckerberg-says-ai-agent-development-going-slower-than-expected-2026-07-02/": {
-      "ts": "2026-07-06T13:58:20+09:00",
-      "source": "hackernews"
-    },
-    "https://intextbooks.science.uu.nl/workshop2026/files/itb26_s1s2.pdf": {
-      "ts": "2026-07-06T13:58:23+09:00",
-      "source": "hackernews"
-    },
     "https://github.com/openai/codex-plugin-cc": {
       "ts": "2026-07-06T13:58:24+09:00",
       "source": "github_trending"
@@ -2332,28 +2356,8 @@
       "ts": "2026-07-06T14:05:55+09:00",
       "source": "github_trending"
     },
-    "https://github.com/alirezarezvani/claude-skills": {
-      "ts": "2026-07-06T14:06:00+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/hesreallyhim/awesome-claude-code": {
-      "ts": "2026-07-06T14:06:01+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/coreyhaines31/marketingskills": {
-      "ts": "2026-07-06T14:06:29+09:00",
-      "source": "github_trending"
-    },
     "https://github.com/JuliusBrussee/caveman": {
       "ts": "2026-07-06T14:06:31+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/CoplayDev/unity-mcp": {
-      "ts": "2026-07-06T14:06:32+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/steipete/CodexBar": {
-      "ts": "2026-07-06T14:06:35+09:00",
       "source": "github_trending"
     },
     "https://github.com/anthropics/claude-code": {
@@ -2384,40 +2388,100 @@
       "ts": "2026-07-06T14:06:56+09:00",
       "source": "github_trending"
     },
-    "https://github.com/mukul975/Anthropic-Cybersecurity-Skills": {
-      "ts": "2026-07-06T14:06:57+09:00",
+    "https://github.com/iOfficeAI/OfficeCLI": {
+      "ts": "2026-07-07T14:11:05+09:00",
+      "source": "hackernews"
+    },
+    "https://www.lttlabs.com/articles/2026/07/06/amd-ryzen-ai-halo": {
+      "ts": "2026-07-07T14:11:09+09:00",
+      "source": "hackernews"
+    },
+    "https://martinalderson.com/posts/the-upcoming-ai-margin-collapse-part-1-glm-5-2/": {
+      "ts": "2026-07-07T14:11:14+09:00",
+      "source": "hackernews"
+    },
+    "https://github.com/affaan-m/ECC": {
+      "ts": "2026-07-07T14:11:27+09:00",
       "source": "github_trending"
     },
-    "https://www.threads.com/@sliven0722/post/DaZuwHhAp7S": {
-      "ts": "2026-07-06T14:07:03+09:00",
+    "https://github.com/ChromeDevTools/chrome-devtools-mcp": {
+      "ts": "2026-07-07T14:29:53+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/NVIDIA/SkillSpector": {
+      "ts": "2026-07-07T14:29:56+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/multica-ai/andrej-karpathy-skills": {
+      "ts": "2026-07-07T14:30:00+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/mattpocock/skills": {
+      "ts": "2026-07-07T14:30:01+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/x1xhlol/system-prompts-and-models-of-ai-tools": {
+      "ts": "2026-07-07T14:30:02+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/garrytan/gstack": {
+      "ts": "2026-07-07T14:30:03+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/farion1231/cc-switch": {
+      "ts": "2026-07-07T14:30:04+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/punkpeye/awesome-mcp-servers": {
+      "ts": "2026-07-07T14:30:05+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/thedotmack/claude-mem": {
+      "ts": "2026-07-07T14:30:05+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/Graphify-Labs/graphify": {
+      "ts": "2026-07-07T14:30:06+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/ComposioHQ/awesome-claude-skills": {
+      "ts": "2026-07-07T14:30:07+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/nexu-io/open-design": {
+      "ts": "2026-07-07T14:30:09+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/headroomlabs-ai/headroom": {
+      "ts": "2026-07-07T14:30:10+09:00",
+      "source": "github_trending"
+    },
+    "https://www.threads.com/@raymond0917/post/DadMc4YGBIb": {
+      "ts": "2026-07-07T14:30:11+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@aiposthub/post/DaaiU4qAb0T": {
-      "ts": "2026-07-06T14:08:15+09:00",
+    "https://www.threads.com/@debutai.tw/post/DaeW080ica1": {
+      "ts": "2026-07-07T14:30:19+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@yrzheee/post/DaZn7U_jh1I": {
-      "ts": "2026-07-06T14:08:17+09:00",
+    "https://www.threads.com/@darrell_tw_/post/DacDqNhESm-": {
+      "ts": "2026-07-07T14:30:19+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@ekcheungai/post/DaZ8cfjjHUP": {
-      "ts": "2026-07-06T14:08:26+09:00",
+    "https://www.threads.com/@nexus.ai_club/post/DacrC9Sme6c": {
+      "ts": "2026-07-07T14:30:29+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@mangobear2/post/DaZtRdakkX1": {
-      "ts": "2026-07-06T14:08:30+09:00",
+    "https://www.threads.com/@aiposthub/post/DacgXOhAUSE": {
+      "ts": "2026-07-07T14:30:33+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@ericwu0324/post/DabuedKj05f": {
-      "ts": "2026-07-06T14:08:36+09:00",
+    "https://www.threads.com/@heibaijie5/post/Dac1hR_m8pu": {
+      "ts": "2026-07-07T14:30:34+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@tripleh.ai/post/DabqrSmmaoz": {
-      "ts": "2026-07-06T14:08:38+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@tripleh.ai/post/DabxswrGbm_": {
-      "ts": "2026-07-06T14:08:41+09:00",
+    "https://www.threads.com/@lucasfutures/post/Dacvk9BE_hL": {
+      "ts": "2026-07-07T14:30:36+09:00",
       "source": "threads"
     }
   }
