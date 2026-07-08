@@ -28,6 +28,68 @@ class TestTodayStarsInt(unittest.TestCase):
         self.assertEqual(p.items[0]["today_stars_int"], 123)
 
 
+def _rss_xml(full_names):
+    """构造 RSSHub trending RSS. full_names 空 -> 空 feed (0 item)."""
+    items = "".join(
+        f"<item><title>{n}</title><link>https://github.com/{n}</link>"
+        f"<description>Stars: 1,234 Language: Go</description></item>"
+        for n in full_names
+    )
+    return f"<rss><channel>{items}</channel></rss>".encode()
+
+
+class TestTrendingRssEmptyFeedRetry(unittest.TestCase):
+    """RSSHub '200 但空 feed' 必须换实例重试, 全空才抛出 (带原因), 不静默返回空."""
+
+    def setUp(self):
+        self._fetch = F._fetch
+        self._inst = F.RSSHUB_INSTANCES
+
+    def tearDown(self):
+        F._fetch, F.RSSHUB_INSTANCES = self._fetch, self._inst
+
+    def test_empty_first_instance_falls_through_to_second(self):
+        F.RSSHUB_INSTANCES = ("https://a", "https://b")
+        calls = []
+
+        def fake(url, headers=None, timeout=None):
+            calls.append(url)
+            return _rss_xml([]) if url.startswith("https://a") else _rss_xml(["a/b"])
+        F._fetch = fake
+        out = F.fetch_github_trending_rss("weekly")
+        self.assertEqual([x["url"] for x in out], ["https://github.com/a/b"])
+        self.assertEqual(len(calls), 2)  # 空的第一个后继续试第二个
+
+    def test_all_empty_raises_with_reason(self):
+        F.RSSHUB_INSTANCES = ("https://a", "https://b")
+        F._fetch = lambda url, headers=None, timeout=None: _rss_xml([])
+        with self.assertRaises(RuntimeError) as ctx:
+            F.fetch_github_trending_rss("weekly")
+        self.assertIn("空 feed", str(ctx.exception))
+
+
+class TestFetchOnePartialWarning(unittest.TestCase):
+    """部分维度失败时, fetch_one 应把原因写进 source.warning 而非静默丢弃."""
+
+    def setUp(self):
+        self._rss, self._search = F.fetch_github_trending_rss, F.fetch_github_search
+
+    def tearDown(self):
+        F.fetch_github_trending_rss, F.fetch_github_search = self._rss, self._search
+
+    def test_partial_dim_failure_sets_warning(self):
+        def rss(since, limit=25):
+            if since == "weekly":
+                raise RuntimeError("RSSHub trending [weekly] 所有实例无数据: 空 feed")
+            return [{"url": f"u-{since}", "title": "a/b", "total_stars_int": 5}]
+        F.fetch_github_trending_rss = rss
+        F.fetch_github_search = lambda params: []
+        res = F.fetch_one("github", {"type": "github_trending_multi", "params": {}})
+        self.assertIsNone(res["error"])
+        self.assertTrue(res["items"])
+        self.assertIn("weekly", res["warning"])
+
+
 class TestGithubTrendingMultiFailure(unittest.TestCase):
     """fetch_github_trending_multi 的失败暴露 / 降级不误报行为."""
 

@@ -343,9 +343,12 @@ payload = {
                 }
             ],
             "error": null,            # 该源抓取/pipeline 失败时填 error 字符串
+            "warning": null,          # 非致命诊断: 源可用但部分维度/子请求失败 (来自 fetch_one 的 warning), 无则 null
         }
     ],
 }
+
+**`warning` 字段必须从 fetch_one 结果透传到 sources[]** (§2.1 抓取阶段就有): 例如 github 某维度 RSSHub 空 feed / 请求失败但其他维度正常时, `warning` 会写明"部分维度抓取失败: weekly: 所有实例无数据 …". 这是区分「raw 榜单本身空/抓取失败」和「被 claude 白名单过滤光」的关键证据, §2.7 TG 通知要读它。丢了这个字段, 报告就只能干说"维度空"说不清原因。
 ```
 
 **github_trending 源的 item 必须额外带 7 个字段** (前端切维度 + 徽章渲染依赖, 缺了就没法切榜和显示 star):
@@ -520,12 +523,12 @@ EOF
 
 `dedupe_total = pipeline_metrics.dedupe.suppressed_total`，始终显示（即使为 0），方便上线初期判断 dedupe 是否生效。
 
-`{github_alert}`：**条件行，仅当 github 四维度里有 0 或该源抓取报错时才出现；全正常（四维度都 > 0 且无 error）则整行连同换行一起省略，不要留空行**。构造规则：
+`{github_alert}`：**条件行，仅当 github 四维度里有 0、该源抓取报错、或有 warning 时才出现；全正常（四维度都 > 0 且无 error/warning）则整行连同换行一起省略，不要留空行**。构造规则：
 - 遍历 `pipeline_metrics.github_dims` 的 `daily/weekly/monthly/total`，收集计数为 `0` 的维度名。
-- 读 github_trending 源的 `error` 字段，非空则一并带上（截断到 ~120 字，避免刷屏）。
-- 两者都没有 → `{github_alert}` 为空串（该行消失）。
-- 有则组成一行，末尾带 `\n`，例如：`⚠️ GitHub 维度空: daily · monthly\n` 或 `⚠️ GitHub 抓取错误: RSSHubTimeout ...\n`（两者都有就都写）。
-- **口径提醒**：`github_dims` 是 claude_only 过滤**之后**的计数，所以 `daily=0` 只表示该维度最终为空，**区分不了 raw 榜单本身空还是被 claude 白名单过滤光**；要能分清得另外记 raw 计数（见 §2.1 fetcher，当前未记）。这行只做「有异常就提醒你去查」，不承担归因。
+- 读 github_trending 源的 `error` 字段（源整体失败）和 `warning` 字段（部分维度抓取失败的原因），非空则一并带上（各截断到 ~120 字，避免刷屏）。
+- 三者都没有 → `{github_alert}` 为空串（该行消失）。
+- 有则组成一行，末尾带 `\n`，例如：`⚠️ GitHub 维度空: daily · monthly\n` 或 `⚠️ GitHub 抓取错误: RSSHubTimeout ...\n` 或 `⚠️ GitHub 部分维度抓取失败: weekly: 所有实例无数据 …\n`（多者都有就都写）。
+- **口径提醒**：`github_dims` 是 claude_only 过滤**之后**的计数，`daily=0` 只表示该维度最终为空。要区分「raw 榜单本身空/抓取失败」还是「被 claude 白名单过滤光」，看 `warning`：**有 warning 且点名该维度 = fetch 层没抓到数据（RSSHub 空 feed / 请求失败），不是过滤问题**；某维度 `0` 但 warning 里没点它 = raw 抓到了、被 claude 白名单滤光了（这种是正常，当天确实没 Claude 生态仓库上榜）。据此就能说清「为什么空」，不再只是提醒去查。
 
 `tg_notify.py` 优先读 `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` env vars, 没有则回退本地 `.env` 文件 (mac 路径). 脚本失败时退出码非 0, 打印错误到 stderr (不含 token). 失败 graceful skip (写 log 不阻塞主流程).
 

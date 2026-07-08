@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-07T14:30:38+09:00",
+  "updated_at": "2026-07-08T14:41:28+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -2268,6 +2268,24 @@
       "title": "Director Mode Lite v1.8 發布 🎬",
       "source": "threads",
       "score": "up"
+    },
+    "https://odra.dev/slopfix/": {
+      "ts": "2026-07-08T14:10:33+09:00",
+      "title": "We charge $10k a week to delete AI-generated code",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://blog.zksecurity.xyz/posts/circl-bugs/": {
+      "ts": "2026-07-08T14:10:34+09:00",
+      "title": "AI Meets Cryptography 1: What AI Found in Cloudflare",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://www.threads.com/@meicy321/post/DagiG0okxXa": {
+      "ts": "2026-07-08T14:41:19+09:00",
+      "title": "Anthropic 技術工程師 Thariq Shihipar 的超狂演講。",
+      "source": "threads",
+      "score": "down"
     }
   },
   "favorites": {
@@ -2348,28 +2366,8 @@
     }
   },
   "seen": {
-    "https://github.com/openai/codex-plugin-cc": {
-      "ts": "2026-07-06T13:58:24+09:00",
-      "source": "github_trending"
-    },
     "https://github.com/asgeirtj/system_prompts_leaks": {
       "ts": "2026-07-06T14:05:55+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/JuliusBrussee/caveman": {
-      "ts": "2026-07-06T14:06:31+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/anthropics/claude-code": {
-      "ts": "2026-07-06T14:06:38+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/xbtlin/ai-berkshire": {
-      "ts": "2026-07-06T14:06:43+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/diegosouzapw/OmniRoute": {
-      "ts": "2026-07-06T14:06:46+09:00",
       "source": "github_trending"
     },
     "https://github.com/DeusData/codebase-memory-mcp": {
@@ -2384,104 +2382,48 @@
       "ts": "2026-07-06T14:06:55+09:00",
       "source": "github_trending"
     },
-    "https://github.com/kenn-io/agentsview": {
-      "ts": "2026-07-06T14:06:56+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/iOfficeAI/OfficeCLI": {
-      "ts": "2026-07-07T14:11:05+09:00",
-      "source": "hackernews"
-    },
-    "https://www.lttlabs.com/articles/2026/07/06/amd-ryzen-ai-halo": {
-      "ts": "2026-07-07T14:11:09+09:00",
-      "source": "hackernews"
-    },
-    "https://martinalderson.com/posts/the-upcoming-ai-margin-collapse-part-1-glm-5-2/": {
-      "ts": "2026-07-07T14:11:14+09:00",
-      "source": "hackernews"
-    },
-    "https://github.com/affaan-m/ECC": {
-      "ts": "2026-07-07T14:11:27+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/ChromeDevTools/chrome-devtools-mcp": {
-      "ts": "2026-07-07T14:29:53+09:00",
-      "source": "github_trending"
-    },
     "https://github.com/NVIDIA/SkillSpector": {
       "ts": "2026-07-07T14:29:56+09:00",
       "source": "github_trending"
     },
-    "https://github.com/multica-ai/andrej-karpathy-skills": {
-      "ts": "2026-07-07T14:30:00+09:00",
+    "https://github.com/rowboatlabs/rowboat": {
+      "ts": "2026-07-08T14:10:20+09:00",
+      "source": "hackernews"
+    },
+    "https://odra.dev/slopfix/": {
+      "ts": "2026-07-08T14:10:31+09:00",
+      "source": "hackernews"
+    },
+    "https://blog.zksecurity.xyz/posts/circl-bugs/": {
+      "ts": "2026-07-08T14:10:33+09:00",
+      "source": "hackernews"
+    },
+    "https://github.com/MadsLorentzen/ai-job-search": {
+      "ts": "2026-07-08T14:41:05+09:00",
       "source": "github_trending"
     },
-    "https://github.com/mattpocock/skills": {
-      "ts": "2026-07-07T14:30:01+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/x1xhlol/system-prompts-and-models-of-ai-tools": {
-      "ts": "2026-07-07T14:30:02+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/garrytan/gstack": {
-      "ts": "2026-07-07T14:30:03+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/farion1231/cc-switch": {
-      "ts": "2026-07-07T14:30:04+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/punkpeye/awesome-mcp-servers": {
-      "ts": "2026-07-07T14:30:05+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/thedotmack/claude-mem": {
-      "ts": "2026-07-07T14:30:05+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/Graphify-Labs/graphify": {
-      "ts": "2026-07-07T14:30:06+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/ComposioHQ/awesome-claude-skills": {
-      "ts": "2026-07-07T14:30:07+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/nexu-io/open-design": {
-      "ts": "2026-07-07T14:30:09+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/headroomlabs-ai/headroom": {
-      "ts": "2026-07-07T14:30:10+09:00",
-      "source": "github_trending"
-    },
-    "https://www.threads.com/@raymond0917/post/DadMc4YGBIb": {
-      "ts": "2026-07-07T14:30:11+09:00",
+    "https://www.threads.com/@ar.shek/post/DaehyOXDaLo": {
+      "ts": "2026-07-08T14:41:07+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@debutai.tw/post/DaeW080ica1": {
-      "ts": "2026-07-07T14:30:19+09:00",
+    "https://www.threads.com/@largitdata/post/DafmLK-j3lx": {
+      "ts": "2026-07-08T14:41:12+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@darrell_tw_/post/DacDqNhESm-": {
-      "ts": "2026-07-07T14:30:19+09:00",
+    "https://www.threads.com/@meicy321/post/DagiG0okxXa": {
+      "ts": "2026-07-08T14:41:17+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@nexus.ai_club/post/DacrC9Sme6c": {
-      "ts": "2026-07-07T14:30:29+09:00",
+    "https://www.threads.com/@hanamizuki/post/DaetyorkeTf": {
+      "ts": "2026-07-08T14:41:20+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@aiposthub/post/DacgXOhAUSE": {
-      "ts": "2026-07-07T14:30:33+09:00",
+    "https://www.threads.com/@sabibro666/post/Dae6TFoEaDV": {
+      "ts": "2026-07-08T14:41:24+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@heibaijie5/post/Dac1hR_m8pu": {
-      "ts": "2026-07-07T14:30:34+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@lucasfutures/post/Dacvk9BE_hL": {
-      "ts": "2026-07-07T14:30:36+09:00",
+    "https://www.threads.com/@ekcheungai/post/DagtDlHgqcg": {
+      "ts": "2026-07-08T14:41:28+09:00",
       "source": "threads"
     }
   }

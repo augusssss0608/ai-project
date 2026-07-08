@@ -272,26 +272,8 @@ def fetch_github_search(params: dict) -> list:
     return list(merged.values())
 
 
-def fetch_github_trending_rss(since: str, limit: int = 25) -> list:
-    """从 RSSHub 抓 GitHub trending (since = daily/weekly/monthly).
-
-    GitHub 无官方 trending API, HTML 页面对机房 IP 返 403, 故走 RSSHub.
-    RSS 条目已按 GitHub trending 名次排序; 只含总 star, 无"本期新增 star".
-    返回按名次排列的 list, 每条: {title(full_name), url, desc, ts, lang, stars, total_stars_int}.
-    """
-    import xml.etree.ElementTree as ET
-    path = f"/github/trending/{since}/any"
-    raw, last_err = None, None
-    for base in RSSHUB_INSTANCES:
-        try:
-            raw = _fetch(base + path)
-            break
-        except Exception as e:
-            last_err = e
-    if raw is None:
-        raise last_err or RuntimeError("all RSSHub instances failed")
-
-    root = ET.fromstring(raw)
+def _parse_trending_rss_items(root, limit: int) -> list:
+    """把 RSSHub trending 的 <item> 列表解析成标准 item. 名次即 RSS 顺序."""
     items = []
     for node in root.findall(".//item")[:limit]:
         def _text(tag):
@@ -320,6 +302,38 @@ def fetch_github_trending_rss(since: str, limit: int = 25) -> list:
             "total_stars_int": stars_int,
         })
     return items
+
+
+def fetch_github_trending_rss(since: str, limit: int = 25) -> list:
+    """从 RSSHub 抓 GitHub trending (since = daily/weekly/monthly).
+
+    GitHub 无官方 trending API, HTML 页面对机房 IP 返 403, 故走 RSSHub.
+    RSS 条目已按 GitHub trending 名次排序; 只含总 star, 无"本期新增 star".
+    返回按名次排列的 list, 每条: {title(full_name), url, desc, ts, lang, stars, total_stars_int}.
+
+    某实例"HTTP 200 但空 RSS"(RSSHub 缓存未命中) 会解析出 0 条却不抛异常, 若就此返回空,
+    上层覆盖写会把上一轮该维度的好数据抹成 0. 故空 feed 按失败处理, 换下一个实例; 所有实例
+    都拿不到 item 才抛出 (带每个实例的失败原因), 让"为什么空"能传到 source.warning/error.
+    """
+    import xml.etree.ElementTree as ET
+    path = f"/github/trending/{since}/any"
+    attempts = []
+    for base in RSSHUB_INSTANCES:
+        try:
+            raw = _fetch(base + path)
+        except Exception as e:
+            attempts.append(f"{base}: 请求失败 {type(e).__name__}: {e}")
+            continue
+        try:
+            root = ET.fromstring(raw)
+        except Exception as e:
+            attempts.append(f"{base}: 解析失败 {type(e).__name__}: {e}")
+            continue
+        items = _parse_trending_rss_items(root, limit)
+        if items:
+            return items
+        attempts.append(f"{base}: 空 feed (0 items)")
+    raise RuntimeError(f"RSSHub trending [{since}] 所有实例无数据: " + " | ".join(attempts))
 
 
 def fetch_github_trending_multi(params: dict) -> list:
@@ -401,6 +415,11 @@ def fetch_github_trending_multi(params: dict) -> list:
     if not flat:
         detail = " | ".join(errors) if errors else "所有维度返回空 (无异常)"
         raise RuntimeError("github trending 无任何条目: " + detail)
+    # 部分维度失败 (如 weekly 抓空但 monthly/total 正常): 数据可用, 但把"哪个维度为什么空"
+    # 写进诊断通道, 让报告能说清原因, 而不是只看到某维度 0 条却不知是抓取失败还是真没有.
+    diag = params.get("_diag")
+    if diag is not None and errors:
+        diag["warning"] = "部分维度抓取失败: " + " | ".join(errors)
     return flat
 
 
@@ -1023,18 +1042,26 @@ _TYPE_DISPATCH = {
 
 
 def fetch_one(source_id: str, fetcher_yaml: dict) -> dict:
-    """对单个源执行抓取. 返回 {id, label, source_url, items, error, updated_at}."""
+    """对单个源执行抓取. 返回 {id, label, source_url, items, error, warning, updated_at}.
+
+    warning: 非致命诊断 (源可用但部分维度/子请求失败). fetcher 通过 params['_diag'] 回写,
+    每次调用一份独立的 diag dict, 故 fetch_all 并行时线程安全, 不用共享全局.
+    """
     t = fetcher_yaml.get("type", "")
-    params = fetcher_yaml.get("params", {})
+    params = dict(fetcher_yaml.get("params", {}))
+    diag = {}
+    params["_diag"] = diag
     fn = _TYPE_DISPATCH.get(t)
     if fn is None:
-        return {"id": source_id, "items": [], "error": f"unknown type: {t}", "updated_at": _now_iso()}
+        return {"id": source_id, "items": [], "error": f"unknown type: {t}",
+                "warning": None, "updated_at": _now_iso()}
     try:
         items = fn(params)
-        return {"id": source_id, "items": items, "error": None, "updated_at": _now_iso()}
+        return {"id": source_id, "items": items, "error": None,
+                "warning": diag.get("warning"), "updated_at": _now_iso()}
     except Exception as e:
         return {"id": source_id, "items": [], "error": f"{type(e).__name__}: {e}",
-                "updated_at": _now_iso()}
+                "warning": diag.get("warning"), "updated_at": _now_iso()}
 
 
 def fetch_all(sources_config: list) -> list:
