@@ -12,10 +12,14 @@ token / chat_id 来源 (优先级):
 用法:
     python3 tg_notify.py "消息内容"
     python3 tg_notify.py --stdin   # 从 stdin 读消息 (支持多行)
-    python3 tg_notify.py --daily-report cloud-sync/ai-news.json [--extra "附加告警行"]...
+    python3 tg_notify.py --daily-report cloud-sync/ai-news.json \
+        [--extra "附加告警行"]... [--extra-file <path>]...
         # 从 ai-news.json 程序化生成 §2.7 日报消息并发送.
         # agent 手拼消息会随机漏掉 github_alert 条件行 (2026-07-09 实际漏过),
-        # 所以拼装收进脚本; --extra 可重复, 用于 push 验证失败等附加告警.
+        # 所以拼装收进脚本; --extra 可重复, 用于附加告警.
+        # --extra-file: 文件存在则逐行读为告警行 (空行跳过), 不存在静默跳过——
+        # 让 §2.7 的调用命令永远同一条, push 验证失败的告警由 §2.6.1 写文件传递,
+        # 不依赖 agent 记得改命令. 本脚本不删该文件 (发送失败重试时告警不能丢).
 
 退出码: 0 成功, 非 0 失败. 脚本不会把 token 写到任何输出.
 """
@@ -90,6 +94,10 @@ GITHUB_DIMS = ("daily", "weekly", "monthly", "total")
 def build_daily_report(json_path: str, extra_lines: list) -> str:
     with open(json_path, "r", encoding="utf-8") as f:
         data = json.load(f)
+    return build_daily_report_from_data(data, extra_lines)
+
+
+def build_daily_report_from_data(data: dict, extra_lines: list) -> str:
     pm = data.get("pipeline_metrics") or {}
     sources = data.get("sources") or []
 
@@ -134,15 +142,22 @@ def main() -> int:
         return 1
     if sys.argv[1] == "--daily-report":
         if len(sys.argv) < 3:
-            print("usage: tg_notify.py --daily-report <ai-news.json> [--extra <line>]...", file=sys.stderr)
+            print("usage: tg_notify.py --daily-report <ai-news.json> "
+                  "[--extra <line>]... [--extra-file <path>]...", file=sys.stderr)
             return 1
         extra_lines = []
         rest = sys.argv[3:]
         while rest:
-            if rest[0] != "--extra" or len(rest) < 2:
+            if rest[0] == "--extra" and len(rest) >= 2:
+                extra_lines.append(rest[1])
+            elif rest[0] == "--extra-file" and len(rest) >= 2:
+                if os.path.exists(rest[1]):
+                    with open(rest[1], "r", encoding="utf-8") as f:
+                        extra_lines.extend(
+                            ln.strip() for ln in f if ln.strip())
+            else:
                 print(f"unexpected arg: {rest[0]}", file=sys.stderr)
                 return 1
-            extra_lines.append(rest[1])
             rest = rest[2:]
         try:
             text = build_daily_report(sys.argv[2], extra_lines)

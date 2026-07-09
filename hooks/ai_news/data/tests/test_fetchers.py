@@ -235,7 +235,7 @@ class TestTrendingRetryAndJinaFallback(unittest.TestCase):
         F._fetch = fake
         out = F.fetch_github_trending_rss("daily")
         self.assertEqual(out[0]["title"], "a/b")
-        self.assertEqual(len(calls), 3)  # 前两轮超时, 第三轮成功
+        self.assertEqual(len(calls), 3)  # round1 RSS 超时 → jina 超时 → round2 RSS 成功
 
     def test_rsshub_dead_falls_back_to_jina(self):
         def fake(url, headers=None, timeout=None):

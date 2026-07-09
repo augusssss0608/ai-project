@@ -335,10 +335,10 @@ def fetch_github_trending_rss(since: str, limit: int = 25) -> list:
     返回按名次排列的 list, 每条: {title(full_name), url, desc, ts, lang, stars, total_stars_int}.
 
     某实例"HTTP 200 但空 RSS"(RSSHub 缓存未命中) 会解析出 0 条却不抛异常, 若就此返回空,
-    上层覆盖写会把上一轮该维度的好数据抹成 0. 故空 feed 按失败处理; 整轮实例失败后歇
-    TRENDING_RETRY_PAUSE 秒重试 (超时的请求已触发 RSSHub 写缓存, 重试大概率命中), 共
-    TRENDING_ATTEMPTS 轮; 仍无数据再走 fetch_github_trending_jina 兜底; 连兜底都拿不到
-    item 才抛出 (带每步失败原因), 让"为什么空"能传到 source.warning/error.
+    上层覆盖写会把上一轮该维度的好数据抹成 0. 故空 feed 按失败处理. 失败链按 wall time
+    最优交错: 第 1 轮实例失败 → 先试 Jina 兜底 (RSSHub 死透时不用陪跑满 3 轮) → 再歇
+    TRENDING_RETRY_PAUSE 秒重试剩余轮次 (第 1 轮的超时请求已触发 RSSHub 写缓存, 重试
+    大概率命中). 全链失败才抛出 (带每步失败原因), 让"为什么空"能传到 source.warning/error.
     """
     import xml.etree.ElementTree as ET
     path = f"/github/trending/{since}/any"
@@ -347,6 +347,19 @@ def fetch_github_trending_rss(since: str, limit: int = 25) -> list:
     def _note(msg):
         if msg not in attempts:
             attempts.append(msg)
+
+    def _try_jina():
+        try:
+            items = fetch_github_trending_jina(since, limit)
+        except Exception as e:
+            _note(f"jina兜底: 请求失败 {type(e).__name__}: {e}")
+            return None
+        if items:
+            print(f"[ai-news] github trending [{since}]: RSSHub 失败, Jina 兜底成功 "
+                  f"({len(items)} 条)", file=sys.stderr)
+            return items
+        _note("jina兜底: 解析 0 条")
+        return None
 
     for round_no in range(TRENDING_ATTEMPTS):
         if round_no:
@@ -366,17 +379,10 @@ def fetch_github_trending_rss(since: str, limit: int = 25) -> list:
             if items:
                 return items
             _note(f"{base}: 空 feed (0 items)")
-
-    try:
-        items = fetch_github_trending_jina(since, limit)
-    except Exception as e:
-        _note(f"jina兜底: 请求失败 {type(e).__name__}: {e}")
-    else:
-        if items:
-            print(f"[ai-news] github trending [{since}]: RSSHub 全失败, Jina 兜底成功 "
-                  f"({len(items)} 条)", file=sys.stderr)
-            return items
-        _note("jina兜底: 解析 0 条")
+        if round_no == 0:
+            got = _try_jina()
+            if got:
+                return got
     raise RuntimeError(f"RSSHub trending [{since}] 所有实例无数据: " + " | ".join(attempts))
 
 
