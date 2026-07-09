@@ -6,6 +6,7 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.request
 import urllib.error
 from datetime import datetime, timezone, timedelta
@@ -94,10 +95,18 @@ GITHUB_TRENDING_URL_TPL = "https://github.com/trending?since={since}"
 
 # github.com/trending 是 HTML 页面且无官方 API, 对机房 IP 常年 403; 云端 routine 走 RSSHub
 # 取真实 trending 榜单. RSS 只含总 star, 不含"本期新增 star", 故排序改用 trending 名次 (见 *_rank).
+# rsshub.app 已被官方永久限制程序化访问 (403 + 声明"仅供测试, 建议自建", 2026-07-09 确认), 不要加回来.
+# 公共实例的 trending 路由普遍死于 GitHub 封机房 IP (2026-07-09 抽测 4 个全灭), 增补前先实测.
 RSSHUB_INSTANCES = (
     "https://rsshub.rssforever.com",
-    "https://rsshub.app",
 )
+
+# RSSHub trending 冷响应 (缓存未命中现爬 github) 实测 4-6s, 实例降级时更久, 12s 超时太紧
+# (2026-07-09 daily 维度因此整维度空). 超时的请求会触发 RSSHub 后台爬取并写缓存,
+# 歇几秒重试大概率直接命中刚写好的缓存, 所以重试对这种死法特别有效.
+TRENDING_TIMEOUT = 20
+TRENDING_ATTEMPTS = 3
+TRENDING_RETRY_PAUSE = 5
 
 
 class _TrendingParser(HTMLParser):
@@ -225,6 +234,20 @@ def _jina_repo_desc(raw: str, full_name: str) -> str:
     return (m.group(1).strip() if m else "")[:200]
 
 
+def _fetch_jina(target_url: str, timeout: int = 25) -> str:
+    """走 Jina Reader 代理抓取, 返回渲染后的 markdown 文本.
+
+    匿名访问共享公共池: 任何人滥用某域名, Jina 会连坐封禁所有匿名用户对该域名的访问
+    (2026-07-09 对 github.com 实际发生). 配 JINA_API_KEY env var 走专属配额, 不受连坐影响.
+    """
+    headers = {}
+    key = os.environ.get("JINA_API_KEY", "").strip()
+    if key:
+        headers["Authorization"] = "Bearer " + key
+    return _fetch(JINA_READER_PREFIX + target_url,
+                  headers=headers, timeout=timeout).decode("utf-8", "ignore")
+
+
 def fetch_github_search(params: dict) -> list:
     """全站 Claude 生态仓库按总 star 排 (total 维度), 走 Jina 代理 github.com/search.
 
@@ -249,7 +272,7 @@ def fetch_github_search(params: dict) -> list:
                   + _up.quote(f"{q} stars:>={min_stars}")
                   + f"&type=repositories&s=stars&o=desc&p={p}")
             try:
-                raw = _fetch(JINA_READER_PREFIX + gh, timeout=25).decode("utf-8", "ignore")
+                raw = _fetch_jina(gh)
             except Exception:
                 continue
             for m in _JINA_STARGAZER_RE.finditer(raw):
@@ -305,35 +328,85 @@ def _parse_trending_rss_items(root, limit: int) -> list:
 
 
 def fetch_github_trending_rss(since: str, limit: int = 25) -> list:
-    """从 RSSHub 抓 GitHub trending (since = daily/weekly/monthly).
+    """从 RSSHub 抓 GitHub trending (since = daily/weekly/monthly), 全失败时 Jina 兜底.
 
     GitHub 无官方 trending API, HTML 页面对机房 IP 返 403, 故走 RSSHub.
     RSS 条目已按 GitHub trending 名次排序; 只含总 star, 无"本期新增 star".
     返回按名次排列的 list, 每条: {title(full_name), url, desc, ts, lang, stars, total_stars_int}.
 
     某实例"HTTP 200 但空 RSS"(RSSHub 缓存未命中) 会解析出 0 条却不抛异常, 若就此返回空,
-    上层覆盖写会把上一轮该维度的好数据抹成 0. 故空 feed 按失败处理, 换下一个实例; 所有实例
-    都拿不到 item 才抛出 (带每个实例的失败原因), 让"为什么空"能传到 source.warning/error.
+    上层覆盖写会把上一轮该维度的好数据抹成 0. 故空 feed 按失败处理; 整轮实例失败后歇
+    TRENDING_RETRY_PAUSE 秒重试 (超时的请求已触发 RSSHub 写缓存, 重试大概率命中), 共
+    TRENDING_ATTEMPTS 轮; 仍无数据再走 fetch_github_trending_jina 兜底; 连兜底都拿不到
+    item 才抛出 (带每步失败原因), 让"为什么空"能传到 source.warning/error.
     """
     import xml.etree.ElementTree as ET
     path = f"/github/trending/{since}/any"
     attempts = []
-    for base in RSSHUB_INSTANCES:
-        try:
-            raw = _fetch(base + path)
-        except Exception as e:
-            attempts.append(f"{base}: 请求失败 {type(e).__name__}: {e}")
-            continue
-        try:
-            root = ET.fromstring(raw)
-        except Exception as e:
-            attempts.append(f"{base}: 解析失败 {type(e).__name__}: {e}")
-            continue
-        items = _parse_trending_rss_items(root, limit)
+
+    def _note(msg):
+        if msg not in attempts:
+            attempts.append(msg)
+
+    for round_no in range(TRENDING_ATTEMPTS):
+        if round_no:
+            time.sleep(TRENDING_RETRY_PAUSE)
+        for base in RSSHUB_INSTANCES:
+            try:
+                raw = _fetch(base + path, timeout=TRENDING_TIMEOUT)
+            except Exception as e:
+                _note(f"{base}: 请求失败 {type(e).__name__}: {e}")
+                continue
+            try:
+                root = ET.fromstring(raw)
+            except Exception as e:
+                _note(f"{base}: 解析失败 {type(e).__name__}: {e}")
+                continue
+            items = _parse_trending_rss_items(root, limit)
+            if items:
+                return items
+            _note(f"{base}: 空 feed (0 items)")
+
+    try:
+        items = fetch_github_trending_jina(since, limit)
+    except Exception as e:
+        _note(f"jina兜底: 请求失败 {type(e).__name__}: {e}")
+    else:
         if items:
+            print(f"[ai-news] github trending [{since}]: RSSHub 全失败, Jina 兜底成功 "
+                  f"({len(items)} 条)", file=sys.stderr)
             return items
-        attempts.append(f"{base}: 空 feed (0 items)")
+        _note("jina兜底: 解析 0 条")
     raise RuntimeError(f"RSSHub trending [{since}] 所有实例无数据: " + " | ".join(attempts))
+
+
+def fetch_github_trending_jina(since: str, limit: int = 25) -> list:
+    """Jina 代理爬 github.com/trending 页, RSSHub 全失败时的兜底.
+
+    机房 IP 直连 github.com 被封, 但由 Jina 侧抓取不受限 (与 total 维度同一条路).
+    解析锚点复用 stargazers 正则, 页面出现顺序即 trending 名次; lang 拿不到留空
+    (前端仅少个语言徽章). 返回 item 结构与 _parse_trending_rss_items 对齐.
+    """
+    raw = _fetch_jina(GITHUB_TRENDING_URL_TPL.format(since=since))
+    items, seen = [], set()
+    for m in _JINA_STARGAZER_RE.finditer(raw):
+        full_name = m.group(2)
+        if full_name in seen:
+            continue
+        seen.add(full_name)
+        stars_n = _parse_int_compact(m.group(1))
+        items.append({
+            "title": full_name,
+            "url": f"https://github.com/{full_name}",
+            "desc": _jina_repo_desc(raw, full_name),
+            "ts": _now_iso(),
+            "lang": "",
+            "stars": f"{stars_n:,}",
+            "total_stars_int": stars_n,
+        })
+        if len(items) >= limit:
+            break
+    return items
 
 
 def fetch_github_trending_multi(params: dict) -> list:

@@ -1,3 +1,4 @@
+import os
 import unittest
 import ai_news.data.fetchers as F
 from ai_news.data.fetchers import _TrendingParser
@@ -44,9 +45,12 @@ class TestTrendingRssEmptyFeedRetry(unittest.TestCase):
     def setUp(self):
         self._fetch = F._fetch
         self._inst = F.RSSHUB_INSTANCES
+        self._pause = F.TRENDING_RETRY_PAUSE
+        F.TRENDING_RETRY_PAUSE = 0
 
     def tearDown(self):
         F._fetch, F.RSSHUB_INSTANCES = self._fetch, self._inst
+        F.TRENDING_RETRY_PAUSE = self._pause
 
     def test_empty_first_instance_falls_through_to_second(self):
         F.RSSHUB_INSTANCES = ("https://a", "https://b")
@@ -193,6 +197,103 @@ class TestGithubSearch(unittest.TestCase):
         F._fetch = lambda url, headers=None, timeout=25: b"no results here"
         self.assertEqual(
             F.fetch_github_search({"queries": ["claude"], "pages": 1}), [])
+
+
+class TestTrendingRetryAndJinaFallback(unittest.TestCase):
+    """主源抖动按轮重试, RSSHub 全失败时走 Jina 兜底, 兜底也挂才抛错."""
+
+    _TRENDING_MD = (
+        "[owner1/hot-repo](https://github.com/owner1/hot-repo)\n\n"
+        "Hottest repo today.\n\n"
+        "[1.2k](https://github.com/owner1/hot-repo/stargazers)\n\n"
+        "[owner2 / cool-repo](https://github.com/owner2/cool-repo)\n\n"
+        "[3,400](https://github.com/owner2/cool-repo/stargazers)\n"
+    )
+
+    def setUp(self):
+        self._fetch = F._fetch
+        self._inst = F.RSSHUB_INSTANCES
+        self._pause = F.TRENDING_RETRY_PAUSE
+        F.RSSHUB_INSTANCES = ("https://a",)
+        F.TRENDING_RETRY_PAUSE = 0
+
+    def tearDown(self):
+        F._fetch = self._fetch
+        F.RSSHUB_INSTANCES = self._inst
+        F.TRENDING_RETRY_PAUSE = self._pause
+
+    def test_timeout_then_retry_succeeds(self):
+        calls = []
+
+        def fake(url, headers=None, timeout=None):
+            calls.append(url)
+            if len(calls) < 3:
+                raise TimeoutError("The read operation timed out")
+            return _rss_xml(["a/b"])
+        F._fetch = fake
+        out = F.fetch_github_trending_rss("daily")
+        self.assertEqual(out[0]["title"], "a/b")
+        self.assertEqual(len(calls), 3)  # 前两轮超时, 第三轮成功
+
+    def test_rsshub_dead_falls_back_to_jina(self):
+        def fake(url, headers=None, timeout=None):
+            if url.startswith("https://a"):
+                raise TimeoutError("The read operation timed out")
+            return self._TRENDING_MD.encode()
+        F._fetch = fake
+        out = F.fetch_github_trending_rss("daily")
+        # 页面出现顺序即榜单名次
+        self.assertEqual([it["title"] for it in out],
+                         ["owner1/hot-repo", "owner2/cool-repo"])
+        self.assertEqual(out[0]["total_stars_int"], 1200)
+        self.assertEqual(out[0]["desc"], "Hottest repo today.")
+        self.assertEqual(out[1]["total_stars_int"], 3400)
+
+    def test_rsshub_and_jina_all_dead_raises_with_reasons(self):
+        def fake(url, headers=None, timeout=None):
+            raise TimeoutError("The read operation timed out")
+        F._fetch = fake
+        with self.assertRaises(RuntimeError) as ctx:
+            F.fetch_github_trending_rss("daily")
+        self.assertIn("jina兜底", str(ctx.exception))
+        self.assertIn("TimeoutError", str(ctx.exception))
+
+
+class TestJinaKeyHeader(unittest.TestCase):
+    """JINA_API_KEY 存在时带 Bearer 头 (专属配额), 不存在时匿名."""
+
+    def setUp(self):
+        self._fetch = F._fetch
+        self._key = os.environ.pop("JINA_API_KEY", None)
+
+    def tearDown(self):
+        F._fetch = self._fetch
+        if self._key is not None:
+            os.environ["JINA_API_KEY"] = self._key
+        else:
+            os.environ.pop("JINA_API_KEY", None)
+
+    def _capture(self):
+        seen = {}
+
+        def fake(url, headers=None, timeout=None):
+            seen["url"] = url
+            seen["headers"] = dict(headers or {})
+            return b"x"
+        F._fetch = fake
+        return seen
+
+    def test_with_key_sends_bearer(self):
+        seen = self._capture()
+        os.environ["JINA_API_KEY"] = "jina_test123"
+        F._fetch_jina("https://github.com/trending?since=daily")
+        self.assertEqual(seen["headers"].get("Authorization"), "Bearer jina_test123")
+        self.assertTrue(seen["url"].startswith("https://r.jina.ai/"))
+
+    def test_without_key_anonymous(self):
+        seen = self._capture()
+        F._fetch_jina("https://github.com/trending?since=daily")
+        self.assertNotIn("Authorization", seen["headers"])
 
 
 if __name__ == "__main__":

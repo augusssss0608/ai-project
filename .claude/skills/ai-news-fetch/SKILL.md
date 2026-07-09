@@ -12,7 +12,7 @@ description: AI 大事每日抓取 + 评分 + 摘要 + 分析 + 写入 + git pus
 调度由 Routines cron 接管 (推荐 `0 1 * * *` UTC = 10:00 JST). 不再走 /loop / ScheduleWakeup, sentinel 文件机制也已废弃.
 
 环境前置 (Routine environment 必须设好, 缺一不可):
-- env vars: `GITHUB_PAT` (fine-grained, 仅 ai-project + Contents:RW), `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `THREADS_SESSION_JSON` (压成单行的 .threads-session.json 内容)
+- env vars: `GITHUB_PAT` (fine-grained, 仅 ai-project + Contents:RW), `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `THREADS_SESSION_JSON` (压成单行的 .threads-session.json 内容), `JINA_API_KEY` (github total 维度与 trending 兜底都走 r.jina.ai; 匿名池会被其他用户的滥用连坐封禁 github.com, 带 key 走专属配额不受影响. 仓库是公开的, key 不能写进代码)
 - network allowlist: 至少 `github.com`, `api.telegram.org`, `www.threads.com`, 各源 RSS / API endpoint
 - sources: `git_repository` 绑 `https://github.com/augusssss0608/ai-project`
 - outcomes: `branches: ["main"]` — 这项配错成工作分支名时, cloud session 会注入"只准推该工作分支"的指令, 数据就滞留在 epic 分支上不了 main (2026-07-09 曾因配成 `["claude/epic-goodall"]` 实际发生, 已修正; 改 routine 配置用 RemoteTrigger update)
