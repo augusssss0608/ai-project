@@ -12,6 +12,10 @@ token / chat_id 来源 (优先级):
 用法:
     python3 tg_notify.py "消息内容"
     python3 tg_notify.py --stdin   # 从 stdin 读消息 (支持多行)
+    python3 tg_notify.py --daily-report cloud-sync/ai-news.json [--extra "附加告警行"]...
+        # 从 ai-news.json 程序化生成 §2.7 日报消息并发送.
+        # agent 手拼消息会随机漏掉 github_alert 条件行 (2026-07-09 实际漏过),
+        # 所以拼装收进脚本; --extra 可重复, 用于 push 验证失败等附加告警.
 
 退出码: 0 成功, 非 0 失败. 脚本不会把 token 写到任何输出.
 """
@@ -80,11 +84,72 @@ def send_message(text: str) -> None:
         raise RuntimeError(f"api: {desc}")
 
 
+GITHUB_DIMS = ("daily", "weekly", "monthly", "total")
+
+
+def build_daily_report(json_path: str, extra_lines: list) -> str:
+    with open(json_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    pm = data.get("pipeline_metrics") or {}
+    sources = data.get("sources") or []
+
+    def count(sid: str) -> int:
+        by_metrics = (pm.get("sources") or {}).get(sid)
+        if by_metrics is not None:
+            return by_metrics
+        return next((len(s.get("items") or []) for s in sources if s.get("id") == sid), 0)
+
+    total = pm.get("total_items")
+    if total is None:
+        total = sum(len(s.get("items") or []) for s in sources)
+    dedup = pm.get("dedup") or pm.get("dedupe") or {}
+    stages = data.get("stage_by_source") or {}
+    lines = [
+        f"[ai-news] 已刷新 {total} 则 · 去重 {dedup.get('suppressed_total', 0)} 条",
+        f"HN {count('hackernews')} · GitHub {count('github_trending')} · Threads {count('threads')}",
+        "阶段: HN {} · GitHub {} · Threads {}".format(
+            *(stages.get(sid, "?") for sid in ("hackernews", "github_trending", "threads"))
+        ),
+    ]
+    gh = next((s for s in sources if s.get("id") == "github_trending"), {})
+    dim_counts = {d: 0 for d in GITHUB_DIMS}
+    for it in gh.get("items") or []:
+        if it.get("dimension") in dim_counts:
+            dim_counts[it["dimension"]] += 1
+    zero_dims = [d for d in GITHUB_DIMS if dim_counts[d] == 0]
+    if zero_dims:
+        lines.append("⚠️ GitHub 维度空: " + " · ".join(zero_dims))
+    if gh.get("error"):
+        lines.append("⚠️ GitHub 抓取错误: " + str(gh["error"])[:120])
+    if gh.get("warning"):
+        lines.append("⚠️ GitHub " + str(gh["warning"])[:120])
+    lines.extend(extra_lines)
+    lines.append("dashboard: http://localhost:38080/#news")
+    return "\n".join(lines)
+
+
 def main() -> int:
     if len(sys.argv) < 2:
-        print("usage: tg_notify.py <text>    or    tg_notify.py --stdin", file=sys.stderr)
+        print("usage: tg_notify.py <text> | --stdin | --daily-report <ai-news.json> [--extra <line>]...", file=sys.stderr)
         return 1
-    if sys.argv[1] == "--stdin":
+    if sys.argv[1] == "--daily-report":
+        if len(sys.argv) < 3:
+            print("usage: tg_notify.py --daily-report <ai-news.json> [--extra <line>]...", file=sys.stderr)
+            return 1
+        extra_lines = []
+        rest = sys.argv[3:]
+        while rest:
+            if rest[0] != "--extra" or len(rest) < 2:
+                print(f"unexpected arg: {rest[0]}", file=sys.stderr)
+                return 1
+            extra_lines.append(rest[1])
+            rest = rest[2:]
+        try:
+            text = build_daily_report(sys.argv[2], extra_lines)
+        except Exception as e:
+            print(f"build daily report failed: {type(e).__name__}: {e}", file=sys.stderr)
+            return 2
+    elif sys.argv[1] == "--stdin":
         text = sys.stdin.read()
     else:
         text = sys.argv[1]
