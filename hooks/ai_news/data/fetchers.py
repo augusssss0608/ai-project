@@ -395,12 +395,25 @@ def fetch_github_trending_jina(since: str, limit: int = 25) -> list:
             continue
         seen.add(full_name)
         stars_n = _parse_int_compact(m.group(1))
+        # 渲染形如: "## [owner / repo](https://github.com/o/r)\n\n描述行\n\nPython[74,684](.../stargazers)"
+        # lang = stargazers 链接所在行的行首文本; desc = 标题锚点到该行之间的首个非空行
+        # (标题链接文本带空格 "owner / repo", 不能用 _jina_repo_desc 的精确匹配)
+        line_start = raw.rfind("\n", 0, m.start()) + 1
+        lang = raw[line_start:m.start()].strip()
+        anchor = f"](https://github.com/{full_name})"
+        a = raw.rfind(anchor, 0, m.start())
+        desc = ""
+        if a != -1:
+            for ln in raw[a + len(anchor):line_start].splitlines():
+                if ln.strip():
+                    desc = ln.strip()[:200]
+                    break
         items.append({
             "title": full_name,
             "url": f"https://github.com/{full_name}",
-            "desc": _jina_repo_desc(raw, full_name),
+            "desc": desc,
             "ts": _now_iso(),
-            "lang": "",
+            "lang": lang,
             "stars": f"{stars_n:,}",
             "total_stars_int": stars_n,
         })

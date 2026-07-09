@@ -202,11 +202,13 @@ class TestGithubSearch(unittest.TestCase):
 class TestTrendingRetryAndJinaFallback(unittest.TestCase):
     """主源抖动按轮重试, RSSHub 全失败时走 Jina 兜底, 兜底也挂才抛错."""
 
+    # 按 Jina 真实渲染形状 (2026-07-09 实测): 标题链接文本带空格, lang 紧贴 stargazers 链接行首
     _TRENDING_MD = (
-        "[owner1/hot-repo](https://github.com/owner1/hot-repo)\n\n"
+        "## [owner1 / hot-repo](https://github.com/owner1/hot-repo)\n\n"
         "Hottest repo today.\n\n"
-        "[1.2k](https://github.com/owner1/hot-repo/stargazers)\n\n"
-        "[owner2 / cool-repo](https://github.com/owner2/cool-repo)\n\n"
+        "Python[1.2k](https://github.com/owner1/hot-repo/stargazers)"
+        "[33](https://github.com/owner1/hot-repo/forks) Built by\n\n"
+        "## [owner2 / cool-repo](https://github.com/owner2/cool-repo)\n\n"
         "[3,400](https://github.com/owner2/cool-repo/stargazers)\n"
     )
 
@@ -247,7 +249,10 @@ class TestTrendingRetryAndJinaFallback(unittest.TestCase):
                          ["owner1/hot-repo", "owner2/cool-repo"])
         self.assertEqual(out[0]["total_stars_int"], 1200)
         self.assertEqual(out[0]["desc"], "Hottest repo today.")
+        self.assertEqual(out[0]["lang"], "Python")
         self.assertEqual(out[1]["total_stars_int"], 3400)
+        self.assertEqual(out[1]["desc"], "")   # 无描述仓库不误吞后续行
+        self.assertEqual(out[1]["lang"], "")
 
     def test_rsshub_and_jina_all_dead_raises_with_reasons(self):
         def fake(url, headers=None, timeout=None):
