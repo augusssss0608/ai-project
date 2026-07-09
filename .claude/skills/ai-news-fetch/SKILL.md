@@ -506,11 +506,16 @@ git diff --cached --quiet && echo "no changes to commit" || (
 # push 后强制验证: main 必须已包含本次 commit, 否则视为 push 失败.
 # 失败时把告警写进固定路径文件, §2.7 的固定命令用 --extra-file 自动带出——
 # 不靠 agent 记得改 TG 命令 (prose 要求 agent 条件性改命令这条路 07-09 已经失灵过一次)
-git fetch origin main --quiet
-git merge-base --is-ancestor HEAD origin/main \
-  && echo "PUSH_VERIFIED: main 已包含本次数据" \
-  || { echo "PUSH_NOT_ON_MAIN: 数据未上 main"; \
-       echo "⚠️ 数据未上 main, 滞留分支: $(git rev-parse --abbrev-ref HEAD)" > /tmp/ai-news-push-alert.txt; }
+# 对比 FETCH_HEAD 而非 origin/main: 云端是单分支 clone, `git fetch origin main` 不保证
+# 刷新 refs/remotes/origin/main (甚至可能不存在), 拿旧值会对成功的 push 发假告警
+if git fetch origin main --quiet; then
+  git merge-base --is-ancestor HEAD FETCH_HEAD \
+    && echo "PUSH_VERIFIED: main 已包含本次数据" \
+    || { echo "PUSH_NOT_ON_MAIN: 数据未上 main"; \
+         echo "⚠️ 数据未上 main, 滞留分支: $(git rev-parse --abbrev-ref HEAD)" > /tmp/ai-news-push-alert.txt; }
+else
+  echo "⚠️ push 验证失败: fetch origin main 不通, 请人工核对数据是否上 main" > /tmp/ai-news-push-alert.txt
+fi
 ```
 
 **关键约束**:
