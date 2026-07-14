@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-13T15:26:12+09:00",
+  "updated_at": "2026-07-14T14:51:45+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -2438,10 +2438,6 @@
       "ts": "2026-07-06T14:06:50+09:00",
       "source": "github_trending"
     },
-    "https://github.com/NVIDIA/SkillSpector": {
-      "ts": "2026-07-07T14:29:56+09:00",
-      "source": "github_trending"
-    },
     "https://github.com/openai/codex-plugin-cc": {
       "ts": "2026-07-09T13:57:25+09:00",
       "source": "github_trending"
@@ -2510,28 +2506,8 @@
       "ts": "2026-07-09T15:16:38+09:00",
       "source": "github_trending"
     },
-    "https://systima.ai/blog/claude-code-vs-opencode-token-overhead": {
-      "ts": "2026-07-13T11:34:23+09:00",
-      "source": "hackernews"
-    },
-    "https://gist.github.com/cereblab/dc9a40bc26120f4540e4e09b75ffb547": {
-      "ts": "2026-07-13T15:24:19+09:00",
-      "source": "hackernews"
-    },
-    "https://terrytao.wordpress.com/2026/07/11/old-and-new-apps-via-modern-coding-agents/": {
-      "ts": "2026-07-13T15:24:22+09:00",
-      "source": "hackernews"
-    },
     "https://github.com/wonderwhy-er/DesktopCommanderMCP": {
       "ts": "2026-07-13T15:24:24+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/anthropics/claude-cookbooks": {
-      "ts": "2026-07-13T15:24:27+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/davila7/claude-code-templates": {
-      "ts": "2026-07-13T15:24:29+09:00",
       "source": "github_trending"
     },
     "https://github.com/Nutlope/hallmark": {
@@ -2542,68 +2518,68 @@
       "ts": "2026-07-13T15:24:36+09:00",
       "source": "github_trending"
     },
-    "https://github.com/alirezarezvani/claude-skills": {
-      "ts": "2026-07-13T15:24:37+09:00",
+    "https://twitter.com/a_green_being/status/2076598897779020159": {
+      "ts": "2026-07-14T14:49:37+09:00",
+      "source": "hackernews"
+    },
+    "https://raymyers.org/post/zed-creator-calls-spade-a-spade/": {
+      "ts": "2026-07-14T14:50:49+09:00",
+      "source": "hackernews"
+    },
+    "https://news.ycombinator.com/item?id=48886741": {
+      "ts": "2026-07-14T14:50:50+09:00",
+      "source": "hackernews"
+    },
+    "https://github.com/coreyhaines31/marketingskills": {
+      "ts": "2026-07-14T14:50:53+09:00",
       "source": "github_trending"
     },
-    "https://github.com/ChromeDevTools/chrome-devtools-mcp": {
-      "ts": "2026-07-13T15:24:40+09:00",
-      "source": "github_trending"
-    },
-    "https://www.threads.com/@cyh.289/post/DatB7mIkz-9": {
-      "ts": "2026-07-13T15:24:43+09:00",
+    "https://www.threads.com/@mileson007/post/DawYNXnlKC8": {
+      "ts": "2026-07-14T14:50:56+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@aiposthub/post/DatD189AaFd": {
-      "ts": "2026-07-13T15:24:57+09:00",
+    "https://www.threads.com/@yrzheee/post/DauZNMBkUAO": {
+      "ts": "2026-07-14T14:51:18+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@aiposthub/post/Dasn7PdAQfW": {
-      "ts": "2026-07-13T15:25:07+09:00",
+    "https://www.threads.com/@iluciddreaming/post/Davt3bZgRGY": {
+      "ts": "2026-07-14T14:51:20+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@be.ai.curator/post/Daty6q5D1fB": {
-      "ts": "2026-07-13T15:25:12+09:00",
+    "https://www.threads.com/@el_howeed/post/DawTGQhH8Fl": {
+      "ts": "2026-07-14T14:51:23+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@el_howeed/post/Darw513Dy-L": {
-      "ts": "2026-07-13T15:25:19+09:00",
+    "https://www.threads.com/@tripleh.ai/post/DawXzjxCToO": {
+      "ts": "2026-07-14T14:51:24+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@aiposthub/post/Dari0p0gbtW": {
-      "ts": "2026-07-13T15:25:21+09:00",
+    "https://www.threads.com/@aiposthub/post/Dauwj_7kjcf": {
+      "ts": "2026-07-14T14:51:27+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@hana_yukii_16/post/Das6PmgGPWR": {
-      "ts": "2026-07-13T15:25:23+09:00",
+    "https://www.threads.com/@push0730/post/DauJsmEAbl-": {
+      "ts": "2026-07-14T14:51:30+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@catalina.ai.workflow/post/DateMklCuzi": {
-      "ts": "2026-07-13T15:25:29+09:00",
+    "https://www.threads.com/@rj02.17/post/DauV4uiFBMw": {
+      "ts": "2026-07-14T14:51:37+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@baraggan_louisenbairn02/post/DasLNOpkbvA": {
-      "ts": "2026-07-13T15:25:35+09:00",
+    "https://www.threads.com/@tiaken_ti_langalu/post/Dau-g12n2iC": {
+      "ts": "2026-07-14T14:51:39+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@sliven0722/post/DasWrbpCKKq": {
-      "ts": "2026-07-13T15:25:48+09:00",
+    "https://www.threads.com/@enskylin/post/Dat3x6rARqx": {
+      "ts": "2026-07-14T14:51:41+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@ekcheungai/post/DarbrejjDhQ": {
-      "ts": "2026-07-13T15:25:51+09:00",
+    "https://www.threads.com/@tysys1955/post/Dau7gqWk7Lw": {
+      "ts": "2026-07-14T14:51:42+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@fagem.x/post/DaswtRckoRz": {
-      "ts": "2026-07-13T15:26:00+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@devsolo.secc/post/DaskiRrEw2K": {
-      "ts": "2026-07-13T15:26:10+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@bobbyjoe640/post/DasKguNlmPe": {
-      "ts": "2026-07-13T15:26:12+09:00",
+    "https://www.threads.com/@nyanako0129/post/DavlVDDGLIv": {
+      "ts": "2026-07-14T14:51:45+09:00",
       "source": "threads"
     }
   }
