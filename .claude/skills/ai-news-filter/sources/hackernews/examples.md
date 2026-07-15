@@ -1,18 +1,36 @@
 # 正例 (用户标记有帮助)
+- [2026-05-18] Zerostack – A Unix-inspired coding agent written in pure Rust — https://crates.io/crates/zerostack/1.0.0
+- [2026-05-20] I've joined Anthropic (Karpathy) — https://twitter.com/karpathy/status/2056753169888334312
+- [2026-05-20] Gemini 3.5 Flash — https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-5/
+- [2026-05-21] Qwen3.7-Max: The Agent Frontier — https://qwen.ai/blog?id=qwen3.7
+- [2026-05-25] Microsoft starts canceling Claude Code licenses — https://www.theverge.com/tech/930447/microsoft-claude-code-discontinued-notepad
+- [2026-05-26] Constraint Decay: The Fragility of LLM Agents in Back End Code Generation — https://arxiv.org/abs/2605.06445
+- [2026-05-26] Claude is not your architect. Stop letting it pretend — https://www.hollandtech.net/claude-is-not-your-architect/
 - [2026-05-29] Claude Opus 4.8 — https://www.anthropic.com/news/claude-opus-4-8
 - [2026-06-17] Qwen-Robot Suite: A Foundation Model Suite for Physical World Intelligence — https://qwen.ai/blog?id=qwen-robotsuite
+- [2026-07-09] Grok 4.5 — https://x.ai/news/grok-4-5
+- [2026-07-09] GPT‑Live — https://openai.com/index/introducing-gpt-live/
 
 # 负例 (展示过但未点赞, >= 7 天)
 - [2026-06-02] AI Agent Guidelines for CS336 at Stanford — https://github.com/stanford-cs336/assignment1-basics/blob/main/CLAUDE.md
 - [2026-06-02] Anthropic confidentially submits draft S-1 to the SEC — https://www.anthropic.com/news/confidential-draft-s1-sec
 - [2026-06-03] Can the stockmarket swallow Anthropic, SpaceX and OpenAI? — https://www.economist.com/finance-and-economics/2026/06/01/can-the-stockmarket-swallow-anthropic-spacex-and-openai
-- [2026-06-03] Adafruit receives demand letter from Fenwick legal counsel on behalf of Flux.ai — https://blog.adafruit.com/
 - [2026-06-11] German ruling declares Google liable for false answers in AI Overviews — https://the-decoder.com/landmark-german-ruling-declares-googles-ai-overviews-are-googles-own-words-and-makes-it-liable-for-false-answers/
 - [2026-06-11] CEOs who think AI replaces their employees are just bad CEOs — https://www.techdirt.com/2026/06/09/ceos-who-think-ai-replaces-their-employees-are-just-bad-ceos/
 - [2026-06-15] Not everyone is using AI for everything — https://gabrielweinberg.com/p/people-are-consuming-ai-like-they
-- [2026-06-15] Police officer investigated for using AI to — https://news.sky.com/story/derbyshire-police-officer-investigated-for-using-ai-to-create-evidence-in-multiple-cases-13553661
 - [2026-06-17] GPT-NL: a sovereign language model for the Netherlands — https://www.tno.nl/en/digital/artificial-intelligence/gpt-nl/
 - [2026-06-17] SpaceX to buy Cursor for $60B — https://www.reuters.com/legal/transactional/spacex-buy-anysphere-60-billion-2026-06-16/
-- [2026-06-17] Has AI already killed self-help nonfiction books? — https://tim.blog/2026/06/12/has-ai-already-killed-nonfiction/
 - [2026-06-18] A robot is sprinting towards you. Do you want it running on Claude or Grok? — https://openrouter.ai/blog/insights/royale-last-agent-standing/
 - [2026-06-18] Launch HN: Adam (YC W25) – Open-Source AI CAD — https://github.com/Adam-CAD/CADAM
+- [2026-06-22] Apertus – Open Foundation Model for Sovereign AI — https://apertvs.ai/
+- [2026-06-24] The Low-Tech AI of Elden Ring — https://nega.tv/posts/low-tech-ai-of-elden-ring.html
+- [2026-06-29] We need tech news sources which exclude AI — https://news.ycombinator.com/item?id=48713041
+- [2026-06-29] Professor denounces mass AI fraud on an exam at Brown — https://english.elpais.com/education/2026-06-28/ai-fraud-at-brown-university-academic-integrity-is-at-risk.html
+- [2026-06-30] Working With AI: A concrete example — https://htmx.org/essays/working-with-ai/
+- [2026-07-06] Zuckerberg says AI agent development going slower than expected — https://www.reuters.com/business/zuckerberg-says-ai-agent-development-going-slower-than-expected-2026-07-02/
+- [2026-07-06] New AI tutor achieves 0.71-1.30 SD effect size in Dartmouth course [pdf] — https://intextbooks.science.uu.nl/workshop2026/files/itb26_s1s2.pdf
+- [2026-07-07] OfficeCLI: Office suite for AI agents to read and edit Microsoft Office files — https://github.com/iOfficeAI/OfficeCLI
+- [2026-07-07] AMD Ryzen AI Halo – $4k AI Dev Kit — https://www.lttlabs.com/articles/2026/07/06/amd-ryzen-ai-halo
+- [2026-07-07] GLM 5.2 and the coming AI margin collapse — https://martinalderson.com/posts/the-upcoming-ai-margin-collapse-part-1-glm-5-2/
+- [2026-07-08] We charge $10k a week to delete AI-generated code — https://odra.dev/slopfix/
+- [2026-07-08] AI Meets Cryptography 1: What AI Found in Cloudflare — https://blog.zksecurity.xyz/posts/circl-bugs/
