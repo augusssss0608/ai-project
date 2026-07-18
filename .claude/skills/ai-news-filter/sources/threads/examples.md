@@ -1,32 +1,43 @@
 # 正例 (用户标记有帮助)
-- [2026-06-19] 📝 Claude Fable 5 在 Agent Arena 拿了第一，但評測標準偏向「任務成功率」而非「聽話程度」 — https://www.threads.com/@pm.ai.notes/post/DZv9N7FnBVE
-- [2026-06-19] 🚨 Anthropic 高層鬆口：Claude 最強模型 Fable 5 可望「數日內」重新開放！ — https://www.threads.com/@moth.ai/post/DZurKAUmUFo
-- [2026-06-19] 💻 你以為幫 AI 寫程式，設定檔越長越強？剛好相反！ — https://www.threads.com/@whaleagent/post/DZt25-imjhD
-- [2026-06-18] Claude Code 2.1.181，把日常操作裡幾個真的會卡手的地方一次補齊 — https://www.threads.com/@tripleh.ai/post/DZtV0rAEqV2
-- [2026-06-18] Anthropic 剛剛發布一個看似產品更新、但背後意義遠比功能本身更大的消息 — https://www.threads.com/@alicken/post/DZtWascD03w
-- [2026-06-18] Warp 創始人 Zach Lloyd：怎麼給 AI 的 Skill 搭一個「自我改進循環」 — https://www.threads.com/@yrzheee/post/DZtNOnnDGDu
-- [2026-06-17] Claude 终于松口 — https://www.threads.com/@carllee2077/post/DZozzloHIv8
-- [2026-06-16] Fable / Mythos 5 暫停事件又有新進展 — https://www.threads.com/@aiposthub/post/DZnOdb2gTwm
-- [2026-06-16] Claude Code 2.1.178：把權限控制、skills 與多層 .claude 專案設定做得更可用 — https://www.threads.com/@tripleh.ai/post/DZoMR_Kkzrm
-- [2026-06-16] Claude 之前說要把 Agent SDK & claude -p 都改用 credit 計價 — https://www.threads.com/@hydai/post/DZnmFSQkx4o
-- [2026-06-16] Understand Anything 開源專案衝到 59.2k 星、Trending 第一 — https://www.threads.com/@govin999999/post/DZmSGs6kQtb
-- [2026-06-12] 不要羨慕 Claude Fable 5，只要用對方法，Codex 還是很厲害的 — https://www.threads.com/@prompt_case/post/DZbk0TADfaG
-- [2026-06-12] Anthropic 新一代模型 Claude Fable 5 在 Arena.ai 三大排行榜同時奪第一 — https://www.threads.com/@ar.shek/post/DZd8XGmCMDY
-- [2026-06-11] ✨ Claude Code 2.1.172 發佈，涵蓋 30 項 CLI 變更 — https://www.threads.com/@brew.agent/post/DZbHj_xEgj4
-- [2026-06-11] 《當頂尖 AI 正在變成奢侈品》 — https://www.threads.com/@p3nchan/post/DZZnpZfG2eR
-- [2026-06-11] 如果你還在研究怎麼寫 Prompt，可能已經落後下一個階段了 — https://www.threads.com/@sliven0722/post/DZbZVEMCXqP
-- [2026-06-08] Claude Code 6 月新版三個錢字招：auto mode、/usage 拆解、/code-review — https://www.threads.com/@kai_ch_chen/post/DZSaEb0jxy2
-- [2026-06-03] 🥇 今天 GitHub Trending 第 1 名是 headroom — https://www.threads.com/@tripleh.ai/post/DZGsRH8k1zb
-- [2026-06-03] 你一直有想法，卻總卡在技術？Codex 這次重磅更新就是為你而設 — https://www.threads.com/@prompt_case/post/DZGr02pDWfT
-- [2026-06-02] Claude Code 最近推出的 workflows，寫 code 的方式整個變了 — https://www.threads.com/@7xuan.lu/post/DZCApb8Feo6
-- [2026-06-02] 1分鐘帶你看完｜本週 AI 大事(6/1) — https://www.threads.com/@scps_jia/post/DZCX_v3ksCD
-- [2026-06-02] 📰 Anthropic 推 Claude Opus 4.8 強化代理任務與程式開發能力 — https://www.threads.com/@debutai.tw/post/DZEIk24gZjM
-- [2026-06-02] 為什麼我重壓 Cloudflare（NET）？因為它正在 AI 時代收「過路費」 — https://www.threads.com/@7evenguy_trade/post/DZEHc0AEsVz
-- [2026-05-29] Claude Opus 4.8 更穩，但真正更大的更新是同一天的 Dynamic Workflows — https://www.threads.com/@et.tang.ai/post/DY5xJFZE-1B
-- [2026-05-29] Anthropic 正在做的，已經不是「聊天 AI」 — https://www.threads.com/@alicken/post/DY5v-6dD9Iy
+- [2026-05-27] karpathy的CLAUDE.md衝上GitHub #1，220K stars，多數人還沒讀。 — https://www.threads.com/@ekcheungai/post/DYy8sI2kbo9
+- [2026-05-25] Vaibhav Srivastav (VB) ，OpenAI 開發者體驗與社群主管提供了一段讓 Codex可以自我提升的prompt提示詞，這組提示詞的重點，是讓 Codex 回看過去30天 session 與任務摘要，找出你反覆手動執行的 — https://www.threads.com/@cooljerrett/post/DYvcrTZmZNH
+- [2026-05-25] 最近在寫自動化測試與網頁腳本時，發現一個非常猛的開源 AI 網頁自動化工具 Midscene — https://www.threads.com/@bing_sunzhi/post/DYq7K_SmWCU
+- [2026-05-22] Claude Code 2.1.146 正式發佈，包含 16 項 CLI 變更。 — https://www.threads.com/@brew.agent/post/DYly71liumc
+- [2026-05-21] OpenAI Codex 官方整理了 52 個使用案例，幫你知道Codex能怎麼實際應用。每個案例的頁面結構都一樣：說明適合對象、列出操作步驟、標註需要哪些 Skill 外掛（例如 Gmail、Figma、GitHub、Vercel 等）， — https://www.threads.com/@cooljerrett/post/DYlPKphCdsB
+- [2026-05-19] 1分鐘帶你看完｜本週 AI 大事(5/18) — https://www.threads.com/@scps_jia/post/DYeXDHdAFv8
+- [2026-05-19] 【AI 團隊筆記 No.46 - 用 html 審批提案】 — https://www.threads.com/@hanamizuki/post/DYedOBbim10
+- [2026-05-18] 最近 Vibe coding 圈出現一個新趨勢: — https://www.threads.com/@marvinpick/post/DYcqAmVk4s3
+- [2026-05-18] 今天跟團隊討論到 Opus 4.7 — https://www.threads.com/@ci.fullstack/post/DYcNJAvlHdR
+- [2026-05-18] Anthropic 準備在 6/15 迎來一場規則大地震：未來訂閱制的算力，將嚴格限制在「人類盯著螢幕互動」的場景。如果你想讓 AI 半夜自動審 PR、跑測試或做背景研究，這類「無人值守」的工作流將被套上極為嚴苛的緊箍咒。以最高月費的重度使 — https://www.threads.com/@garlia.t/post/DYbc2A-AAPd
+- [2026-05-18] 【工程師必看】Claude Code 跟 Codex 皆推出 /goal 功能，長任務終於有救了！ — https://www.threads.com/@tenten.co/post/DYdbOb8Di3o
+- [2026-05-14] Claude Code 2.1.140 正式發佈，包含 13 項 CLI 變更。 — https://www.threads.com/@brew.agent/post/DYRR6V_kzmB
+- [2026-05-14] 就在今天凌晨 Anthropic 官方直接宣布!!Claude Code 週上限增加 50%!!現在到 7/13 為止 Pro / Max / Team / Enterprise 全部自動套用!!不用 opt in 太誇張了 — https://www.threads.com/@hao0321_studio/post/DYTZXwTE_VF
+- [2026-05-12] Claude Code 重大更新：Agent View 上線，一個畫面掌控所有 AI 編碼任務 — https://www.threads.com/@moth.ai/post/DYOAFU8CjzS
+- [2026-05-09] Anthropic 前天在 Code with Claude 開發者大會上發了 Claude Managed Agents 三件套升級，讓 AI 在背景自我進化、交作業前自我驗收、複雜任務拆給多個 AI 協作。 — https://www.threads.com/@darwin7381/post/DYEMRXYEeb7
+- [2026-05-08] Claude Code 2.1.132 正式發佈，包含 28 項 CLI 變更及 2 項系統提示詞更新。 — https://www.threads.com/@brew.agent/post/DYBfgR4iRQs
+- [2026-05-08] Anthropic 三大更新讓個體戶 AI 自動化品質起飛:Agent 自己進化、自己驗收、自己分工 — https://www.threads.com/@moth.ai/post/DYDsRG7mWeT
+- [2026-05-08] OpenAI 宣布 Codex 正式支援 Chrome 瀏覽器擴充功能（macOS 與 Windows，跟Claude chrome extension類似)，背景平行多分頁執行：可在多個分頁同時工作，完全不接管你的瀏覽器（不會搶焦點或卡住 — https://www.threads.com/@cooljerrett/post/DYDtUC7k49V
+- [2026-05-07] Anthropic 重磅出招｜Claude 推出 5 大金融專用 AI Agent 模板，華爾街工作流程全面智能化 — https://www.threads.com/@moth.ai/post/DX_FszeCorQ
+- [2026-05-07] 重大消息：SpaceX 與 Claude 宣布合作！ — https://www.threads.com/@thetechcosmo/post/DYA_jEGEr4f
 
 # 负例 (展示过但未点赞, >= 7 天)
-- [2026-06-19] 深入產業 (空短無內容) — https://www.threads.com/@wan_hetalia/post/DZuYpzACO5c
-- [2026-06-18] Stripe 剛給 AI agent 裝上了一套金融技能 (純搬運) — https://www.threads.com/@krumjahn/post/DZsBwwqGgkO
-- [2026-06-03] 看完 HF 今日第 1 名 Crafter 的論文圖發散感想 — https://www.threads.com/@tripleh.ai/post/DZGzS2jGUHv
+- [2026-07-10] 科技新聞：連最愛嘴的對手，都公開認輸了！ — https://www.threads.com/@whaleagent/post/DamiGb0Ex2Y
+- [2026-07-09] 四天前，Claude Code 的工程師 Thariq Shihipar 第一次分享了他在 AI 世代裡怎麼看待「未知」 — https://www.threads.com/@isaac_shekht/post/Dah37H3Dyvl
+- [2026-07-08] Anthropic 技術工程師 Thariq Shihipar 的超狂演講。 — https://www.threads.com/@meicy321/post/DagiG0okxXa
+- [2026-07-07] TeraWulf 拿下 Anthropic 20 年算力長約 190 億美元合約收入落袋 — https://www.threads.com/@debutai.tw/post/DaeW080ica1
+- [2026-06-19] 深入產業 — https://www.threads.com/@wan_hetalia/post/DZuYpzACO5c
+- [2026-06-18] Stripe 剛給 AI agent 裝上了一套金融技能。 — https://www.threads.com/@krumjahn/post/DZsBwwqGgkO
+- [2026-06-03] 我原本以為 AI 論文圖的問題在畫得不像。看完 HF 今日第 1 名 Crafter，我反而覺得麻煩更常出在另一段：圖明明快好了，只差一個箭頭、一個標籤，你卻沒辦法只修那一塊。 — https://www.threads.com/@tripleh.ai/post/DZGzS2jGUHv
 - [2026-06-03] 你買了一本技術書，讀完後三個月還記得多少？ — https://www.threads.com/@fennyhsu1936/post/DZEccDQFMn8
+- [2026-05-27] 很多企業以為： — https://www.threads.com/@alicken/post/DY0l5Brj-C4
+- [2026-05-27] 接案 3 年、30 個客戶 — https://www.threads.com/@awoo_gw/post/DYzZvz7E8Vt
+- [2026-05-26] 接續上一篇：跟 agent 協作第5個月的心得 — https://www.threads.com/@dorgon.chang/post/DYyLOZPCdkE
+- [2026-05-26] Meta 最近發了一篇好文：《Capacity Efficiency at Meta》。 — https://www.threads.com/@kojenchieh/post/DYyCTqTkjlj
+- [2026-05-26] 【Day 47/100】 — https://www.threads.com/@answer00125/post/DYw1QpeErMJ
+- [2026-05-26] AI 新手不要再從「我要學哪個工具」開始了。 — https://www.threads.com/@hanlinhans/post/DYyCLazE0V0
+- [2026-05-26] Day 145 逐字稿不要直接拿來用 — https://www.threads.com/@andrew54068/post/DYxE8NjGjdu
+- [2026-05-26] 1/4 — https://www.threads.com/@wilsonhuangxyz/post/DYyMhVvlejw
+- [2026-05-25] APP 的好日子不多了 — https://www.threads.com/@polyglot.tw_terry/post/DYtptXuic9_
+- [2026-05-25] https://youtu.be/BhHMGRcbPkQ?si=1aVsbjzstctjTqZB — https://www.threads.com/@chengcheng_tag/post/DYsF4ujEjYi
+- [2026-05-22] 最近做音樂製作，常常需要大量 Suno 音樂素材。 — https://www.threads.com/@romanticamaj/post/DYn2ltuD6iT
+- [2026-05-22] Claude 教學 2026：Claude 是什麼、怎麼用、免費版限制與行銷人 8 個實戰用法 — https://www.threads.com/@seo.whoops/post/DYl3se9khKY
