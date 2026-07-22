@@ -898,7 +898,7 @@ def main() -> int:
 
     workspace_root = Path(os.environ.get(
         "LIVE_APP_PATH",
-        "/Users/augus/Desktop/开发项目/live_app",
+        "/Users/augus/Desktop/dev-projects/live_app",
     ))
 
     if not workspace_root.is_dir():

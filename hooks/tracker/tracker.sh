@@ -6,7 +6,7 @@ LOG_DIR="$HOME/Desktop/ai-project/data"
 DB_FILE="$LOG_DIR/events.db"
 ERR_FILE="$LOG_DIR/tracker-errors.log"
 # SB2: scope 路径检测改用精确前缀，避免任何含 'live_app' 子串的路径被误判为 project
-PROJECT_ROOT="${LIVE_APP_PATH:-/Users/augus/Desktop/开发项目/live_app}"
+PROJECT_ROOT="${LIVE_APP_PATH:-/Users/augus/Desktop/dev-projects/live_app}"
 mkdir -p "$LOG_DIR"
 
 # Bug #3 修复：每次都跑 CREATE TABLE IF NOT EXISTS，文件存在但表丢了也能补建

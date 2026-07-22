@@ -18,7 +18,7 @@ DB="$LOG_DIR/events.db"
 ARCHIVE_LOG="$LOG_DIR/archive-log.jsonl"
 USER_SKILLS_DIR="$HOME/.claude/skills"
 USER_AGENTS_DIR="$HOME/.claude/agents"
-PROJECT_ROOT="${LIVE_APP_PATH:-/Users/augus/Desktop/开发项目/live_app}"
+PROJECT_ROOT="${LIVE_APP_PATH:-/Users/augus/Desktop/dev-projects/live_app}"
 PROJECT_SKILLS_DIR="$PROJECT_ROOT/.claude/skills"
 PROJECT_AGENTS_DIR="$PROJECT_ROOT/.claude/agents"
 

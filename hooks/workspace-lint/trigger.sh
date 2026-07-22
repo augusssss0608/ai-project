@@ -8,7 +8,7 @@ set -u
 # ============================================================
 # 常量
 # ============================================================
-WORKSPACE_ROOT="${LIVE_APP_PATH:-/Users/augus/Desktop/开发项目/live_app}"
+WORKSPACE_ROOT="${LIVE_APP_PATH:-/Users/augus/Desktop/dev-projects/live_app}"
 LINT_DIR="${HOME}/Desktop/ai-project/hooks/workspace-lint"
 STATE_DIR="${LINT_DIR}/state"
 LOCK_DIR="${STATE_DIR}/worker.lockdir"

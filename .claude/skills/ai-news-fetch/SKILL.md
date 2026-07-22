@@ -294,7 +294,7 @@ source_id: "<item 的源>"
 topic_tags: [...]
 reason: "<scorer 一/二轮 reason, 若 cold 源则 null>"
 content_status: "<fetched|failed|not_attempted>"
-workspace_context_path: "/Users/augus/Desktop/开发项目/live_app/CLAUDE.md"
+workspace_context_path: "/Users/augus/Desktop/dev-projects/live_app/CLAUDE.md"
 把分析写到 /tmp/ai-news-analysis-{idx}-{ts}.json
 ```
 

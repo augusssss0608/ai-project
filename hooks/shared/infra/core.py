@@ -24,7 +24,7 @@ DB_FILE = os.path.expanduser("~/Desktop/ai-project/data/events.db")
 NEWS_JSON_PATH = os.path.join(_REPO_ROOT, "cloud-sync", "ai-news.json")
 NEWS_VOTES_PATH = os.path.join(_REPO_ROOT, "cloud-sync", "ai-news-feedback.json")
 NEWS_FETCHER_PATH = os.path.expanduser("~/Desktop/ai-project/hooks/fetch-ai-news.py")
-PROJECT_ROOT = os.environ.get("LIVE_APP_PATH", "/Users/augus/Desktop/开发项目/live_app")
+PROJECT_ROOT = os.environ.get("LIVE_APP_PATH", "/Users/augus/Desktop/dev-projects/live_app")
 USER_HOME = os.path.expanduser("~")
 # A4: memory 路径去硬编码
 MEMORY_DIR = os.environ.get(

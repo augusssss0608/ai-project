@@ -23,7 +23,7 @@ if [ ! -f "$DB_FILE" ]; then
 fi
 
 # A4: PROJECT_ROOT / MEMORY_DIR 改读环境变量
-PROJECT_ROOT="${LIVE_APP_PATH:-/Users/augus/Desktop/开发项目/live_app}"
+PROJECT_ROOT="${LIVE_APP_PATH:-/Users/augus/Desktop/dev-projects/live_app}"
 MEMORY_DIR="${LIVE_APP_MEMORY_PATH:-$HOME/.claude/projects/-Users-augus-Desktop------live-app/memory}"
 
 CUTOFF=$(date -u -v-"${DAYS}"d +%Y-%m-%dT%H:%M:%SZ 2>/dev/null \
