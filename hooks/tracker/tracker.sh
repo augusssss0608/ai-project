@@ -121,7 +121,7 @@ case "$TOOL_NAME" in
           --arg path "$FP" --arg sid "$SESSION" \
           '{ts:$ts,type:"agents_md_read",name:$name,scope:$scope,path:$path,session:$sid}')"
         ;;
-      */memory/*.md)
+      */memory/*.md|*/auto-memory/*.md)
         NAME=$(basename "$FP" .md)
         emit "$(jq -nc \
           --arg ts "$TS" --arg name "$NAME" --arg path "$FP" --arg sid "$SESSION" \
