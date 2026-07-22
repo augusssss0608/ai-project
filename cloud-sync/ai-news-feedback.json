@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-21T14:16:43+09:00",
+  "updated_at": "2026-07-22T14:10:41+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -2370,6 +2370,18 @@
       "title": "今天跟 @licca_bobo 一起參加了 OpenAI 的黑客松有幸進入決賽！",
       "source": "threads",
       "score": "down"
+    },
+    "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-6-flash-3-5-flash-lite-3-5-flash-cyber/": {
+      "ts": "2026-07-22T14:08:57+09:00",
+      "title": "Gemini 3.6 Flash, 3.5 Flash-Lite, and 3.5 Flash Cyber",
+      "source": "hackernews",
+      "score": "up"
+    },
+    "https://www.threads.com/@prompt_case/post/DbD5uuSFGkH": {
+      "ts": "2026-07-22T14:09:59+09:00",
+      "title": "Claude Cowork 最新功能來了！看你操作一次，就永遠會做了！",
+      "source": "threads",
+      "score": "up"
     }
   },
   "favorites": {
@@ -2522,34 +2534,6 @@
       "ts": "2026-07-13T15:24:32+09:00",
       "source": "github_trending"
     },
-    "https://simonwillison.net/2026/Jul/19/claude-code-in-bun-in-rust/": {
-      "ts": "2026-07-21T14:10:38+09:00",
-      "source": "hackernews"
-    },
-    "https://twitter.com/Alibaba_Qwen/status/2078759124914098291": {
-      "ts": "2026-07-21T14:11:58+09:00",
-      "source": "hackernews"
-    },
-    "https://github.com/openai/codex/pull/33972/files": {
-      "ts": "2026-07-21T14:12:01+09:00",
-      "source": "hackernews"
-    },
-    "https://stephen.bochinski.dev/blog/2026/07/18/the-kimi-k3-moment/": {
-      "ts": "2026-07-21T14:12:05+09:00",
-      "source": "hackernews"
-    },
-    "https://petapixel.com/2026/07/16/mayor-mamdani-says-landlords-cant-secretly-use-ai-images-to-advertise-properties/": {
-      "ts": "2026-07-21T14:12:07+09:00",
-      "source": "hackernews"
-    },
-    "https://ludic.mataroa.blog/blog/ai-mania-is-eviscerating-global-decision-making/#fnref:3": {
-      "ts": "2026-07-21T14:12:08+09:00",
-      "source": "hackernews"
-    },
-    "https://thenextweb.com/news/ai-advice-suppresses-critical-thinking-wrong-answers-study": {
-      "ts": "2026-07-21T14:12:09+09:00",
-      "source": "hackernews"
-    },
     "https://github.com/tirth8205/code-review-graph": {
       "ts": "2026-07-21T14:12:09+09:00",
       "source": "github_trending"
@@ -2562,72 +2546,96 @@
       "ts": "2026-07-21T14:12:14+09:00",
       "source": "github_trending"
     },
-    "https://github.com/anthropics/cwc-workshops": {
-      "ts": "2026-07-21T14:12:17+09:00",
+    "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-6-flash-3-5-flash-lite-3-5-flash-cyber/": {
+      "ts": "2026-07-22T14:08:53+09:00",
+      "source": "hackernews"
+    },
+    "https://www.kimi.com/products/kimi-work": {
+      "ts": "2026-07-22T14:09:00+09:00",
+      "source": "hackernews"
+    },
+    "https://openai.com/index/hugging-face-model-evaluation-security-incident/": {
+      "ts": "2026-07-22T14:09:30+09:00",
+      "source": "hackernews"
+    },
+    "https://slcyber.io/research-center/exploit-brokers-pay-500000-for-a-wordpress-rce-i-found-one-with-gpt5-6/": {
+      "ts": "2026-07-22T14:09:31+09:00",
+      "source": "hackernews"
+    },
+    "https://qwen.ai/blog?id=qwen-image-3.0": {
+      "ts": "2026-07-22T14:09:33+09:00",
+      "source": "hackernews"
+    },
+    "https://werd.io/american-ai-is-locked-down-and-proprietary-its-losing/": {
+      "ts": "2026-07-22T14:09:34+09:00",
+      "source": "hackernews"
+    },
+    "https://xcancel.com/__alpoge__/status/2079028340955197566": {
+      "ts": "2026-07-22T14:09:35+09:00",
+      "source": "hackernews"
+    },
+    "https://www.emergingtrajectories.com/lh/frontier-lab-economics/": {
+      "ts": "2026-07-22T14:09:36+09:00",
+      "source": "hackernews"
+    },
+    "https://github.com/earthtojake/text-to-cad": {
+      "ts": "2026-07-22T14:09:38+09:00",
       "source": "github_trending"
     },
-    "https://github.com/shareAI-lab/learn-claude-code": {
-      "ts": "2026-07-21T14:12:20+09:00",
+    "https://github.com/tradesdontlie/tradingview-mcp": {
+      "ts": "2026-07-22T14:09:40+09:00",
       "source": "github_trending"
     },
-    "https://github.com/ChromeDevTools/chrome-devtools-mcp": {
-      "ts": "2026-07-21T14:12:21+09:00",
+    "https://github.com/tt-a1i/archify": {
+      "ts": "2026-07-22T14:09:43+09:00",
       "source": "github_trending"
     },
-    "https://www.threads.com/@lin.smart.psu/post/Da-eZNjGGuX": {
-      "ts": "2026-07-21T14:12:22+09:00",
+    "https://github.com/MadsLorentzen/ai-job-search": {
+      "ts": "2026-07-22T14:09:45+09:00",
+      "source": "github_trending"
+    },
+    "https://www.threads.com/@prompt_case/post/DbD5uuSFGkH": {
+      "ts": "2026-07-22T14:09:46+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@el_howeed/post/Da9av62mqIS": {
-      "ts": "2026-07-21T14:15:42+09:00",
+    "https://www.threads.com/@sliven0722/post/DbC0lWLiRKm": {
+      "ts": "2026-07-22T14:09:59+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@tysys1955/post/Da-nmf1E4nG": {
-      "ts": "2026-07-21T14:15:51+09:00",
+    "https://www.threads.com/@talktoainow/post/DbClS7qlDj6": {
+      "ts": "2026-07-22T14:10:09+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@romanticamaj/post/Da-uOQyErL8": {
-      "ts": "2026-07-21T14:16:06+09:00",
+    "https://www.threads.com/@rayrayray9996/post/DbEsS-mkpos": {
+      "ts": "2026-07-22T14:10:11+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@essevin.ai/post/Da-yA2cgSPt": {
-      "ts": "2026-07-21T14:16:07+09:00",
+    "https://www.threads.com/@duo_la_la/post/DbCihgwFJUk": {
+      "ts": "2026-07-22T14:10:13+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@essevin.ai/post/Da_QEXME3cO": {
-      "ts": "2026-07-21T14:16:17+09:00",
+    "https://www.threads.com/@brewbytes.ai/post/DbD2z1ikTJ-": {
+      "ts": "2026-07-22T14:10:29+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@kaiwutech/post/Da9WpmKmXF0": {
-      "ts": "2026-07-21T14:16:22+09:00",
+    "https://www.threads.com/@panda_life_diary/post/DbC-YVclDL2": {
+      "ts": "2026-07-22T14:10:30+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@rex.ai.lab.2026/post/Da9hQQqjxW5": {
-      "ts": "2026-07-21T14:16:24+09:00",
+    "https://www.threads.com/@hkwwtai/post/DbDzLq2ExU1": {
+      "ts": "2026-07-22T14:10:36+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@1weiho/post/Da9T20uE-EZ": {
-      "ts": "2026-07-21T14:16:32+09:00",
+    "https://www.threads.com/@malilion.dev/post/DbCalADE-E0": {
+      "ts": "2026-07-22T14:10:38+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@data_pythoness/post/Da-V-VFkkH-": {
-      "ts": "2026-07-21T14:16:33+09:00",
+    "https://www.threads.com/@ekcheungai/post/DbE3E44jJ4J": {
+      "ts": "2026-07-22T14:10:40+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@mengqiutu/post/Da9Y9G4CRVO": {
-      "ts": "2026-07-21T14:16:37+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@jerry_wang_1109/post/Da9UPxnky8R": {
-      "ts": "2026-07-21T14:16:39+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@tripleh.ai/post/Da_xYZGkwUD": {
-      "ts": "2026-07-21T14:16:41+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@lwy_dvd/post/Da-f6Y6jyPO": {
-      "ts": "2026-07-21T14:16:43+09:00",
+    "https://www.threads.com/@klaroinvest/post/DbE8Sz0gfMX": {
+      "ts": "2026-07-22T14:10:41+09:00",
       "source": "threads"
     }
   }
