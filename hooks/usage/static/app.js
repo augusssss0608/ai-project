@@ -89,65 +89,6 @@
   const initialOwner = urlOwner || document.body.dataset.initialOwner || '';
   applyFilter(initialOwner);
 
-  // ===== 禁用/启用按钮点击 =====
-  async function toggleArchive(btn) {
-    const action = btn.dataset.action || 'archive';
-    const type = btn.dataset.type;
-    const name = btn.dataset.name;
-    const scope = btn.dataset.scope;
-    if (!type || !name || !scope) return;
-    const verb = action === 'archive' ? '禁用' : '启用';
-    if (!confirm(`确认${verb} ${type}: ${name} [${scope}]?`)) return;
-    const body = new URLSearchParams({ type, name, scope }).toString();
-    const origLabel = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = '处理中...';
-    try {
-      const res = await fetch('/' + action, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body,
-      });
-      const data = await res.json();
-      if (data.ok) {
-        // 成功: 切换按钮状态, li 保留
-        if (action === 'archive') {
-          btn.dataset.action = 'restore';
-          btn.textContent = '启用';
-          btn.classList.add('restored');
-          btn.closest('li').classList.add('disabled-item');
-          showToast(`✓ ${name} 已禁用`, 'success');
-        } else {
-          btn.dataset.action = 'archive';
-          btn.textContent = '禁用';
-          btn.classList.remove('restored');
-          btn.closest('li').classList.remove('disabled-item');
-          showToast(`✓ ${name} 已启用`, 'success');
-        }
-        btn.disabled = false;
-      } else {
-        btn.disabled = false;
-        btn.textContent = origLabel;
-        showToast(`✗ ${data.error || data.message}`, 'error');
-      }
-    } catch (err) {
-      btn.disabled = false;
-      btn.textContent = origLabel;
-      showToast(`✗ 网络错误: ${err.message}`, 'error');
-    }
-  }
-
-  // (showToast 迁到 shared/static/base.js, 通过 window.__dashboard.showToast 访问)
-
-  // 事件委托: 捕获所有 .archive-btn 点击
-  document.addEventListener('click', e => {
-    const btn = e.target.closest('.archive-btn');
-    if (btn) {
-      e.preventDefault();
-      toggleArchive(btn);
-    }
-  });
-
   // ===== owner-tag 點擊複製完整路徑 =====
   document.addEventListener('click', async e => {
     const tag = e.target.closest('.owner-tag[data-tip]');
@@ -191,7 +132,8 @@
     // 过滤所有 funnel-row
     document.querySelectorAll('.funnel-row').forEach(row => {
       const rowStatus = row.dataset.funnelStatus || '';
-      const matchStatus = !target || target === rowStatus;
+      // "全部"(空 target) 不含停用项; 选定状态时精确匹配(含"停用")
+      const matchStatus = target ? (target === rowStatus) : (rowStatus !== 'disabled');
       row.classList.toggle('row-funnel-hidden', !matchStatus);
     });
     // 概览表：每个类别根据该状态命中数更新 dim 状态；有命中的自动展开
@@ -237,6 +179,8 @@
       e.preventDefault();
       setStatusFilter(chip.dataset.funnelStatus || '');
     });
+    // 初始应用"全部"过滤, 让停用项默认不出现在列表里
+    setStatusFilter('');
   }
 
   // 行展开 / 折叠：点击 ov-summary-row 任意位置（除非点的是可点数字）

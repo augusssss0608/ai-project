@@ -1062,6 +1062,26 @@ def _build_category_rows(cat: dict, active_data, sessions_maps, paired_maps,
             key = (name, r[1] or "")
             explicit_rows[key] = (r[2], r[3] or "", r[4] or "other")
 
+    # explicit 事件（skill_explicit/subagent）的 scope 恒为空串，与 read/磁盘盘点的
+    # (name, user/project) 对不上，会把同一对象拆成两行且配不上对。用同名磁盘侧已知
+    # scope 回填空 scope，让两侧归到同一 key。无磁盘 scope 的（builtin/plugin）保持空串。
+    _canon = {}
+    for _nm, _sc in read_rows:
+        if _sc:
+            _canon.setdefault(_nm, _sc)
+    for _sec_id in cat["cold_section_ids"]:
+        for _item in (cold_data_by_id.get(_sec_id, {}) or {}).get("cold", []) or []:
+            _sc = _item.get("scope", "") or ""
+            if _sc:
+                _canon.setdefault(_item.get("name", ""), _sc)
+
+    def _norm(key):
+        nm, sc = key
+        return (nm, _canon[nm]) if (not sc and nm in _canon) else key
+
+    if _canon:
+        explicit_rows = {_norm(k): v for k, v in explicit_rows.items()}
+
     # universe = read ∪ explicit ∪ cold
     universe = {}
     for key, (_c, p, o) in read_rows.items():
@@ -1096,6 +1116,12 @@ def _build_category_rows(cat: dict, active_data, sessions_maps, paired_maps,
     read_series_map = (series_maps or {}).get(read_et, {}) if read_et else {}
     expl_series_map = (series_maps or {}).get(expl_et, {}) if expl_et else {}
 
+    # 与 explicit_rows 同步归一，否则回填 scope 后 session/last/series 查不到
+    if _canon:
+        expl_sess = {_norm(k): v for k, v in expl_sess.items()}
+        last_expl = {_norm(k): v for k, v in last_expl.items()}
+        expl_series_map = {_norm(k): v for k, v in expl_series_map.items()}
+
     rows = []
     for key, meta in universe.items():
         read_count = read_rows.get(key, (0,))[0]
@@ -1126,6 +1152,10 @@ def _build_category_rows(cat: dict, active_data, sessions_maps, paired_maps,
             # subagent / plugin：只有 explicit
             status = "paired"  # 用 paired 表示"在用"，便于统一过滤
 
+        # 停用项独立成一态: 不计入其它状态, 只在"停用" chip 下可见
+        if meta.get("disabled"):
+            status = "disabled"
+
         rows.append({
             "kind": cat["kind"],
             "name": key[0],
@@ -1145,7 +1175,7 @@ def _build_category_rows(cat: dict, active_data, sessions_maps, paired_maps,
         })
 
     # 排序：异常优先 + cold 内"最久未触发优先"
-    severity = {"explicit-only": 0, "read-only": 1, "cold": 2, "paired": 3}
+    severity = {"explicit-only": 0, "read-only": 1, "cold": 2, "paired": 3, "disabled": 4}
     rows.sort(key=lambda r: (r.get("last_seen") or ""), reverse=True)
     cold_rows = [r for r in rows if r["status"] == "cold"]
     other_rows = [r for r in rows if r["status"] != "cold"]
@@ -1188,7 +1218,8 @@ def build_overview_summary(rows_by_category):
     cat_meta = {c["kind"]: c for c in CATEGORY_DEFS}
     for cat in CATEGORY_DEFS:
         rows = rows_by_category.get(cat["kind"], []) or []
-        total = len(rows)
+        disabled = sum(1 for r in rows if r["status"] == "disabled")
+        total = len(rows) - disabled          # 停用项不计入"全部"
         cold = sum(1 for r in rows if r["status"] == "cold")
         used = total - cold
         paired = sum(1 for r in rows if r["status"] == "paired")
@@ -1213,6 +1244,7 @@ def build_overview_summary(rows_by_category):
             "total": total,
             "used": used,
             "cold": cold,
+            "disabled": disabled,
             "paired": paired,
             "read_only": read_only,
             "explicit_only": explicit_only,

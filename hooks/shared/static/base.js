@@ -96,7 +96,7 @@
   }
 
   // 整张卡点击翻面 (任何 tab 的 .flip-card 都生效)
-  const FLIP_EXCLUDE_SELECTOR = 'a, input, select, textarea, button:not(.flip-btn), .archive-btn, .pill, .owner-chip, .owner-tag, .open-link, .sheet-btn, .summary-meter, .prune-dot';
+  const FLIP_EXCLUDE_SELECTOR = 'a, input, select, textarea, button:not(.flip-btn), .pill, .owner-chip, .owner-tag, .open-link, .sheet-btn, .summary-meter, .prune-dot';
   document.addEventListener('click', e => {
     const card = e.target.closest('.flip-card');
     if (!card) return;

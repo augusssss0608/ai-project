@@ -101,7 +101,6 @@ def collect_target_markdown(
 
     skills_dir = workspace_root / ".claude" / "skills"
     if skills_dir.is_dir():
-        # 排除 .disabled/
         for skill_dir in skills_dir.iterdir():
             if skill_dir.name.startswith("."):
                 continue
@@ -155,7 +154,6 @@ def collect_inventory(
     workspace_root: Path,
     *,
     user_claude_dir: Path | None = None,
-    include_disabled: bool = False,
 ) -> Inventory:
     """收集 user/project skills + agents 清单"""
     user_dir = user_claude_dir if user_claude_dir is not None else (Path.home() / ".claude")
@@ -172,22 +170,12 @@ def collect_inventory(
                     continue
                 if (d / "SKILL.md").is_file():
                     add(inv.skills, InventoryItem(d.name, "skill", scope, d, True))
-            disabled = skills_root / ".disabled"
-            if include_disabled and disabled.is_dir():
-                for d in disabled.iterdir():
-                    if (d / "SKILL.md").is_file():
-                        add(inv.skills, InventoryItem(d.name, "skill", scope, d, False))
 
         agents_root = base / "agents"
         if agents_root.is_dir():
             for f in agents_root.iterdir():
                 if f.is_file() and f.suffix == ".md" and not f.name.startswith("."):
                     add(inv.agents, InventoryItem(f.stem, "agent", scope, f, True))
-            disabled = agents_root / ".disabled"
-            if include_disabled and disabled.is_dir():
-                for f in disabled.iterdir():
-                    if f.is_file() and f.suffix == ".md":
-                        add(inv.agents, InventoryItem(f.stem, "agent", scope, f, False))
 
     return inv
 
@@ -322,7 +310,7 @@ def extract_root_skill_references(workspace_root: Path) -> set[str]:
 
 def check_skill_routing(workspace_root: Path) -> dict:
     refs = extract_root_skill_references(workspace_root)
-    inv = collect_inventory(workspace_root, include_disabled=False)
+    inv = collect_inventory(workspace_root)
     available = set(inv.skills.keys())
     issues: list[dict] = []
     for ref in sorted(refs):
@@ -752,7 +740,7 @@ def check_orphan_candidates(workspace_root: Path) -> dict:
             "issues": [{"message": f"events.db 不存在: {db_path}"}],
         }
 
-    inv = collect_inventory(workspace_root, include_disabled=False)
+    inv = collect_inventory(workspace_root)
     md_text = _collect_claude_md_text(workspace_root)
 
     # 查 events.db：N 天内有触发的 skill/agent 名集合

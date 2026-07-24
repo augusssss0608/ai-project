@@ -308,36 +308,48 @@ def fmt_relative_time(ts_iso: str) -> str:
 # ============================================================
 # 区块: 文件系统枚举 (cold detection 的 universe 来源)
 # ============================================================
+def _skill_overrides_off():
+    """user + project settings.local.json 里 skillOverrides 值为 'off' 的 skill 名集合。
+    这是 Claude Code 认的 skill 禁用开关 (/skills 菜单写入)。"""
+    import json
+    off = set()
+    for base in (USER_HOME, PROJECT_ROOT):
+        f = os.path.join(base, ".claude", "settings.local.json")
+        try:
+            with open(f, encoding="utf-8") as fh:
+                data = json.load(fh)
+        except (FileNotFoundError, ValueError):
+            continue
+        for k, v in (data.get("skillOverrides") or {}).items():
+            if v == "off":
+                off.add(k)
+    return off
+
+
 def list_skill_files():
-    """返回 [dict]. 每项: {name, scope, path, owner, disabled}. 含 .disabled/."""
+    """返回 [dict]. 每项: {name, scope, path, owner, disabled}.
+    禁用判定: skillOverrides 设为 'off' (SKILL.md 原地不动)。"""
+    off = _skill_overrides_off()
     out = []
     for d, scope in [(f"{USER_HOME}/.claude/skills", "user"),
                      (f"{PROJECT_ROOT}/.claude/skills", "project")]:
         if not os.path.isdir(d):
             continue
         for name in sorted(os.listdir(d)):
-            if name.startswith(".") or name == ".disabled":
+            if name.startswith("."):
                 continue
             full = os.path.join(d, name, "SKILL.md")
             if os.path.isfile(full):
                 out.append({
                     "name": name, "scope": scope, "path": full,
-                    "owner": compute_owner(full), "disabled": False,
+                    "owner": compute_owner(full), "disabled": name in off,
                 })
-        disabled_dir = os.path.join(d, ".disabled")
-        if os.path.isdir(disabled_dir):
-            for name in sorted(os.listdir(disabled_dir)):
-                full = os.path.join(disabled_dir, name, "SKILL.md")
-                if os.path.isfile(full):
-                    out.append({
-                        "name": name, "scope": scope, "path": full,
-                        "owner": compute_owner(full), "disabled": True,
-                    })
     return out
 
 
 def list_subagent_files():
-    """返回 [dict]. 每项: {name, scope, path, owner, disabled}. 含 .disabled/."""
+    """返回 [dict]. 每项: {name, scope, path, owner, disabled}.
+    禁用判定: 文件名以 .md.disabled 结尾, Claude Code 的 *.md 发现机制会跳过。"""
     out = []
     for d, scope in [(f"{USER_HOME}/.claude/agents", "user"),
                      (f"{PROJECT_ROOT}/.claude/agents", "project")]:
@@ -346,21 +358,18 @@ def list_subagent_files():
         for name in sorted(os.listdir(d)):
             if name.startswith("."):
                 continue
-            if name.endswith(".md"):
+            if name.endswith(".md.disabled"):
+                full = os.path.join(d, name)
+                out.append({
+                    "name": name[:-len(".md.disabled")], "scope": scope, "path": full,
+                    "owner": compute_owner(full), "disabled": True,
+                })
+            elif name.endswith(".md"):
                 full = os.path.join(d, name)
                 out.append({
                     "name": name[:-3], "scope": scope, "path": full,
                     "owner": compute_owner(full), "disabled": False,
                 })
-        disabled_dir = os.path.join(d, ".disabled")
-        if os.path.isdir(disabled_dir):
-            for name in sorted(os.listdir(disabled_dir)):
-                if name.endswith(".md"):
-                    full = os.path.join(disabled_dir, name)
-                    out.append({
-                        "name": name[:-3], "scope": scope, "path": full,
-                        "owner": compute_owner(full), "disabled": True,
-                    })
     return out
 
 
@@ -508,8 +517,6 @@ COLD_SECTIONS = [
         "source": list_skill_files,
         "key_fn": lambda x: (x["name"], x["scope"]),
         "last_seen_key_fn": lambda x: (x["name"], x["scope"]),
-        "supports_archive": True,
-        "archive_type": "skill",
     },
     {
         "id": "cold_skills_explicit",
@@ -518,8 +525,6 @@ COLD_SECTIONS = [
         "source": list_skill_files,
         "key_fn": lambda x: (x["name"], x["scope"]),
         "last_seen_key_fn": lambda x: (x["name"], x["scope"]),
-        "supports_archive": True,
-        "archive_type": "skill",
         "name_filter": lambda n: ":" not in n,  # 排除 plugin 命令
     },
     {
@@ -529,8 +534,6 @@ COLD_SECTIONS = [
         "source": list_subagent_files,
         "key_fn": lambda x: x["name"],
         "last_seen_key_fn": lambda x: (x["name"], ""),
-        "supports_archive": True,
-        "archive_type": "subagent",
         "override_same_name": True,  # user 同名被 project 覆盖
     },
     {
@@ -540,7 +543,6 @@ COLD_SECTIONS = [
         "source": list_clinerules,
         "key_fn": lambda x: x["name"],
         "last_seen_key_fn": lambda x: (x["name"], "project"),
-        "supports_archive": False,
     },
     {
         "id": "cold_claude_md",
@@ -549,7 +551,6 @@ COLD_SECTIONS = [
         "source": list_claude_mds,
         "key_fn": lambda x: x["name"],
         "last_seen_key_fn": lambda x: (x["name"], x["scope"]),
-        "supports_archive": False,
     },
     {
         "id": "cold_memory",
@@ -558,7 +559,6 @@ COLD_SECTIONS = [
         "source": list_memory_files,
         "key_fn": lambda x: x["name"],
         "last_seen_key_fn": lambda x: (x["name"], "auto"),
-        "supports_archive": False,
     },
     {
         "id": "cold_agents_md",
@@ -567,7 +567,6 @@ COLD_SECTIONS = [
         "source": list_agents_mds,
         "key_fn": lambda x: x["name"],
         "last_seen_key_fn": lambda x: (x["name"], x["scope"]),
-        "supports_archive": False,
     },
     {
         "id": "cold_plugins",
@@ -576,7 +575,6 @@ COLD_SECTIONS = [
         "source": list_plugin_commands,
         "key_fn": lambda x: x["name"],
         "last_seen_key_fn": lambda x: (x["name"], ""),
-        "supports_archive": False,
         "name_filter": lambda n: ":" in n,  # 只看 plugin 命令
     },
 ]

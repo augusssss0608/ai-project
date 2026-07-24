@@ -50,7 +50,6 @@ Claude Code 使用统计 dashboard + AI 大事每日聚合。原在 `~/.claude/h
     │   └── static/             ai_news 专属 CSS / JS
     ├── tracker/                PostToolUse hook + 数据维护脚本
     │   ├── tracker.sh          事件采集（Read/Agent/Skill → events.db）
-    │   ├── archive-cold.sh     冷藏 skill/subagent 自动归档（可逆）
     │   └── report.sh           命令行报表
     ├── workspace-lint/         workspace 配置检查（trigger.sh + lint_runner.py）
     └── tg_notify.py            Telegram Bot API 直发脚本（ai-news pipeline 用）

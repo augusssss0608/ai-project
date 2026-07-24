@@ -18,6 +18,7 @@ _STATUS_LABEL = {
     "read-only": ("⚠", "读多无动作", "mid"),
     "explicit-only": ("⚠", "调用未读", "mid"),
     "cold": ("·", "长期冷藏", "cold"),
+    "disabled": ("⊘", "停用", "cold"),
 }
 
 # spark SVG 配色对应 badge_cls
@@ -107,7 +108,7 @@ def _render_overview_section(parts: list, *, summary: list, rows_by_cat: dict,
                               owner_filter: str, overridden_user: set):
     """F 方案：状态 chip + 概览表（每行一个类别）+ 内嵌可展开 funnel 列表."""
     # 统计跨类别状态总数（用于顶部 chip 计数）
-    total_counts = {"paired": 0, "read-only": 0, "explicit-only": 0, "cold": 0}
+    total_counts = {"paired": 0, "read-only": 0, "explicit-only": 0, "cold": 0, "disabled": 0}
     grand_total = 0
     for s in summary:
         grand_total += s["total"]
@@ -115,6 +116,7 @@ def _render_overview_section(parts: list, *, summary: list, rows_by_cat: dict,
         total_counts["read-only"] += s["read_only"]
         total_counts["explicit-only"] += s["explicit_only"]
         total_counts["cold"] += s["cold"]
+        total_counts["disabled"] += s["disabled"]
 
     parts.append("<details class='section collapsible' data-default-open open>")
     parts.append("<summary class='section-head'>"
@@ -126,7 +128,7 @@ def _render_overview_section(parts: list, *, summary: list, rows_by_cat: dict,
     # 状态过滤 chips
     parts.append("<div class='pills funnel-filter' id='overview-status-filter'>")
     parts.append(f"<a class='pill active' href='#' data-funnel-status=''>全部 <b>{grand_total}</b></a>")
-    for st in ("explicit-only", "read-only", "cold", "paired"):
+    for st in ("explicit-only", "read-only", "cold", "paired", "disabled"):
         icon, label, _cls = _STATUS_LABEL.get(st, ("?", st, ""))
         n = total_counts.get(st, 0)
         parts.append(
@@ -153,7 +155,8 @@ def _render_overview_section(parts: list, *, summary: list, rows_by_cat: dict,
         parts.append(
             f"<tr class='ov-summary-row' data-kind='{html.escape(kind)}' "
             f"data-paired='{s['paired']}' data-read-only='{s['read_only']}' "
-            f"data-explicit-only='{s['explicit_only']}' data-cold='{s['cold']}'>"
+            f"data-explicit-only='{s['explicit_only']}' data-cold='{s['cold']}' "
+            f"data-disabled='{s['disabled']}'>"
             f"<td class='ov-kind'><span class='ov-chevron'>▶</span>"
             f"<span class='ov-kind-label'>{html.escape(s['label'])}</span></td>"
             f"<td class='ov-num'>{s['total']}</td>"
@@ -231,7 +234,7 @@ def _render_category_funnel(parts: list, kind: str, rows: list, owner_filter: st
         )
         last_iso = r.get("last_seen") or ""
         # 状态严重度（用于状态列排序：异常优先）
-        sev_map = {"explicit-only": 0, "read-only": 1, "cold": 2, "paired": 3}
+        sev_map = {"explicit-only": 0, "read-only": 1, "cold": 2, "paired": 3, "disabled": 4}
         sev = sev_map.get(st, 9)
         parts.append(
             f"<li class='spark-row funnel-row{disabled_cls}' "

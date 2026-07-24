@@ -41,7 +41,6 @@ Hook 配置在 `~/.claude/settings.json` 的 `hooks.PostToolUse` 和 `hooks.User
 | 文件 | 角色 |
 |---|---|
 | `tracker.sh` | hook 入口（PostToolUse + UserPromptSubmit），唯一写 events.db 的脚本 |
-| `archive-cold.sh` | 批量把 N 天 0 触发的 skill/subagent 移到 `.disabled/`，可逆 |
 | `report.sh` | CLI 排行报表（不依赖 dashboard） |
 
 ## 数据文件
@@ -52,7 +51,7 @@ Hook 配置在 `~/.claude/settings.json` 的 `hooks.PostToolUse` 和 `hooks.User
 |---|---|
 | `events.db` | SQLite 单一真理源（dashboard 和 report.sh 都读这个） |
 | `tracker-errors.log` | hook 内部失败时写入（sqlite 写失败 / schema init 失败） |
-| `archive-log.jsonl` | archive-cold.sh 移动/恢复的审计日志，可逆操作的依据 |
+| `archive-log.jsonl` | 历史遗留：旧 `.disabled/` 停用机制的审计日志，现已改为手动停用，不再写入 |
 | `last-cleared.txt` | 上次手动清零 events.db 的时间，dashboard 顶部显示 |
 
 ## 常用命令
@@ -70,15 +69,12 @@ Hook 配置在 `~/.claude/settings.json` 的 `hooks.PostToolUse` 和 `hooks.User
 
 类别：`skill / clinerule / subagent / explicit / claude / agents / memory / all`
 
-**批量禁用冷藏对象**：
+**手动停用工具**（dashboard 只展示状态，不提供停用按钮）：
 
-    bash ~/Desktop/ai-project/hooks/tracker/archive-cold.sh                  # 干跑：列候选
-    bash ~/Desktop/ai-project/hooks/tracker/archive-cold.sh --days 60        # 改阈值
-    bash ~/Desktop/ai-project/hooks/tracker/archive-cold.sh --apply          # 实际移动
-    bash ~/Desktop/ai-project/hooks/tracker/archive-cold.sh --list           # 看已禁用
-    bash ~/Desktop/ai-project/hooks/tracker/archive-cold.sh --restore NAME   # 恢复
+- 停用 agent：把 `<name>.md` 改名成 `<name>.md.disabled`（Claude Code 的 `*.md` 发现机制会跳过它；去掉后缀即恢复）。
+- 停用 skill：`/skills` 菜单选中按空格切到 `off`（写入 `settings.local.json` 的 `skillOverrides`；再切回 `on` 恢复）。
 
-archive-cold 有内置白名单（using-superpowers / brainstorming / writing-plans 等核心工作流不会被禁）。
+dashboard 读上述两个来源标记「已停用」，与 Claude Code 实际能否调用一致。
 
 ## 故障诊断
 

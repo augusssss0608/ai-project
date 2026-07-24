@@ -65,10 +65,6 @@ def is_direct_local(headers) -> bool:
     return True
 
 
-# 禁用工具: archive 的核心逻辑 (web 端复用)
-ARCHIVE_LOG_PATH = os.path.expanduser("~/Desktop/ai-project/data/archive-log.jsonl")
-
-
 # ============================================================
 # 区块: 新闻投票 (helpful feedback)
 # ============================================================
@@ -171,113 +167,6 @@ _clear_summary_cache = summary_mod.clear_cache
 get_or_generate_summary = summary_mod.get_or_generate
 
 
-def archive_object(obj_type: str, name: str, scope: str) -> tuple:
-    """禁用一个对象. 返回 (ok: bool, message: str, new_path: str).
-    obj_type: 'skill' | 'subagent'
-    scope: 'user' | 'project'
-    """
-    if obj_type not in ("skill", "subagent"):
-        return False, f"invalid type: {obj_type}", ""
-    if scope == "user":
-        base = f"{USER_HOME}/.claude"
-    elif scope == "project":
-        base = f"{PROJECT_ROOT}/.claude"
-    else:
-        return False, f"invalid scope: {scope}", ""
-
-    if obj_type == "skill":
-        src = f"{base}/skills/{name}"
-        dst_dir = f"{base}/skills/.disabled"
-        dst = f"{dst_dir}/{name}"
-        check_src = os.path.isdir(src)
-    else:  # subagent
-        src = f"{base}/agents/{name}.md"
-        dst_dir = f"{base}/agents/.disabled"
-        dst = f"{dst_dir}/{name}.md"
-        check_src = os.path.isfile(src)
-
-    if not check_src:
-        return False, f"源文件不存在: {src}", ""
-    if os.path.exists(dst):
-        return False, f"目标已存在: {dst}", ""
-
-    try:
-        os.makedirs(dst_dir, exist_ok=True)
-        os.rename(src, dst)
-    except Exception as e:
-        return False, f"移动失败: {e}", ""
-
-    # 写入 archive-log.jsonl
-    try:
-        import json
-        log_entry = {
-            "ts": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "action": "archive",
-            "type": obj_type,
-            "name": name,
-            "scope": scope,
-            "src": src,
-            "dst": dst,
-            "via": "web",
-        }
-        with open(ARCHIVE_LOG_PATH, "a") as f:
-            f.write(json.dumps(log_entry) + "\n")
-    except Exception:
-        pass  # 日志失败不影响核心操作
-
-    return True, "已禁用", dst
-
-
-def restore_object(obj_type: str, name: str, scope: str) -> tuple:
-    """从 .disabled/ 恢复一个对象. 返回 (ok, message, new_path)."""
-    if scope == "user":
-        base = f"{USER_HOME}/.claude"
-    elif scope == "project":
-        base = f"{PROJECT_ROOT}/.claude"
-    else:
-        return False, f"invalid scope: {scope}", ""
-
-    if obj_type == "skill":
-        src = f"{base}/skills/.disabled/{name}"
-        dst = f"{base}/skills/{name}"
-        check_src = os.path.isdir(src)
-    elif obj_type == "subagent":
-        src = f"{base}/agents/.disabled/{name}.md"
-        dst = f"{base}/agents/{name}.md"
-        check_src = os.path.isfile(src)
-    else:
-        return False, f"invalid type: {obj_type}", ""
-
-    if not check_src:
-        return False, f"禁用目录中未找到: {src}", ""
-    if os.path.exists(dst):
-        return False, f"目标已存在: {dst}", ""
-
-    try:
-        os.rename(src, dst)
-    except Exception as e:
-        return False, f"恢复失败: {e}", ""
-
-    try:
-        import json
-        log_entry = {
-            "ts": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "action": "restore",
-            "type": obj_type,
-            "name": name,
-            "scope": scope,
-            "src": src,
-            "dst": dst,
-            "via": "web",
-        }
-        with open(ARCHIVE_LOG_PATH, "a") as f:
-            f.write(json.dumps(log_entry) + "\n")
-    except Exception:
-        pass
-
-    return True, "已恢复", dst
-
-
 def _serve_static(handler: "Handler", path: str, mime: str):
     if not os.path.isfile(path):
         handler.send_response(404); handler.end_headers(); return
@@ -301,7 +190,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         u = urlparse(self.path)
-        if u.path not in ("/archive", "/restore", "/clear-summary-cache",
+        if u.path not in ("/clear-summary-cache",
                           "/news/vote", "/news/favorite", "/news/seen"):
             self.send_response(404); self.end_headers(); return
         # 中等安全: 拒绝 cloudflare tunnel 转发的写操作
@@ -429,24 +318,6 @@ class Handler(BaseHTTPRequestHandler):
                     self._send_json(500, {"ok": False, "error": str(e)})
             return
 
-        # 解析 form body
-        from urllib.parse import parse_qs as pq
-        length = int(self.headers.get("Content-Length", "0"))
-        raw = self.rfile.read(length).decode("utf-8") if length > 0 else ""
-        form = pq(raw)
-        obj_type = form.get("type", [""])[0]
-        name = form.get("name", [""])[0]
-        scope = form.get("scope", [""])[0]
-        if not obj_type or not name or not scope:
-            self._send_json(400, {"ok": False, "error": "缺少参数 type/name/scope"})
-            return
-        if u.path == "/archive":
-            ok, msg, new_path = archive_object(obj_type, name, scope)
-        else:
-            ok, msg, new_path = restore_object(obj_type, name, scope)
-        self._send_json(200 if ok else 500, {
-            "ok": ok, "message": msg, "path": new_path,
-        })
 
     def do_GET(self):
         u = urlparse(self.path)
