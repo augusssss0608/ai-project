@@ -71,13 +71,19 @@ def _load_news_favorites() -> dict:
         return {}
 
 
-def _fmt_news_ts(ts: str) -> str:
-    """把 ISO 时间字符串转成 '2h' / '昨天' 之类相对时间 (仅用于头部 '数据 Xh' 提示)."""
+def _fmt_news_ts(ts) -> str:
+    """把时间戳转成 '2h' / '3d' 之类相对时间 (仅用于头部 '数据 Xh' 提示).
+
+    ai-news.json 由 cloud routine 生成, updated_at 出现过 ISO 字符串和 epoch 秒两种形态,
+    两者都要能渲染, 且任何解析失败都不能让整页 500.
+    """
     if not ts:
         return ""
     try:
-        t = ts.replace("Z", "+00:00")
-        dt = datetime.fromisoformat(t)
+        if isinstance(ts, (int, float)):
+            dt = datetime.fromtimestamp(ts, timezone.utc)
+        else:
+            dt = datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
         now = datetime.now(timezone.utc)
         if dt.tzinfo is None:
             dt = dt.replace(tzinfo=timezone.utc)
@@ -94,7 +100,7 @@ def _fmt_news_ts(ts: str) -> str:
             return f"{int(diff // 86400)}d"
         return dt.strftime("%m-%d")
     except Exception:
-        return ts[:10] if len(ts) >= 10 else ts
+        return str(ts)[:10]
 
 
 def render_news(parts: list):
