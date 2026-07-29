@@ -2,6 +2,8 @@
 __pycache__/
 *.bak
 *.tmp
+*.md.v[0-9]
+*.md.v[0-9][0-9]
 .DS_Store
 .idea/
 .vscode/
