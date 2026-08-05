@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-04T14:41:17+09:00",
+  "updated_at": "2026-08-05T14:16:27+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -2454,6 +2454,12 @@
       "title": "◤✦ Codex 模型實測懶人包 ✦◢",
       "source": "threads",
       "score": "up"
+    },
+    "https://www.threads.com/@0x0funky/post/DbnzlUAEvnP": {
+      "ts": "2026-08-05T14:16:26+09:00",
+      "title": "前陣子去德國旅遊，拍了一堆照片想說來剪成紀錄影片，但用純照片剪輯出來的質感…是真的有點無聊。",
+      "source": "threads",
+      "score": "down"
     }
   },
   "favorites": {
@@ -2534,10 +2540,6 @@
     }
   },
   "seen": {
-    "https://github.com/asgeirtj/system_prompts_leaks": {
-      "ts": "2026-07-06T14:05:55+09:00",
-      "source": "github_trending"
-    },
     "https://github.com/affaan-m/ECC": {
       "ts": "2026-07-09T13:57:26+09:00",
       "source": "github_trending"
@@ -2630,80 +2632,76 @@
       "ts": "2026-08-03T14:03:33+09:00",
       "source": "github_trending"
     },
-    "https://github.com/earthtojake/text-to-cad": {
-      "ts": "2026-08-03T14:03:38+09:00",
-      "source": "github_trending"
-    },
     "https://github.com/tt-a1i/archify": {
       "ts": "2026-08-03T14:03:41+09:00",
       "source": "github_trending"
     },
-    "https://qwen.ai/blog?id=qwen3.8": {
-      "ts": "2026-08-04T14:15:16+09:00",
+    "https://github.com/ryanzhou/deepseek-v4-flash-mi300x": {
+      "ts": "2026-08-05T14:13:43+09:00",
       "source": "hackernews"
     },
-    "https://ankursethi.com/blog/prevent-cognitive-debt-by-manually-retyping-llm-generated-code/": {
-      "ts": "2026-08-04T14:40:17+09:00",
+    "https://nelson.cloud/ai-generated-images-discourage-me-from-reading-your-blog/": {
+      "ts": "2026-08-05T14:13:47+09:00",
       "source": "hackernews"
     },
-    "https://www.seangoedecke.com/llms-reward-expertise/": {
-      "ts": "2026-08-04T14:40:18+09:00",
-      "source": "hackernews"
-    },
-    "https://github.com/Alishahryar1/free-claude-code": {
-      "ts": "2026-08-04T14:40:21+09:00",
+    "https://github.com/EveryInc/compound-engineering-plugin": {
+      "ts": "2026-08-05T14:13:51+09:00",
       "source": "github_trending"
     },
-    "https://www.threads.com/@brew.agent/post/DbmYN-RgWpS": {
-      "ts": "2026-08-04T14:40:24+09:00",
+    "https://github.com/MadsLorentzen/ai-job-search": {
+      "ts": "2026-08-05T14:13:53+09:00",
+      "source": "github_trending"
+    },
+    "https://www.threads.com/@kojenchieh/post/DbnMhH7kntS": {
+      "ts": "2026-08-05T14:13:55+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@jayc07/post/DbkIHNjmLYM": {
-      "ts": "2026-08-04T14:40:27+09:00",
+    "https://www.threads.com/@yichen0880/post/DbnRL2IFBpv": {
+      "ts": "2026-08-05T14:15:57+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@jikensitu/post/Dbj2Nc2gW9R": {
-      "ts": "2026-08-04T14:40:36+09:00",
+    "https://www.threads.com/@aiposthub/post/DbnuXRcASbP": {
+      "ts": "2026-08-05T14:15:59+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@dinghuanglin/post/DblB9mKH2gV": {
-      "ts": "2026-08-04T14:40:40+09:00",
+    "https://www.threads.com/@ethansavemoneydairy/post/Dbn5WewGkWa": {
+      "ts": "2026-08-05T14:16:00+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@azlife_1224/post/DblGWPGD3Zn": {
-      "ts": "2026-08-04T14:40:52+09:00",
+    "https://www.threads.com/@6yengee/post/DboldUEjdwF": {
+      "ts": "2026-08-05T14:16:02+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@jasperhung.me/post/DblfcV3muiI": {
-      "ts": "2026-08-04T14:41:01+09:00",
+    "https://www.threads.com/@daidouofficial/post/DboS2_gASh4": {
+      "ts": "2026-08-05T14:16:05+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@imnotnpc.1/post/DbmY-qXEr2d": {
-      "ts": "2026-08-04T14:41:06+09:00",
+    "https://www.threads.com/@sam_lung2077/post/Dbnun0OgcAP": {
+      "ts": "2026-08-05T14:16:10+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@ekcheungai/post/DbmZb2_DK6U": {
-      "ts": "2026-08-04T14:41:09+09:00",
+    "https://www.threads.com/@ci.fullstack/post/Dbn2McRHyBI": {
+      "ts": "2026-08-05T14:16:12+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@poyen_49_2002/post/DbmX2IeE6fB": {
-      "ts": "2026-08-04T14:41:10+09:00",
+    "https://www.threads.com/@helloivan.tech/post/DbnBzcVG1zr": {
+      "ts": "2026-08-05T14:16:20+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@kojenchieh/post/DbmdUWgEuIO": {
-      "ts": "2026-08-04T14:41:12+09:00",
+    "https://www.threads.com/@johnny850807/post/Dbo3FLAk5Zi": {
+      "ts": "2026-08-05T14:16:22+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@raymond0917/post/DblCtw4AOi9": {
-      "ts": "2026-08-04T14:41:14+09:00",
+    "https://www.threads.com/@wenyu_chiou/post/DbnDhSMk1D0": {
+      "ts": "2026-08-05T14:16:23+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@prompt_case/post/Dbj_5uHgsNm": {
-      "ts": "2026-08-04T14:41:15+09:00",
+    "https://www.threads.com/@0x0funky/post/DbnzlUAEvnP": {
+      "ts": "2026-08-05T14:16:24+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@darks0603/post/DblJ6jSEuT4": {
-      "ts": "2026-08-04T14:41:17+09:00",
+    "https://www.threads.com/@dustin_gmat/post/Dbo6FdPj_VW": {
+      "ts": "2026-08-05T14:16:27+09:00",
       "source": "threads"
     }
   }
