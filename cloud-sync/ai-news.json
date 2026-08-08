@@ -1309,5 +1309,38 @@
       "error": null,
       "warning": null
     }
-  ]
+  ],
+  "pipeline_metrics": {
+    "wall_time_sec": 1850,
+    "scorer": {
+      "source_failures": []
+    },
+    "boundary_fetch": {
+      "attempted": 10,
+      "succeeded": 0,
+      "failed": 10
+    },
+    "dedupe": {
+      "eligible_count": 26,
+      "kept_count": 25,
+      "suppressed_total": 1,
+      "suppressed_event_count": 1,
+      "event_groups_multi_count": 1,
+      "missing_event_key_count": 26,
+      "suppressed_samples": [
+        {
+          "event_key": "claude-code-2-1-224-inter-session-messaging",
+          "source": "threads",
+          "title": "Claude Code 又往「多 Agent 協作」跨了一步。",
+          "kept_source": "hackernews"
+        }
+      ]
+    },
+    "github_dims": {
+      "daily": 2,
+      "weekly": 3,
+      "monthly": 8,
+      "total": 13
+    }
+  }
 }
