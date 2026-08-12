@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-10T11:30:15+09:00",
+  "updated_at": "2026-08-12T14:25:18+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -2608,20 +2608,12 @@
       "ts": "2026-07-13T15:24:32+09:00",
       "source": "github_trending"
     },
-    "https://github.com/bradautomates/claude-video": {
-      "ts": "2026-07-24T14:09:21+09:00",
-      "source": "github_trending"
-    },
     "https://github.com/virgiliojr94/book-to-skill": {
       "ts": "2026-07-29T14:16:53+09:00",
       "source": "github_trending"
     },
     "https://github.com/ChromeDevTools/chrome-devtools-mcp": {
       "ts": "2026-07-31T14:13:54+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/Shubhamsaboo/awesome-llm-apps": {
-      "ts": "2026-07-31T14:13:58+09:00",
       "source": "github_trending"
     },
     "https://github.com/zhaoxuya520/reverse-skill": {
@@ -2631,10 +2623,6 @@
     "https://github.com/tt-a1i/archify": {
       "ts": "2026-08-03T14:03:41+09:00",
       "source": "github_trending"
-    },
-    "https://laurentiugabriel.github.io/blog/articles/how-i-use-llms-to-learn/": {
-      "ts": "2026-08-10T11:27:03+09:00",
-      "source": "hackernews"
     },
     "https://github.com/addyosmani/agent-skills": {
       "ts": "2026-08-10T11:27:07+09:00",
@@ -2648,60 +2636,92 @@
       "ts": "2026-08-10T11:27:13+09:00",
       "source": "github_trending"
     },
-    "https://www.threads.com/@dustin_gmat/post/Db0AgFMiWUC": {
-      "ts": "2026-08-10T11:27:15+09:00",
+    "https://research.meta.ai/blog/introducing-muse-glimmer-open-agentic-model": {
+      "ts": "2026-08-12T14:23:46+09:00",
+      "source": "hackernews"
+    },
+    "https://thewalrus.ca/google-search-is-dying/": {
+      "ts": "2026-08-12T14:24:12+09:00",
+      "source": "hackernews"
+    },
+    "https://www.docker.com/products/docker-sandboxes/": {
+      "ts": "2026-08-12T14:24:13+09:00",
+      "source": "hackernews"
+    },
+    "https://www.ft.com/content/4e3957f8-ea7c-4c46-a3de-cdce8e526878": {
+      "ts": "2026-08-12T14:24:14+09:00",
+      "source": "hackernews"
+    },
+    "https://cactuscompute.com/needle": {
+      "ts": "2026-08-12T14:24:15+09:00",
+      "source": "hackernews"
+    },
+    "https://stolen-thoughts.com/": {
+      "ts": "2026-08-12T14:24:15+09:00",
+      "source": "hackernews"
+    },
+    "https://github.com/antirez/h3.c": {
+      "ts": "2026-08-12T14:24:16+09:00",
+      "source": "hackernews"
+    },
+    "https://support.claude.com/en/articles/16266773-how-claude-marks-ai-generated-content": {
+      "ts": "2026-08-12T14:24:16+09:00",
+      "source": "hackernews"
+    },
+    "https://www.ft.com/content/e49dfb75-f841-4466-a577-f7aaff8779a0": {
+      "ts": "2026-08-12T14:24:17+09:00",
+      "source": "hackernews"
+    },
+    "https://claude.com/blog/auto-mode-default-in-claude-code": {
+      "ts": "2026-08-12T14:24:17+09:00",
+      "source": "hackernews"
+    },
+    "https://github.com/huangruiteng/loopx": {
+      "ts": "2026-08-12T14:24:18+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/kangarooking/cangjie-skill": {
+      "ts": "2026-08-12T14:24:21+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/anthropics/skills": {
+      "ts": "2026-08-12T14:24:27+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/calesthio/OpenMontage": {
+      "ts": "2026-08-12T14:24:28+09:00",
+      "source": "github_trending"
+    },
+    "https://www.threads.com/@soroslika/post/Db5QhWMkvaj": {
+      "ts": "2026-08-12T14:24:38+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@ai.economy.signal/post/Dbz2nAFibdw": {
-      "ts": "2026-08-10T11:27:19+09:00",
+    "https://www.threads.com/@krumjahn/post/Db5pkrdHIyU": {
+      "ts": "2026-08-12T14:24:40+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@leeunhn/post/DbzpKMOAdWj": {
-      "ts": "2026-08-10T11:29:39+09:00",
+    "https://www.threads.com/@ai_triallab/post/Db4rleSGFZm": {
+      "ts": "2026-08-12T14:24:50+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@ai.economy.signal/post/Db1Ol-dk9Wx": {
-      "ts": "2026-08-10T11:29:42+09:00",
+    "https://www.threads.com/@brewbytes.ai/post/Db4oRuClNZR": {
+      "ts": "2026-08-12T14:24:53+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@ekcheungai/post/Db0EU8xjEic": {
-      "ts": "2026-08-10T11:29:44+09:00",
+    "https://www.threads.com/@web3_tommy/post/Db4rSCikum-": {
+      "ts": "2026-08-12T14:24:57+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@xiaoxiunique/post/DbzjI_FkVaA": {
-      "ts": "2026-08-10T11:29:50+09:00",
+    "https://www.threads.com/@brew.agent/post/Db6jHaWgvUE": {
+      "ts": "2026-08-12T14:25:09+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@kojenchieh/post/Db0WXlGElCy": {
-      "ts": "2026-08-10T11:29:52+09:00",
+    "https://www.threads.com/@chaskawu/post/Db47rE7Ekwz": {
+      "ts": "2026-08-12T14:25:13+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@squidward_bro/post/Dbzix4NmGZT": {
-      "ts": "2026-08-10T11:29:54+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@darrell_tw_/post/DbzuolrERzk": {
-      "ts": "2026-08-10T11:29:56+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@yinweichih/post/Dbz2kxiICMM": {
-      "ts": "2026-08-10T11:30:01+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@ci.fullstack/post/Db0wVKRD5OZ": {
-      "ts": "2026-08-10T11:30:03+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@mapsprink/post/Db1rsLFE8tZ": {
-      "ts": "2026-08-10T11:30:06+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@cylinog/post/Db0EaX6CSSo": {
-      "ts": "2026-08-10T11:30:13+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@sliven0722/post/DbziAJJDTNp": {
-      "ts": "2026-08-10T11:30:15+09:00",
+    "https://www.threads.com/@nexus.ai_club/post/Db5Ux14im_q": {
+      "ts": "2026-08-12T14:25:18+09:00",
       "source": "threads"
     }
   }
