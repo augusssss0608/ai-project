@@ -666,8 +666,12 @@ def fetch_article_text(url: str, timeout: int = None, max_chars: int = None) -> 
     t = timeout if timeout is not None else ARTICLE_TIMEOUT
     mc = max_chars if max_chars is not None else ARTICLE_MAX_CHARS
     jina_url = JINA_READER_PREFIX + url
+    headers = {}
+    key = os.environ.get("JINA_API_KEY", "").strip()
+    if key:
+        headers["Authorization"] = "Bearer " + key
     try:
-        raw = _fetch(jina_url, timeout=t).decode("utf-8", errors="replace")
+        raw = _fetch(jina_url, headers=headers, timeout=t).decode("utf-8", errors="replace")
         raw = re.sub(r"!\[[^\]]*\]\([^)]+\)", "", raw)
         raw = re.sub(r"\n{3,}", "\n\n", raw)
         return raw[:mc].strip(), ""
