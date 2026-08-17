@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-14T23:16:44+09:00",
+  "updated_at": "2026-08-17T14:09:50+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -2478,6 +2478,18 @@
       "title": "妖獸，一醒來看到怎麼有 github issue thread 的回覆提醒信件，點進去看才發現自己三個禮拜前隨手做的一個 SKILL 被老外瘋狂轉載，還留了三個 PR…",
       "source": "threads",
       "score": "down"
+    },
+    "https://www.threads.com/@prompt_case/post/DcGjKkVnLOc": {
+      "ts": "2026-08-17T14:09:28+09:00",
+      "title": "重磅！Codex Multi Agent V2 來了！",
+      "source": "threads",
+      "score": "up"
+    },
+    "https://www.threads.com/@cooljerrett/post/DcGnRxHib5c": {
+      "ts": "2026-08-17T14:09:34+09:00",
+      "title": "你的 Claude 輸出現在有浮水印了。搞懂原理、限制和影響。Anthropic的Thariq 用一篇文章來解釋Claude 新的浮水印機制，Claude將加入文字浮水印為了EU AI Act 合規，但文章解釋這完全不影響品質和Token花",
+      "source": "threads",
+      "score": "up"
     }
   },
   "favorites": {
@@ -2634,45 +2646,9 @@
       "ts": "2026-08-10T11:27:07+09:00",
       "source": "github_trending"
     },
-    "https://github.com/google/skills": {
-      "ts": "2026-08-10T11:27:10+09:00",
-      "source": "github_trending"
-    },
     "https://github.com/tirth8205/code-review-graph": {
       "ts": "2026-08-10T11:27:13+09:00",
       "source": "github_trending"
-    },
-    "https://github.com/huangruiteng/loopx": {
-      "ts": "2026-08-12T14:24:18+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/kangarooking/cangjie-skill": {
-      "ts": "2026-08-12T14:24:21+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/anthropics/skills": {
-      "ts": "2026-08-12T14:24:27+09:00",
-      "source": "github_trending"
-    },
-    "https://deepseek.com/harness/en/": {
-      "ts": "2026-08-14T23:15:28+09:00",
-      "source": "hackernews"
-    },
-    "https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-3-7-flash/": {
-      "ts": "2026-08-14T23:15:33+09:00",
-      "source": "hackernews"
-    },
-    "https://community.openai.com/t/codex-in-chatgpt-desktop-app-for-linux-is-now-in-preview/1390027": {
-      "ts": "2026-08-14T23:15:33+09:00",
-      "source": "hackernews"
-    },
-    "https://artificialanalysis.ai/articles/grok-4-6-benchmarks-and-analysis": {
-      "ts": "2026-08-14T23:15:34+09:00",
-      "source": "hackernews"
-    },
-    "https://www.cerebras.ai/blog/accelerating-gpt-5-6-sol-ultrafast-with-openai": {
-      "ts": "2026-08-14T23:15:35+09:00",
-      "source": "hackernews"
     },
     "https://github.com/cathrynlavery/diagram-design": {
       "ts": "2026-08-14T23:15:35+09:00",
@@ -2682,60 +2658,52 @@
       "ts": "2026-08-14T23:15:37+09:00",
       "source": "github_trending"
     },
-    "https://github.com/holaboss-ai/holaOS": {
-      "ts": "2026-08-14T23:15:39+09:00",
+    "https://platform.claude.com/docs/en/release-notes/system-prompts": {
+      "ts": "2026-08-17T14:03:39+09:00",
+      "source": "hackernews"
+    },
+    "https://littlelearner-ll.github.io/": {
+      "ts": "2026-08-17T14:08:54+09:00",
+      "source": "hackernews"
+    },
+    "https://vectoral.com/blog/who-are-the-token-brokers": {
+      "ts": "2026-08-17T14:08:56+09:00",
+      "source": "hackernews"
+    },
+    "https://www.bloomberg.com/news/articles/2026-08-16/stripe-nears-deal-to-buy-ai-firm-openrouter-for-over-7-billion": {
+      "ts": "2026-08-17T14:08:57+09:00",
+      "source": "hackernews"
+    },
+    "https://github.com/different-ai/openwork": {
+      "ts": "2026-08-17T14:09:03+09:00",
       "source": "github_trending"
     },
-    "https://github.com/kepano/obsidian-skills": {
-      "ts": "2026-08-14T23:15:40+09:00",
-      "source": "github_trending"
-    },
-    "https://www.threads.com/@yuqi._.0313/post/Db9zc01E1UZ": {
-      "ts": "2026-08-14T23:15:42+09:00",
+    "https://www.threads.com/@derekhsu/post/DcH4KfCjwlY": {
+      "ts": "2026-08-17T14:09:05+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@bulaii.btc/post/Db989_7j0d7": {
-      "ts": "2026-08-14T23:15:47+09:00",
+    "https://www.threads.com/@prompt_case/post/DcGjKkVnLOc": {
+      "ts": "2026-08-17T14:09:14+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@corwinwastaken/post/Db964eOkbDS": {
-      "ts": "2026-08-14T23:15:53+09:00",
+    "https://www.threads.com/@cooljerrett/post/DcGnRxHib5c": {
+      "ts": "2026-08-17T14:09:26+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@leofongai/post/Db-TfehDJjo": {
-      "ts": "2026-08-14T23:15:55+09:00",
+    "https://www.threads.com/@6yengee/post/DcHd7TxjY_C": {
+      "ts": "2026-08-17T14:09:34+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@aipruner1991/post/Db-f85rlFMM": {
-      "ts": "2026-08-14T23:16:02+09:00",
+    "https://www.threads.com/@taiwanjusticestreet/post/DcFl8GaEUfV": {
+      "ts": "2026-08-17T14:09:42+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@light0025/post/Db_Cq0tEhEV": {
-      "ts": "2026-08-14T23:16:10+09:00",
+    "https://www.threads.com/@joshuawang2211/post/DcF7U4Uj9hY": {
+      "ts": "2026-08-17T14:09:45+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@wutsungtse/post/Db_CXtmiSrV": {
-      "ts": "2026-08-14T23:16:16+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@nanwan42/post/DcAKXpQk2-x": {
-      "ts": "2026-08-14T23:16:21+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@kunkunbuildingwai/post/DcAFFuMGrVy": {
-      "ts": "2026-08-14T23:16:23+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@weichih.ting/post/Db9r1WUIFis": {
-      "ts": "2026-08-14T23:16:31+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@dustin_gmat/post/DcABJ5DDwHw": {
-      "ts": "2026-08-14T23:16:35+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@dustin_gmat/post/Db9d7cBj3me": {
-      "ts": "2026-08-14T23:16:38+09:00",
+    "https://www.threads.com/@catherine_profession/post/DcGjBf5IHhQ": {
+      "ts": "2026-08-17T14:09:50+09:00",
       "source": "threads"
     }
   }
