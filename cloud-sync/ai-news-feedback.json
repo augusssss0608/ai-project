@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-02T14:21:16+09:00",
+  "updated_at": "2026-09-07T10:46:51+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -2646,36 +2646,12 @@
       "ts": "2026-07-09T15:16:37+09:00",
       "source": "github_trending"
     },
-    "https://github.com/zhaoxuya520/reverse-skill": {
-      "ts": "2026-08-03T14:03:33+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/MadsLorentzen/ai-job-search": {
-      "ts": "2026-08-25T14:36:02+09:00",
-      "source": "github_trending"
-    },
     "https://github.com/anthropics/claude-plugins-community": {
       "ts": "2026-08-25T14:36:08+09:00",
       "source": "github_trending"
     },
-    "https://www.anthropic.com/claude-fable-and-mythos-5-1": {
-      "ts": "2026-09-02T14:20:33+09:00",
-      "source": "hackernews"
-    },
-    "https://mvakde.github.io/blog/44-on-arc-1/": {
-      "ts": "2026-09-02T14:20:38+09:00",
-      "source": "hackernews"
-    },
-    "https://danluu.com/zitron/": {
-      "ts": "2026-09-02T14:20:39+09:00",
-      "source": "hackernews"
-    },
     "https://github.com/Gitlawb/openclaude": {
       "ts": "2026-09-02T14:20:40+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/Imbad0202/academic-research-skills": {
-      "ts": "2026-09-02T14:20:42+09:00",
       "source": "github_trending"
     },
     "https://github.com/K-Dense-AI/scientific-agent-skills": {
@@ -2686,40 +2662,76 @@
       "ts": "2026-09-02T14:20:44+09:00",
       "source": "github_trending"
     },
-    "https://github.com/huangruiteng/loopx": {
-      "ts": "2026-09-02T14:20:46+09:00",
+    "https://www.sylvainkalache.com/blog/ai-handles-incidents-engineers-lose-touch-with-their-systems": {
+      "ts": "2026-09-07T10:45:35+09:00",
+      "source": "hackernews"
+    },
+    "https://eebench.org/blog/can-ai-design-circuit-boards-yet/": {
+      "ts": "2026-09-07T10:45:39+09:00",
+      "source": "hackernews"
+    },
+    "https://github.com/anthropics/skills": {
+      "ts": "2026-09-07T10:45:43+09:00",
       "source": "github_trending"
     },
-    "https://github.com/google/skills": {
-      "ts": "2026-09-02T14:20:47+09:00",
+    "https://github.com/cathrynlavery/diagram-design": {
+      "ts": "2026-09-07T10:45:45+09:00",
       "source": "github_trending"
     },
-    "https://www.threads.com/@alphasnow_ai/post/DcxF8ygD3dv": {
-      "ts": "2026-09-02T14:20:49+09:00",
+    "https://github.com/blader/humanizer": {
+      "ts": "2026-09-07T10:45:47+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/WorldFlowAI/everything-claude-code": {
+      "ts": "2026-09-07T10:45:48+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/magnitudedev/magnitude": {
+      "ts": "2026-09-07T10:45:49+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/ChromeDevTools/chrome-devtools-mcp": {
+      "ts": "2026-09-07T10:45:51+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/ChatGPTNextWeb/NextChat": {
+      "ts": "2026-09-07T10:45:54+09:00",
+      "source": "github_trending"
+    },
+    "https://www.threads.com/@bbbachh.ww/post/Dc6JApOicl5": {
+      "ts": "2026-09-07T10:46:09+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@lawngaingai/post/Dcv5LM4kZAm": {
-      "ts": "2026-09-02T14:21:06+09:00",
+    "https://www.threads.com/@firekou0208/post/Dc5ueRnmCpv": {
+      "ts": "2026-09-07T10:46:20+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@xxpriscillaxuxx/post/DcwClkiGgo9": {
-      "ts": "2026-09-02T14:21:10+09:00",
+    "https://www.threads.com/@ethansavemoneydairy/post/Dc5sqNwmsmX": {
+      "ts": "2026-09-07T10:46:22+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@chaogeshouji/post/Dcu0wKWIFqg": {
-      "ts": "2026-09-02T14:21:12+09:00",
+    "https://www.threads.com/@lo2cin4/post/Dc50ZiOAJe3": {
+      "ts": "2026-09-07T10:46:24+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@gigaai_studio/post/DcvBwyuE0j8": {
-      "ts": "2026-09-02T14:21:14+09:00",
+    "https://www.threads.com/@philqq987654321/post/Dc5HZfyEdEq": {
+      "ts": "2026-09-07T10:46:29+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@mogu_ai_atelier/post/Dcv2MGTlBT4": {
-      "ts": "2026-09-02T14:21:15+09:00",
+    "https://www.threads.com/@sofi.life_official/post/Dc581Yqkwpr": {
+      "ts": "2026-09-07T10:46:37+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@malilion.dev/post/Dcw-_THk_-z": {
-      "ts": "2026-09-02T14:21:16+09:00",
+    "https://www.threads.com/@light0025/post/Dc5_poSgYDm": {
+      "ts": "2026-09-07T10:46:44+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@howardtuan/post/Dc5M0_7j9R5": {
+      "ts": "2026-09-07T10:46:50+09:00",
+      "source": "threads"
+    },
+    "https://www.threads.com/@dustin_gmat/post/Dc7Zd2EmONm": {
+      "ts": "2026-09-07T10:46:51+09:00",
       "source": "threads"
     }
   }
