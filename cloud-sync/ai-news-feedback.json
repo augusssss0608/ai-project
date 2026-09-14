@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-07T10:46:51+09:00",
+  "updated_at": "2026-09-14T14:08:41+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -2514,6 +2514,12 @@
       "title": "Claude 又升級了，這次 Anthropic 不只追求更強，還把 AI Agent 的使用成本壓下來。",
       "source": "threads",
       "score": "up"
+    },
+    "https://www.threads.com/@ilya.liao/post/DdP-NecnYPR": {
+      "ts": "2026-09-14T14:08:38+09:00",
+      "title": "如果你正在使用 Fable，這裡有一個很多人忽略的細節，可以把子代理預設的模型設定為 Opus，而不是讓它自動選擇",
+      "source": "threads",
+      "score": "up"
     }
   },
   "favorites": {
@@ -2650,28 +2656,8 @@
       "ts": "2026-08-25T14:36:08+09:00",
       "source": "github_trending"
     },
-    "https://github.com/Gitlawb/openclaude": {
-      "ts": "2026-09-02T14:20:40+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/K-Dense-AI/scientific-agent-skills": {
-      "ts": "2026-09-02T14:20:43+09:00",
-      "source": "github_trending"
-    },
     "https://github.com/tt-a1i/archify": {
       "ts": "2026-09-02T14:20:44+09:00",
-      "source": "github_trending"
-    },
-    "https://www.sylvainkalache.com/blog/ai-handles-incidents-engineers-lose-touch-with-their-systems": {
-      "ts": "2026-09-07T10:45:35+09:00",
-      "source": "hackernews"
-    },
-    "https://eebench.org/blog/can-ai-design-circuit-boards-yet/": {
-      "ts": "2026-09-07T10:45:39+09:00",
-      "source": "hackernews"
-    },
-    "https://github.com/anthropics/skills": {
-      "ts": "2026-09-07T10:45:43+09:00",
       "source": "github_trending"
     },
     "https://github.com/cathrynlavery/diagram-design": {
@@ -2682,14 +2668,6 @@
       "ts": "2026-09-07T10:45:47+09:00",
       "source": "github_trending"
     },
-    "https://github.com/WorldFlowAI/everything-claude-code": {
-      "ts": "2026-09-07T10:45:48+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/magnitudedev/magnitude": {
-      "ts": "2026-09-07T10:45:49+09:00",
-      "source": "github_trending"
-    },
     "https://github.com/ChromeDevTools/chrome-devtools-mcp": {
       "ts": "2026-09-07T10:45:51+09:00",
       "source": "github_trending"
@@ -2698,40 +2676,72 @@
       "ts": "2026-09-07T10:45:54+09:00",
       "source": "github_trending"
     },
-    "https://www.threads.com/@bbbachh.ww/post/Dc6JApOicl5": {
-      "ts": "2026-09-07T10:46:09+09:00",
+    "https://yoshuabengio.org/en/publication/why-are-ai-agents-lying-cheating-and-coordinating": {
+      "ts": "2026-09-14T14:05:39+09:00",
+      "source": "hackernews"
+    },
+    "https://techcrunch.com/2026/09/11/y-combinators-garry-tan-wants-u-s-open-weight-ai-labs-to-distill-frontier-models-too/": {
+      "ts": "2026-09-14T14:07:10+09:00",
+      "source": "hackernews"
+    },
+    "https://xeiaso.net/notes/2026/everyone-slowdown-but-me/": {
+      "ts": "2026-09-14T14:07:12+09:00",
+      "source": "hackernews"
+    },
+    "https://github.com/tech-leads-club/agent-skills": {
+      "ts": "2026-09-14T14:07:14+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/melgarafael/DeskcommCRM": {
+      "ts": "2026-09-14T14:07:18+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/calesthio/OpenMontage": {
+      "ts": "2026-09-14T14:07:40+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/asgeirtj/system_prompts_leaks": {
+      "ts": "2026-09-14T14:07:42+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/SnailSploit/Claude-Red": {
+      "ts": "2026-09-14T14:07:43+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/mksglu/context-mode": {
+      "ts": "2026-09-14T14:07:44+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/coreyhaines31/marketingskills": {
+      "ts": "2026-09-14T14:07:46+09:00",
+      "source": "github_trending"
+    },
+    "https://github.com/earthtojake/text-to-cad": {
+      "ts": "2026-09-14T14:07:47+09:00",
+      "source": "github_trending"
+    },
+    "https://www.threads.com/@mshank_1314/post/DdOKnZmD5e6": {
+      "ts": "2026-09-14T14:07:49+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@firekou0208/post/Dc5ueRnmCpv": {
-      "ts": "2026-09-07T10:46:20+09:00",
+    "https://www.threads.com/@7xuan.lu/post/DdOGn1IG8aF": {
+      "ts": "2026-09-14T14:08:07+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@ethansavemoneydairy/post/Dc5sqNwmsmX": {
-      "ts": "2026-09-07T10:46:22+09:00",
+    "https://www.threads.com/@0x0funky/post/DdPnTbxk0iF": {
+      "ts": "2026-09-14T14:08:21+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@lo2cin4/post/Dc50ZiOAJe3": {
-      "ts": "2026-09-07T10:46:24+09:00",
+    "https://www.threads.com/@ilya.liao/post/DdP-NecnYPR": {
+      "ts": "2026-09-14T14:08:24+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@philqq987654321/post/Dc5HZfyEdEq": {
-      "ts": "2026-09-07T10:46:29+09:00",
+    "https://www.threads.com/@by.rogerdai/post/DdPB91VFix9": {
+      "ts": "2026-09-14T14:08:37+09:00",
       "source": "threads"
     },
-    "https://www.threads.com/@sofi.life_official/post/Dc581Yqkwpr": {
-      "ts": "2026-09-07T10:46:37+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@light0025/post/Dc5_poSgYDm": {
-      "ts": "2026-09-07T10:46:44+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@howardtuan/post/Dc5M0_7j9R5": {
-      "ts": "2026-09-07T10:46:50+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@dustin_gmat/post/Dc7Zd2EmONm": {
-      "ts": "2026-09-07T10:46:51+09:00",
+    "https://www.threads.com/@nova.o.o/post/DdOZANzDVCY": {
+      "ts": "2026-09-14T14:08:41+09:00",
       "source": "threads"
     }
   }
