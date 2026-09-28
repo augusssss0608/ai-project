@@ -332,6 +332,7 @@ class TestThreadsPost(unittest.TestCase):
         with self.assertRaises(RuntimeError) as ctx:
             F._threads_post("https://x", {}, {})
         self.assertIn("1357004", str(ctx.exception))
+        self.assertIn("fb_dtsg/lsd", str(ctx.exception))
 
     def test_normal_json_returned(self):
         self._serve(b'{"data":{"feedData":{}}}\n{"extra":1}')

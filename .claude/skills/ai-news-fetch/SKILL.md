@@ -352,6 +352,8 @@ payload = {
     ],
 }
 
+**`error` 字段同样必须从 fetch_one 结果原样透传到 sources[]** (源整体失败, 如 threads 凭据失效时 items 为空、error 写明 Meta 错误码), 不要自己改写成 null 或别的描述; §2.6 自检会核对。
+
 **`warning` 字段必须从 fetch_one 结果透传到 sources[]** (§2.1 抓取阶段就有): 例如 github 某维度 RSSHub 空 feed / 请求失败但其他维度正常时, `warning` 会写明"部分维度抓取失败: weekly: 所有实例无数据 …". 这是区分「raw 榜单本身空/抓取失败」和「被 claude 白名单过滤光」的关键证据, §2.7 TG 通知要读它。丢了这个字段, 报告就只能干说"维度空"说不清原因。
 ```
 
@@ -460,6 +462,13 @@ for src in data["sources"]:
             assert it["dimension"] in ("daily", "weekly", "monthly", "total"), \
                 f"github item dimension 非法值: {it.get('dimension')}"
 
+# fetch 层报的 error 必须透传, 否则 TG 看不到, 源挂了只会显示 0 条
+raw_by_id = {s["id"]: s for s in json.load(open("/tmp/ai-news-raw.json"))}
+for src in data["sources"]:
+    raw_err = raw_by_id.get(src["id"], {}).get("error")
+    if raw_err:
+        assert src.get("error"), f"source {src['id']} 的 fetch error 没透传到 ai-news.json: {raw_err[:80]}"
+
 # §2.3e 跨源去重必须跑过, 防止 cloud agent 跳过 dedupe
 assert "pipeline_metrics" in data and isinstance(data["pipeline_metrics"], dict), "缺 pipeline_metrics"
 assert "dedupe" in data["pipeline_metrics"], "pipeline_metrics 缺 dedupe (§2.3e 未跑?)"
@@ -492,6 +501,7 @@ for src in data["sources"]:
 print("schema 自检通过")
 ```
 自检失败就不要发 TG, 写 log 后停止 pipeline (不覆盖旧 ai-news.json 已由 write_atomic 保证, 也不要 git push, 让云端工作树自动随 session 销毁).
+例外: "fetch error 没透传" 这条只是组装漏字段, 从 `/tmp/ai-news-raw.json` 补回该源 `error` 后重写 ai-news.json 并重跑自检即可, 不要因此停 pipeline (否则其他源当天的数据也一起丢了).
 
 #### 2.6.1 git commit + push (cloud-sync 数据回写)
 

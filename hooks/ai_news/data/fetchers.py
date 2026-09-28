@@ -710,7 +710,9 @@ def _threads_post(endpoint: str, headers: dict, form: dict, timeout: int = TIMEO
         first = first[len(THREADS_ERROR_PREFIX):]
     resp = json.loads(first)
     if isinstance(resp, dict) and resp.get("error"):
-        raise RuntimeError(f"Meta error {resp['error']}: {resp.get('errorSummary', '')}")
+        code = resp["error"]
+        hint = " (通常是 body 里 fb_dtsg/lsd 过期, cookie 可能仍有效)" if code == 1357004 else ""
+        raise RuntimeError(f"Meta error {code}: {resp.get('errorSummary', '')}{hint}")
     return resp
 
 
@@ -946,7 +948,7 @@ def fetch_threads_home(params: dict) -> list:
         try:
             resp = _threads_post(endpoint, headers, form)
         except Exception as e:
-            fail_reason = f"{type(e).__name__}: {e}"
+            fail_reason = str(e) if isinstance(e, RuntimeError) else f"{type(e).__name__}: {e}"
             break
         if not isinstance(resp, dict):
             fail_reason = f"响应不是 JSON object: {type(resp).__name__}"
