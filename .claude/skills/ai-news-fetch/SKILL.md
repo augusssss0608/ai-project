@@ -548,6 +548,8 @@ HN {n1} · GitHub {n2} · Threads {n3}                        # 各源 items 计
 ⚠️ GitHub 维度空: ...        # 条件行: 按 items[].dimension 统计, 四维度里计数为 0 的
 ⚠️ GitHub 抓取错误: ...      # 条件行: 源 error 字段非空 (截断 ~120 字)
 ⚠️ GitHub 部分维度抓取失败: ...  # 条件行: 源 warning 字段非空 (截断 ~120 字)
+⚠️ Threads 抓取错误: ...     # 条件行: threads 源 error 非空 (凭据失效 / 首页 0 post, 截断 ~120 字)
+⚠️ Threads 翻页中途失败 ...   # 条件行: threads 源 warning 非空 (截断 ~120 字)
 {--extra / --extra-file 传入的附加告警行}
 dashboard: http://localhost:38080/#news
 ```

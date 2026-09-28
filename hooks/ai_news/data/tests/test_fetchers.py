@@ -301,5 +301,109 @@ class TestJinaKeyHeader(unittest.TestCase):
         self.assertNotIn("Authorization", seen["headers"])
 
 
+class _FakeResp:
+    def __init__(self, body: bytes):
+        self._body = body
+
+    def read(self):
+        return self._body
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *a):
+        return False
+
+
+class TestThreadsPost(unittest.TestCase):
+    """_threads_post 对 Meta 错误响应 (for (;;); 前缀 + 单数 error) 的识别."""
+
+    def setUp(self):
+        self._urlopen = F.urllib.request.urlopen
+
+    def tearDown(self):
+        F.urllib.request.urlopen = self._urlopen
+
+    def _serve(self, body: bytes):
+        F.urllib.request.urlopen = lambda req, timeout=None: _FakeResp(body)
+
+    def test_meta_error_raises_with_code(self):
+        self._serve('for (;;);{"__ar":1,"error":1357004,"errorSummary":"好像有東西出錯了"}'.encode())
+        with self.assertRaises(RuntimeError) as ctx:
+            F._threads_post("https://x", {}, {})
+        self.assertIn("1357004", str(ctx.exception))
+
+    def test_normal_json_returned(self):
+        self._serve(b'{"data":{"feedData":{}}}\n{"extra":1}')
+        self.assertEqual(F._threads_post("https://x", {}, {}), {"data": {"feedData": {}}})
+
+
+def _post(pk):
+    import time
+    return {"pk": pk, "code": f"c{pk}", "caption": {"text": "中文 AI 貼文"},
+            "user": {"username": "u"}, "taken_at": int(time.time())}
+
+
+class TestThreadsHomeFailure(unittest.TestCase):
+    """fetch_threads_home 失败不能静默成 0 条: 首页全挂 raise, 翻页中途挂写 warning."""
+
+    PARAMS = {"page_delay_max": 0, "simulate_ai_dwell": False, "refresh_at": 1000}
+
+    def setUp(self):
+        self._post, self._load = F._threads_post, F._load_threads_session
+        F._load_threads_session = lambda path: {"cookie": "c", "body": {}, "variables": {}}
+
+    def tearDown(self):
+        F._threads_post, F._load_threads_session = self._post, self._load
+
+    def test_first_page_meta_error_raises(self):
+        def boom(*a, **k):
+            raise RuntimeError("Meta error 1357004: x")
+        F._threads_post = boom
+        with self.assertRaises(RuntimeError) as ctx:
+            F.fetch_threads_home(dict(self.PARAMS))
+        self.assertIn("1357004", str(ctx.exception))
+
+    def test_first_page_graphql_errors_raises(self):
+        F._threads_post = lambda *a, **k: {"errors": [{"message": "bad doc_id"}]}
+        with self.assertRaises(RuntimeError) as ctx:
+            F.fetch_threads_home(dict(self.PARAMS))
+        self.assertIn("bad doc_id", str(ctx.exception))
+
+    def test_no_posts_without_error_raises(self):
+        F._threads_post = lambda *a, **k: {"data": {}}
+        with self.assertRaises(RuntimeError):
+            F.fetch_threads_home(dict(self.PARAMS))
+
+    def test_fetch_one_records_error(self):
+        F._threads_post = lambda *a, **k: {"data": {}}
+        res = F.fetch_one("threads", {"type": "threads_home", "params": dict(self.PARAMS)})
+        self.assertEqual(res["items"], [])
+        self.assertIn("threads 首页无任何 post", res["error"])
+
+    def test_mid_pagination_failure_keeps_items_and_warns(self):
+        calls = []
+
+        def fake(*a, **k):
+            calls.append(1)
+            if len(calls) == 1:
+                return {"data": {"edges": [_post("1"), _post("2")],
+                                 "page_info": {"has_next_page": True, "end_cursor": "n1"}}}
+            raise RuntimeError("Meta error 1357004: x")
+        F._threads_post = fake
+        params = dict(self.PARAMS)
+        params["_diag"] = {}
+        items = F.fetch_threads_home(params)
+        self.assertEqual(len(items), 2)
+        self.assertIn("翻页中途失败 (已抓 2 条)", params["_diag"]["warning"])
+
+    def test_normal_end_no_warning(self):
+        F._threads_post = lambda *a, **k: {"data": {"edges": [_post("1")]}}
+        params = dict(self.PARAMS)
+        params["_diag"] = {}
+        self.assertEqual(len(F.fetch_threads_home(params)), 1)
+        self.assertNotIn("warning", params["_diag"])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -131,6 +131,11 @@ def build_daily_report_from_data(data: dict, extra_lines: list) -> str:
         lines.append("⚠️ GitHub 抓取错误: " + str(gh["error"])[:120])
     if gh.get("warning"):
         lines.append("⚠️ GitHub " + str(gh["warning"])[:120])
+    th = next((s for s in sources if s.get("id") == "threads"), {})
+    if th.get("error"):
+        lines.append("⚠️ Threads 抓取错误: " + str(th["error"])[:120])
+    if th.get("warning"):
+        lines.append("⚠️ Threads " + str(th["warning"])[:120])
     lines.extend(extra_lines)
     lines.append("dashboard: http://localhost:38080/#news")
     return "\n".join(lines)

@@ -91,6 +91,18 @@ class TestBuildDailyReport(unittest.TestCase):
         self.assertIn("⚠️ GitHub " + "W" * 120 + "\n", text + "\n")
         self.assertNotIn("E" * 121, text)
 
+    def test_threads_error_and_warning_surface(self):
+        data = _spec_data()
+        th = data["sources"][2]
+        th.update(items=[], error="RuntimeError: threads 首页无任何 post: Meta error 1357004",
+                  warning="翻页中途失败 (已抓 0 条): x")
+        text = build_daily_report_from_data(data, [])
+        self.assertIn("⚠️ Threads 抓取错误: RuntimeError: threads 首页无任何 post", text)
+        self.assertIn("⚠️ Threads 翻页中途失败", text)
+
+    def test_threads_normal_no_alert(self):
+        self.assertNotIn("Threads 抓取错误", build_daily_report_from_data(_spec_data(), []))
+
 
 class TestDailyReportCli(unittest.TestCase):
     """--daily-report 的 --extra / --extra-file 参数行为 (stub 发送)."""

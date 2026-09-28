@@ -683,6 +683,7 @@ def fetch_article_text(url: str, timeout: int = None, max_chars: int = None) -> 
 
 THREADS_GRAPHQL_URL = "https://www.threads.com/graphql/query"
 THREADS_IG_APP_ID = "238260118697367"
+THREADS_ERROR_PREFIX = "for (;;);"
 
 
 def _load_threads_session(session_path: str) -> dict:
@@ -703,7 +704,14 @@ def _threads_post(endpoint: str, headers: dict, form: dict, timeout: int = TIMEO
         raw = resp.read()
     # 响应首行就是 JSON (Meta 有时发 NDJSON, 取第一段够用)
     text = raw.decode("utf-8", errors="replace")
-    return json.loads(text.split("\n", 1)[0])
+    first = text.split("\n", 1)[0]
+    # Meta 的错误响应带 for (;;); 反劫持前缀, 且用单数 error 而非 GraphQL 的 errors
+    if first.startswith(THREADS_ERROR_PREFIX):
+        first = first[len(THREADS_ERROR_PREFIX):]
+    resp = json.loads(first)
+    if isinstance(resp, dict) and resp.get("error"):
+        raise RuntimeError(f"Meta error {resp['error']}: {resp.get('errorSummary', '')}")
+    return resp
 
 
 def _walk_threads_posts(obj, seen: dict):
@@ -918,6 +926,7 @@ def fetch_threads_home(params: dict) -> list:
     # 上一次 walker 抓到的 posts 列表 (用于构造下一次的 feed_view_info)
     prev_page_posts = []
     page_idx = 0
+    fail_reason = None
     for _ in range(max(1, pages)):
         variables_tpl[cursor_key] = cursor
         if isinstance(variables_tpl.get("data"), dict):
@@ -936,9 +945,14 @@ def fetch_threads_home(params: dict) -> list:
         form["variables"] = json.dumps(variables_tpl, ensure_ascii=False)
         try:
             resp = _threads_post(endpoint, headers, form)
-        except Exception:
+        except Exception as e:
+            fail_reason = f"{type(e).__name__}: {e}"
             break
-        if not isinstance(resp, dict) or resp.get("errors"):
+        if not isinstance(resp, dict):
+            fail_reason = f"响应不是 JSON object: {type(resp).__name__}"
+            break
+        if resp.get("errors"):
+            fail_reason = "GraphQL errors: " + json.dumps(resp["errors"], ensure_ascii=False)[:200]
             break
         before = len(seen)
         # 记录这一页新增的 post (用于下一轮 feed_view_info)
@@ -984,6 +998,14 @@ def fetch_threads_home(params: dict) -> list:
 
         cursor = next_cursor
         reason = "pagination"
+
+    # 登录态首页 feed 正常时恒有 post; 一条都没有必是请求/凭据/schema 出了问题, 不能伪装成"今天没新帖"
+    if not seen:
+        raise RuntimeError("threads 首页无任何 post: " + (
+            fail_reason or "响应里没解析到 post (无异常), 疑似 doc_id 或响应结构变了"))
+    diag = params.get("_diag")
+    if diag is not None and fail_reason:
+        diag["warning"] = f"翻页中途失败 (已抓 {len(seen)} 条): {fail_reason}"
 
     items = []
     for p in seen.values():
