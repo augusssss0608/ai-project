@@ -371,6 +371,22 @@ class TestThreadsHomeFailure(unittest.TestCase):
             F.fetch_threads_home(dict(self.PARAMS))
         self.assertIn("bad doc_id", str(ctx.exception))
 
+    def test_partial_field_errors_with_data_keeps_posts(self):
+        F._threads_post = lambda *a, **k: {
+            "data": {"edges": [_post("1")]},
+            "errors": [{"message": "field_exception", "path": ["user", "hd_profile_pic_versions"]}]}
+        params = dict(self.PARAMS)
+        params["_diag"] = {}
+        self.assertEqual(len(F.fetch_threads_home(params)), 1)
+        self.assertNotIn("warning", params["_diag"])
+
+    def test_partial_errors_but_no_posts_raises_with_errors(self):
+        F._threads_post = lambda *a, **k: {"data": {"feedData": None},
+                                           "errors": [{"message": "field_exception"}]}
+        with self.assertRaises(RuntimeError) as ctx:
+            F.fetch_threads_home(dict(self.PARAMS))
+        self.assertIn("field_exception", str(ctx.exception))
+
     def test_no_posts_without_error_raises(self):
         F._threads_post = lambda *a, **k: {"data": {}}
         with self.assertRaises(RuntimeError):
