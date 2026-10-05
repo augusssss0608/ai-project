@@ -684,6 +684,12 @@ def fetch_article_text(url: str, timeout: int = None, max_chars: int = None) -> 
 THREADS_GRAPHQL_URL = "https://www.threads.com/graphql/query"
 THREADS_IG_APP_ID = "238260118697367"
 THREADS_ERROR_PREFIX = "for (;;);"
+THREADS_HOME_URL = "https://www.threads.com/"
+THREADS_NAV_HEADER_KEYS = ("user-agent", "accept-language", "sec-ch-ua", "sec-ch-ua-mobile", "sec-ch-ua-platform")
+THREADS_TOKEN_RES = {
+    "fb_dtsg": re.compile(r'"DTSGInitialData",\[\],\{"token":"([^"]+)"'),
+    "lsd": re.compile(r'"LSD",\[\],\{"token":"([^"]+)"'),
+}
 
 
 def _load_threads_session(session_path: str) -> dict:
@@ -694,6 +700,33 @@ def _load_threads_session(session_path: str) -> dict:
     path = os.path.expanduser(session_path)
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
+
+
+def _fetch_threads_tokens(cookie: str, headers: dict) -> dict:
+    """带 cookie 开首页取当次 fb_dtsg / lsd: 这两个约两天就过期, cookie 能活几周.
+
+    取不到返回 {} (调用方沿用 session 里存的旧值).
+    """
+    nav_headers = {k: v for k, v in headers.items() if k in THREADS_NAV_HEADER_KEYS}
+    nav_headers.update({
+        "cookie": cookie,
+        "accept": "text/html,application/xhtml+xml,*/*;q=0.8",
+        "sec-fetch-dest": "document",
+        "sec-fetch-mode": "navigate",
+        "sec-fetch-site": "none",
+    })
+    try:
+        req = urllib.request.Request(THREADS_HOME_URL, headers=nav_headers)
+        with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
+            html = resp.read().decode("utf-8", errors="replace")
+    except Exception:
+        return {}
+    tokens = {}
+    for field, pat in THREADS_TOKEN_RES.items():
+        m = pat.search(html)
+        if m:
+            tokens[field] = m.group(1)
+    return tokens
 
 
 def _threads_post(endpoint: str, headers: dict, form: dict, timeout: int = TIMEOUT) -> dict:
@@ -893,7 +926,12 @@ def fetch_threads_home(params: dict) -> list:
     # cookie 如果 sniff_headers 里也有, session.cookie 优先 (明确字段)
     headers["cookie"] = cookie
 
-    cutoff = datetime.now(timezone.utc) - timedelta(hours=window)
+    fresh_tokens = _fetch_threads_tokens(cookie, headers)
+    body_base = {**body_base, **fresh_tokens}
+    if "lsd" in fresh_tokens:
+        headers["x-fb-lsd"] = fresh_tokens["lsd"]
+
+    cutoff =datetime.now(timezone.utc) - timedelta(hours=window)
 
     def _in_window(post) -> bool:
         ta = post.get("taken_at")

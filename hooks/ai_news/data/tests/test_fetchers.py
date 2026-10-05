@@ -351,11 +351,12 @@ class TestThreadsHomeFailure(unittest.TestCase):
     PARAMS = {"page_delay_max": 0, "simulate_ai_dwell": False, "refresh_at": 1000}
 
     def setUp(self):
-        self._post, self._load = F._threads_post, F._load_threads_session
+        self._post, self._load, self._tokens = F._threads_post, F._load_threads_session, F._fetch_threads_tokens
         F._load_threads_session = lambda path: {"cookie": "c", "body": {}, "variables": {}}
+        F._fetch_threads_tokens = lambda cookie, headers: {}
 
     def tearDown(self):
-        F._threads_post, F._load_threads_session = self._post, self._load
+        F._threads_post, F._load_threads_session, F._fetch_threads_tokens = self._post, self._load, self._tokens
 
     def test_first_page_meta_error_raises(self):
         def boom(*a, **k):
@@ -420,6 +421,58 @@ class TestThreadsHomeFailure(unittest.TestCase):
         params["_diag"] = {}
         self.assertEqual(len(F.fetch_threads_home(params)), 1)
         self.assertNotIn("warning", params["_diag"])
+
+
+class TestThreadsTokenRefresh(unittest.TestCase):
+    """session 里存的 fb_dtsg/lsd 约两天过期, 每次抓取前用 cookie 从首页换当次 token."""
+
+    PARAMS = {"page_delay_max": 0, "simulate_ai_dwell": False, "refresh_at": 1000}
+    HOME_HTML = ('["DTSGInitialData",[],{"token":"NEW:dtsg"},258],'
+                 '["LSD",[],{"token":"NEW_lsd"},323]').encode()
+
+    def setUp(self):
+        self._urlopen = F.urllib.request.urlopen
+        self._post, self._load, self._tokens = F._threads_post, F._load_threads_session, F._fetch_threads_tokens
+        F._load_threads_session = lambda path: {
+            "cookie": "c", "variables": {},
+            "headers": {"x-fb-lsd": "OLD_lsd"},
+            "body": {"fb_dtsg": "OLD:dtsg", "lsd": "OLD_lsd", "doc_id": "1"}}
+        self.sent = {}
+
+        def fake_post(endpoint, headers, form, **k):
+            self.sent = {"headers": headers, "form": form}
+            return {"data": {"edges": [_post("1")]}}
+        F._threads_post = fake_post
+
+    def tearDown(self):
+        F.urllib.request.urlopen = self._urlopen
+        F._threads_post, F._load_threads_session, F._fetch_threads_tokens = self._post, self._load, self._tokens
+
+    def test_tokens_parsed_from_home_html(self):
+        seen = {}
+
+        def fake_urlopen(req, timeout=None):
+            seen["url"], seen["cookie"] = req.full_url, req.get_header("Cookie")
+            return _FakeResp(self.HOME_HTML)
+        F.urllib.request.urlopen = fake_urlopen
+        self.assertEqual(F._fetch_threads_tokens("c", {}), {"fb_dtsg": "NEW:dtsg", "lsd": "NEW_lsd"})
+        self.assertEqual(seen, {"url": "https://www.threads.com/", "cookie": "c"})
+
+    def test_fresh_tokens_replace_stored_ones(self):
+        F._fetch_threads_tokens = lambda cookie, headers: {"fb_dtsg": "NEW:dtsg", "lsd": "NEW_lsd"}
+        F.fetch_threads_home(dict(self.PARAMS))
+        self.assertEqual(self.sent["form"]["fb_dtsg"], "NEW:dtsg")
+        self.assertEqual(self.sent["form"]["lsd"], "NEW_lsd")
+        self.assertEqual(self.sent["headers"]["x-fb-lsd"], "NEW_lsd")
+        self.assertEqual(self.sent["form"]["doc_id"], "1")
+
+    def test_home_page_failure_falls_back_to_stored_tokens(self):
+        def boom(req, timeout=None):
+            raise OSError("network down")
+        F.urllib.request.urlopen = boom
+        self.assertEqual(len(F.fetch_threads_home(dict(self.PARAMS))), 1)
+        self.assertEqual(self.sent["form"]["fb_dtsg"], "OLD:dtsg")
+        self.assertEqual(self.sent["headers"]["x-fb-lsd"], "OLD_lsd")
 
 
 if __name__ == "__main__":
