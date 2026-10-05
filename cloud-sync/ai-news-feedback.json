@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-30T15:44:29+09:00",
+  "updated_at": "2026-10-05T16:05:59+09:00",
   "votes": {
     "https://www.axios.com/2026/04/19/nsa-anthropic-mythos-pentagon": {
       "ts": "2026-04-22T23:57:06+09:00",
@@ -2544,6 +2544,18 @@
       "title": "裝了這四個，我的 Claude Code 才算真的能用。",
       "source": "threads",
       "score": "up"
+    },
+    "https://www.theatlantic.com/technology/2026/10/openai-safety-team-resignation/688881/?gift=v5U_UzUTothfWXsPxtvNVAh7esWToMRD6XnbXmc5WgA": {
+      "ts": "2026-10-05T16:05:47+09:00",
+      "title": "I quit OpenAI because its culture is broken",
+      "source": "hackernews",
+      "score": "down"
+    },
+    "https://fortune.com/2026/10/01/ai-godfather-yann-lecun-has-zero-concerns-about-human-extinction-says-anthropic-ceo-dario-amodei-is-deuded/": {
+      "ts": "2026-10-05T16:05:49+09:00",
+      "title": "LeCun has \"zero concerns\" about AI wiping out humanity, recent \"rogue\" incidents",
+      "source": "hackernews",
+      "score": "down"
     }
   },
   "favorites": {
@@ -2680,40 +2692,12 @@
       "ts": "2026-09-07T10:45:54+09:00",
       "source": "github_trending"
     },
-    "https://github.com/cloudflare/security-audit-skill": {
-      "ts": "2026-09-21T14:09:52+09:00",
-      "source": "github_trending"
-    },
     "https://github.com/anthropics/financial-services": {
       "ts": "2026-09-21T14:09:53+09:00",
       "source": "github_trending"
     },
     "https://github.com/anthropics/knowledge-work-plugins": {
       "ts": "2026-09-21T14:09:57+09:00",
-      "source": "github_trending"
-    },
-    "https://github.com/davila7/claude-code-templates": {
-      "ts": "2026-09-23T15:47:15+09:00",
-      "source": "github_trending"
-    },
-    "https://openai.com/index/introducing-gpt-6-1-sol/": {
-      "ts": "2026-09-30T15:43:08+09:00",
-      "source": "hackernews"
-    },
-    "https://openai.com/index/introducing-dots/": {
-      "ts": "2026-09-30T15:43:13+09:00",
-      "source": "hackernews"
-    },
-    "https://jorgegarciaherrero.com/wp-content/interactivos/20260916-Prompt-like-a-butterfly-sting-like-a-tracker-(clean).pdf": {
-      "ts": "2026-09-30T15:43:15+09:00",
-      "source": "hackernews"
-    },
-    "https://www.eff.org/deeplinks/2026/09/draftkings-using-ai-supercharge-harms-online-behavioral-advertising": {
-      "ts": "2026-09-30T15:43:15+09:00",
-      "source": "hackernews"
-    },
-    "https://github.com/t8y2/dbx": {
-      "ts": "2026-09-30T15:43:16+09:00",
       "source": "github_trending"
     },
     "https://github.com/mvschwarz/openrig": {
@@ -2724,45 +2708,45 @@
       "ts": "2026-09-30T15:43:21+09:00",
       "source": "github_trending"
     },
-    "https://github.com/NVIDIA/SkillSpector": {
-      "ts": "2026-09-30T15:43:35+09:00",
+    "https://liao.gg/blog/agents-dont-need-memory": {
+      "ts": "2026-10-05T16:05:35+09:00",
+      "source": "hackernews"
+    },
+    "https://claude.dev/blog/getting-the-most-out-of-opus-5-5/": {
+      "ts": "2026-10-05T16:05:40+09:00",
+      "source": "hackernews"
+    },
+    "https://github.com/Niko1221/Strata": {
+      "ts": "2026-10-05T16:05:42+09:00",
+      "source": "hackernews"
+    },
+    "https://www.theatlantic.com/technology/2026/10/openai-safety-team-resignation/688881/?gift=v5U_UzUTothfWXsPxtvNVAh7esWToMRD6XnbXmc5WgA": {
+      "ts": "2026-10-05T16:05:44+09:00",
+      "source": "hackernews"
+    },
+    "https://fortune.com/2026/10/01/ai-godfather-yann-lecun-has-zero-concerns-about-human-extinction-says-anthropic-ceo-dario-amodei-is-deuded/": {
+      "ts": "2026-10-05T16:05:47+09:00",
+      "source": "hackernews"
+    },
+    "https://github.com/coreyhaines31/marketingskills": {
+      "ts": "2026-10-05T16:05:49+09:00",
       "source": "github_trending"
     },
-    "https://github.com/ahujasid/mcp-for-blender": {
-      "ts": "2026-09-30T15:43:37+09:00",
+    "https://github.com/calesthio/OpenMontage": {
+      "ts": "2026-10-05T16:05:53+09:00",
       "source": "github_trending"
     },
-    "https://www.threads.com/@kwons_en/post/Dd3p5PnEsM5": {
-      "ts": "2026-09-30T15:43:40+09:00",
-      "source": "threads"
+    "https://github.com/michael-denyer/pstack-claude": {
+      "ts": "2026-10-05T16:05:55+09:00",
+      "source": "github_trending"
     },
-    "https://www.threads.com/@cab_late/post/Dd3PJWTFHWU": {
-      "ts": "2026-09-30T15:43:46+09:00",
-      "source": "threads"
+    "https://github.com/addyosmani/agent-skills": {
+      "ts": "2026-10-05T16:05:58+09:00",
+      "source": "github_trending"
     },
-    "https://www.threads.com/@dustin_gmat/post/Dd24PxbDwBU": {
-      "ts": "2026-09-30T15:43:53+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@ailazytech/post/Dd5MAaaGbf4": {
-      "ts": "2026-09-30T15:44:01+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@jacobtechart/post/Dd5NnefjMXz": {
-      "ts": "2026-09-30T15:44:04+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@cz88422/post/Dd4AlVtD-hl": {
-      "ts": "2026-09-30T15:44:06+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@timwei.ai/post/Dd4N97-GJAj": {
-      "ts": "2026-09-30T15:44:27+09:00",
-      "source": "threads"
-    },
-    "https://www.threads.com/@krumjahn/post/Dd30iTLG_Jw": {
-      "ts": "2026-09-30T15:44:29+09:00",
-      "source": "threads"
+    "https://github.com/alirezarezvani/claude-skills": {
+      "ts": "2026-10-05T16:05:59+09:00",
+      "source": "github_trending"
     }
   }
 }
