@@ -88,7 +88,7 @@ if r['items']:
 
 ## 过期/失效症状
 
-- **立刻返回空 items**：`fb_dtsg` / `lsd` 过期。重新 sniff 步骤 5 的 ③。
+- **`Meta error 1357004`**：`fb_dtsg` / `lsd` 无效。这两个约两天过期，fetcher 每次抓取前会带 cookie 开首页自动换新的，正常不用手动处理；还报这个错说明自动换没成功（首页打不开或 cookie 已掉登录），重新 sniff 整个请求。
 - **items 有但 title 全空**：`doc_id` 变了，Meta 换了 query schema，重新 sniff 整个请求。
 - **urllib.error.HTTPError 403/401**：`sessionid` 过期，浏览器重新登录再 sniff cookie。
 
